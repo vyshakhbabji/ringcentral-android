@@ -79,25 +79,25 @@ public class Request extends Headers {
     }
 
     public boolean isPost(){
-        return this.getMethod().equals("POST")
+        return this.getMethod().equals("POST");
     }
 
     public boolean isDelete(){
-        return this.getMethod().equals("DELETE")
+        return this.getMethod().equals("DELETE");
     }
 
-    public byte[] getEncodedBody(){
-        byte[] byteArray;
-        try {
-            StringBuilder data = new StringBuilder();
-            data.append(URLEncoder.encode(this.body, "UTF-8"));
-            byteArray = data.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return byteArray;
-    }
-    
+//    public byte[] getEncodedBody(){
+//        byte[] byteArray;
+//        try {
+//            StringBuilder data = new StringBuilder();
+//            data.append(URLEncoder.encode(this.body, "UTF-8"));
+//            byteArray = data.toString().getBytes("UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        return byteArray;
+//    }
+
 //Not finished
     public void Send(){
         try {
