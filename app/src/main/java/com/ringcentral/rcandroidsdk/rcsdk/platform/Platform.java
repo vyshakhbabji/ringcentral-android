@@ -19,6 +19,7 @@ public class Platform implements RequestAsyncTask.RequestResponse{
     String appSecret;
     String server;
     Auth auth;
+    Map<String, String> responseMap;
 
     static final String AUTHORIZATION = "authorization";
 //    ACCOUNT_ID = '~'
@@ -38,11 +39,11 @@ public class Platform implements RequestAsyncTask.RequestResponse{
         this.auth = new Auth();
     }
 
-    public void setAuthData(HashMap<String, String> parameters){
+    public void setAuthData(Map<String, String> parameters){
         this.auth.setData(parameters);
     }
 
-    public HashMap<String, String> getAuthData(){
+    public Map<String, String> getAuthData(){
         return auth.getData();
     }
 
@@ -69,11 +70,13 @@ public class Platform implements RequestAsyncTask.RequestResponse{
         request.headers.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
         request.headers.setHeader(Headers.CONTENT_TYPE, Headers.URL_ENCODED_CONTENT_TYPE);
         request.setURL(request.getUrl());
+        request.setAuth(true);
 
         //Calls async send
         RequestAsyncTask requestTask = new RequestAsyncTask(request);
         requestTask.delegate = this;
         requestTask.execute();
+
     }
 
     public String getApiKey(){
@@ -89,9 +92,11 @@ public class Platform implements RequestAsyncTask.RequestResponse{
         return apiKey;
     }
 
-    public void RequestResponseProcessFinish(Map result){
-        Map<String, String> c = result;
-        //this.auth.setData(result);
+    public void RequestResponseProcessFinish(boolean isAuth, Map result){
+        responseMap = result;
+        if(isAuth == true) {
+            this.setAuthData(responseMap);
+        }
     }
 
 }

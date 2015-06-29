@@ -14,7 +14,7 @@ public class RequestAsyncTask extends AsyncTask<Void, Void, Response> {
 
     Request request;
     public interface RequestResponse {
-        void RequestResponseProcessFinish(Map result);
+        void RequestResponseProcessFinish(boolean isAuth, Map result);
     }
     public RequestResponse delegate = null;
     public RequestAsyncTask(Request request){
@@ -27,7 +27,11 @@ public class RequestAsyncTask extends AsyncTask<Void, Void, Response> {
 
     protected void onPostExecute(Response result) {
         Map<String, String> responseMap = result.getJson();
-        delegate.RequestResponseProcessFinish(responseMap);
+        if (request.isAuth == true) {
+            delegate.RequestResponseProcessFinish(true, responseMap);
+        } else{
+            delegate.RequestResponseProcessFinish(false, responseMap);
+        }
     }
 
     protected void onProgressUpdate(String... progress) {

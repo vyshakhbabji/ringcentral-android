@@ -27,6 +27,7 @@ public class Request extends Headers{
     String query;
     HashMap<String, String> body;
     public Headers headers;
+    boolean isAuth = false;
 
     public Request(HashMap<String, String> body, HashMap<String, String> headerMap){
         headers = new Headers();
@@ -45,6 +46,8 @@ public class Request extends Headers{
 //        headers.setHeader("ACCEPT", JSON_CONTENT_TYPE);
 //        headers.setHeader("Content-Type", JSON_CONTENT_TYPE);
     }
+
+    public void setAuth(boolean bool){ this.isAuth = bool; }
 
     public void setMethod(String method){
         this.method = method;

@@ -1,6 +1,7 @@
 package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by andrew.pang on 6/25/15.
@@ -32,7 +33,7 @@ public class Auth {
         owner_id = "";
     }
 
-    public void setData(HashMap<String, String> parameters) {
+    public void setData(Map<String, String> parameters) {
         // Misc
         if (parameters.containsKey("token_type")) {
             this.token_type = parameters.get("token_type");
@@ -65,8 +66,8 @@ public class Auth {
         }
     }
 
-    public HashMap<String, String> getData(){
-        HashMap<String, String> map = new HashMap<>();
+    public Map<String, String> getData(){
+        Map<String, String> map = new HashMap<>();
         map.put("token_type", this.token_type);
         map.put("access_token", this.access_token);
         map.put("expires_in", this.expires_in);
