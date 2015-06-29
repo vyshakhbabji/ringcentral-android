@@ -15,15 +15,15 @@ public class Response extends Headers{
 
     int status;
     String body;
-    HashMap<String, List<String>> header;
+    Map<String, List<String>> header;
 
-    public Response(int status, String body, HashMap<String, List<String>> header){
+    public Response(int status, String body, Map<String, List<String>> header){
         this.status = status;
         this.body = body;
         this.header = header;
         //Add some more
-        HashMap<String, String> h = (HashMap) header;
-        this.setHeaders(h);
+        //HashMap<String, String> h = (HashMap) header;
+        //this.setHeaders(h);
     }
 
     public boolean checkStatus(){
@@ -38,11 +38,11 @@ public class Response extends Headers{
         return this.status;
     }
 
-    public Gson getJson(){
+    public Map getJson(){
         Gson gson = new Gson();
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         Map<String, String> ser = gson.fromJson(this.body, mapType);
-        return gson;
+        return ser;
     }
 
 //    public String getResponses(){

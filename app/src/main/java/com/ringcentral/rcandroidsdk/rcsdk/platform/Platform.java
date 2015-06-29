@@ -9,11 +9,12 @@ import com.ringcentral.rcandroidsdk.rcsdk.http.Response;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by andrew.pang on 6/25/15.
  */
-public class Platform {
+public class Platform implements RequestAsyncTask.RequestResponse{
     String appKey;
     String appSecret;
     String server;
@@ -70,7 +71,9 @@ public class Platform {
         request.setURL(request.getUrl());
 
         //Calls async send
-        new RequestAsyncTask(request).execute();
+        RequestAsyncTask requestTask = new RequestAsyncTask(request);
+        requestTask.delegate = this;
+        requestTask.execute();
     }
 
     public String getApiKey(){
@@ -86,5 +89,9 @@ public class Platform {
         return apiKey;
     }
 
+    public void RequestResponseProcessFinish(Map result){
+        Map<String, String> c = result;
+        //this.auth.setData(result);
+    }
 
 }

@@ -113,7 +113,7 @@ public class Request extends Headers{
     public Response send() {
         HttpsURLConnection httpConn = null;
         Response response = null;
-        int responseCode;
+        int responseCode = 0;
         String auth = this.headers.getHeader("authorization");
         try {
             URL request = new URL(this.url);
@@ -161,9 +161,9 @@ public class Request extends Headers{
             }
             in.close();
             //this.body = content.toString();
-            HashMap<String, List<String>> headers = (HashMap)httpConn.getHeaderFields();
-
-            response = new Response(responseCode, content.toString(), headers);
+            Map<String, List<String>> header =  httpConn.getHeaderFields();
+            System.out.print("alksdjfl;ask");
+            response = new Response(responseCode, content.toString(), header);
         } catch (IOException e){
             e.printStackTrace();
         } finally {
