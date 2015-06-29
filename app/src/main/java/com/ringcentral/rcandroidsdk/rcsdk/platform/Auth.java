@@ -1,4 +1,4 @@
-package com.ringcentral.rcandroidsdk.platform;
+package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
 import java.util.HashMap;
 
@@ -20,7 +20,7 @@ public class Auth {
     String scope;
     String owner_id;
 
-    Auth(){
+    public Auth(){
         token_type = "";
         access_token = "";
         expires_in = "";

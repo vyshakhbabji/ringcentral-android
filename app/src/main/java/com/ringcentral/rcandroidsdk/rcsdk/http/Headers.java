@@ -1,32 +1,33 @@
 package com.ringcentral.rcandroidsdk.rcsdk.http;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by andrew.pang on 6/25/15.
  */
 public class Headers {
-    HashMap<String, String> headers;
+    HashMap<String, String> map;
 
-    static final String HEADER_SEPARATOR = ":";
-    String CONTENT_TYPE = "content-type";
-    static final String AUTHORIZATION = "authorization";
-    static final String ACCEPT = "accept";
-    static final String URL_ENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
-    static final String JSON_CONTENT_TYPE = "application/json";
-    static final String MULTIPART_CONTENT_TYPE = "multipart/mixed";
+    public static String CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_SEPARATOR = ":";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String ACCEPT = "accept";
+    public static final String URL_ENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String JSON_CONTENT_TYPE = "application/json";
+    public static final String MULTIPART_CONTENT_TYPE = "multipart/mixed";
 
     public Headers(){
-        this.headers = new HashMap<>();
+        this.map = new HashMap<>();
     }
 
     public Headers(HashMap<String, String> headers){
-        this.headers = headers;
+        this.map = headers;
     }
 
     public void setHeader(String key, String val){
-        this.headers.put(key, val);
+        this.map.put(key, val);
     }
 
     public void setHeaders(HashMap<String, String> headers){
@@ -36,21 +37,21 @@ public class Headers {
     }
 
     public String getHeader(String key){
-        return this.headers.get(key);
+        return this.map.get(key);
     }
 
     public boolean hasHeader(String key){
-        return this.headers.containsKey(key);
+        return this.map.containsKey(key);
     }
 
     public HashMap<String, String> getHeaders() {
-        return headers;
+        return map;
     }
 
     public String[] getHeadersArray(){
-        String[] array = new String[this.headers.size()];
+        String[] array = new String[this.map.size()];
         int count = 0;
-        for(Map.Entry<String, String> entry: this.headers.entrySet()){
+        for(Map.Entry<String, String> entry: this.map.entrySet()){
             array[count] = entry.getKey() + HEADER_SEPARATOR + entry.getValue();
             count++;
         }

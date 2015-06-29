@@ -1,17 +1,33 @@
 package com.ringcentral.rcandroidsdk;
 
+import android.app.Activity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ringcentral.rcandroidsdk.rcsdk.Rcsdk;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends Activity {
+
+    String appKey = "xhK3uzISTEaEYhFAtadVug";
+    String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
+    String username = "15856234166";
+    String password = "P@ssw0rd";
+    String extension = "";
+    String RC_SERVER_PRODUCTION = "https://platform.ringcentral.com";
+    String RC_SERVER_SANDBOX = "https://platform.devtest.ringcentral.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Rcsdk rcsdk = new Rcsdk(appKey, appSecret, RC_SERVER_SANDBOX);
+        Platform platform = rcsdk.getPlatform();
+        platform.authorize(username, extension, password);
     }
 
     @Override
