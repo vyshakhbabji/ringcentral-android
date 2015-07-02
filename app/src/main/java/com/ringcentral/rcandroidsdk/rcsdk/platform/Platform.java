@@ -64,12 +64,10 @@ public class Platform{
         body.put("password", password);
         body.put("access_token_ttl", ACCESS_TOKEN_TTL);
         body.put("refresh_token_ttl", REFRESH_TOKEN_TTL);
-
         //Header
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
-        //Hard coded
-        headerMap.put("url", "https://platform.devtest.ringcentral.com/restapi/oauth/token");
+        headerMap.put("url", TOKEN_ENDPOINT);
         this.authCall(body, headerMap);
     }
 
@@ -77,23 +75,19 @@ public class Platform{
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
         RCRequest.RCHeaders.setHeader(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
-        RCRequest.setURL(RCRequest.getUrl());
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         try {
             RCRequest.post(new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
                     e.printStackTrace();
                 }
-
                 @Override
                 public void onResponse(Response response) throws IOException {
                     if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
                     //callResponse = response;
-//                    Headers responseHeaders = response.headers();
-//                    for (int i = 0; i < responseHeaders.size(); i++) {
-//                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-//                    }
                     String responseString = response.body().string();
                     System.out.print(responseString);
 
@@ -106,20 +100,12 @@ public class Platform{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //this.setAuthData(RCRequest.responseMap);
     }
 
-    public void get(HashMap<String, String> body, HashMap<String, String> headerMap){
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        RCRequest.setMethod("GET");
+    public void apiCall(RCRequest request){
+        RCRequest RCRequest = request;
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.auth.getAccessToken());
         RCRequest.setURL(RCRequest.getUrl());
-
-
-//        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.auth.getAccessToken());
-//        //RCRequest.RCHeaders.setHeader(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
-//        RCRequest.setURL("https://platform.devtest.ringcentral.com/restapi/v1.0/account/~");
-
         try {
             RCRequest.get(new Callback() {
                 @Override
@@ -129,7 +115,8 @@ public class Platform{
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
                     String responseString = response.body().string();
                     System.out.print(responseString);
                 }
@@ -137,7 +124,6 @@ public class Platform{
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public String getApiKey(){
@@ -188,6 +174,30 @@ public class Platform{
         }
 
         return builtUrl;
+    }
+
+    public void get(HashMap<String, String> body, HashMap<String, String> headerMap) {
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.setMethod("GET");
+        this.apiCall(RCRequest);
+    }
+
+    public void post(HashMap<String, String> body, HashMap<String, String> headerMap) {
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.setMethod("POST");
+        this.apiCall(RCRequest);
+    }
+
+    public void put(HashMap<String, String> body, HashMap<String, String> headerMap) {
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.setMethod("PUT");
+        this.apiCall(RCRequest);
+    }
+
+    public void delete(HashMap<String, String> body, HashMap<String, String> headerMap) {
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.setMethod("DELETE");
+        this.apiCall(RCRequest);
     }
 
 //    public void RequestResponseProcessFinish(boolean isAuth, Map result){
