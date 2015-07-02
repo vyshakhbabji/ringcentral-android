@@ -55,6 +55,10 @@ public class Platform{
         return auth.getData();
     }
 
+    public String getAccessToken(){
+        return this.auth.getAccessToken();
+    }
+
     public void isAuthorized(){
         if(!this.auth.isAccessTokenValid()){
             this.refresh();
@@ -82,6 +86,15 @@ public class Platform{
         }
     }
 
+    public void logout(){
+        HashMap<String, String> body = new HashMap<>();
+        body.put("token", this.getAccessToken());
+        HashMap<String, String> headerMap = new HashMap<>();
+        headerMap.put("method", "POST");
+        headerMap.put("url", REVOKE_ENDPOINT);
+        this.authCall(body, headerMap);
+        this.auth.reset();
+    }
 
     public void authorize(String username, String extension, String password){
         HashMap<String, String> body = new HashMap<>();
@@ -132,7 +145,7 @@ public class Platform{
 
     public void apiCall(RCRequest request){
         RCRequest RCRequest = request;
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.auth.getAccessToken());
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.getAccessToken());
         RCRequest.setURL(RCRequest.getUrl());
         try {
             RCRequest.get(new Callback() {
