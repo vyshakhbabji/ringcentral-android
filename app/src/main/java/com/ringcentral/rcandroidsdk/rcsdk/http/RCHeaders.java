@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Created by andrew.pang on 6/25/15.
  */
-public class Headers {
+public class RCHeaders {
     HashMap<String, String> map;
 
     public static String CONTENT_TYPE = "Content-Type";
@@ -18,11 +18,11 @@ public class Headers {
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String MULTIPART_CONTENT_TYPE = "multipart/mixed";
 
-    public Headers(){
+    public RCHeaders(){
         this.map = new HashMap<>();
     }
 
-    public Headers(HashMap<String, String> headers){
+    public RCHeaders(HashMap<String, String> headers){
         this.map = headers;
     }
 

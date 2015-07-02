@@ -4,20 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by andrew.pang on 6/26/15.
  */
-public class Response extends Headers{
+public class RCResponse extends RCHeaders {
 
     int status;
     String body;
     Map<String, List<String>> header;
 
-    public Response(int status, String body, Map<String, List<String>> header){
+    public RCResponse(int status, String body, Map<String, List<String>> header){
         this.status = status;
         this.body = body;
         this.header = header;
@@ -47,7 +46,7 @@ public class Response extends Headers{
 
 //    public String getResponses(){
 //        if (!this.isMultipart()){
-//            Log.e("Error", "Response is not Batch (Multipart)");
+//            Log.e("Error", "RCResponse is not Batch (Multipart)");
 //        }
 //
 //

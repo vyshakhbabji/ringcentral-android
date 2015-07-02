@@ -2,17 +2,13 @@ package com.ringcentral.rcandroidsdk.rcsdk.http;
 
 import android.test.InstrumentationTestCase;
 
-import junit.framework.Assert;
-
-import java.util.HashMap;
-
 /**
  * Created by andrew.pang on 6/25/15.
  */
-public class HeadersTest extends InstrumentationTestCase {
+public class RCHeadersTest extends InstrumentationTestCase {
 
     public void testSetHeaderAndGetHeader() throws Exception {
-        Headers h = new Headers();
+        RCHeaders h = new RCHeaders();
         String key = "CONTENT_TYPE";
         String expected = "content-type";
         h.setHeader(key, expected);
@@ -21,7 +17,7 @@ public class HeadersTest extends InstrumentationTestCase {
     }
 //
 //    public void testSetHeadersAndGetHeaderArray() throws Exception {
-//        Headers h = new Headers();
+//        RCHeaders h = new RCHeaders();
 //        HashMap<String, String> map = new HashMap<>();
 //        map.put("CONTENT_TYPE", "content-type");
 //        map.put("AUTHORIZATION", "authorization");
@@ -34,14 +30,14 @@ public class HeadersTest extends InstrumentationTestCase {
 //    }
 
     public void testIsContentType() throws Exception {
-        Headers h = new Headers();
+        RCHeaders h = new RCHeaders();
         h.setContentType("fooBar");
         assertTrue(h.isContentType("fooBar"));
         assertFalse(h.isContentType("foor"));
     }
 
     public void testSpecialContentTypes() throws Exception {
-        Headers h = new Headers();
+        RCHeaders h = new RCHeaders();
         h.setContentType("application/json");
         assertTrue(h.isJson());
         h.setContentType("multipart/mixed");
