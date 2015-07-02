@@ -55,6 +55,34 @@ public class Platform{
         return auth.getData();
     }
 
+    public void isAuthorized(){
+        if(!this.auth.isAccessTokenValid()){
+            this.refresh();
+        }
+        if(!this.auth.isAccessTokenValid()){
+            //THROW AN ERROR
+        }
+    }
+
+    public void refresh(){
+        if(!this.auth.isRefreshTokenValid()){
+            //THROW AN ERROR
+        } else{
+            HashMap<String, String> body = new HashMap<>();
+            //Body
+            body.put("grant_type", "password");
+            body.put("refresh_token", this.auth.getRefreshToken());
+            body.put("access_token_ttl", ACCESS_TOKEN_TTL);
+            body.put("refresh_token_ttl", REFRESH_TOKEN_TTL);
+            //Header
+            HashMap<String, String> headerMap = new HashMap<>();
+            headerMap.put("method", "POST");
+            headerMap.put("url", TOKEN_ENDPOINT);
+            this.authCall(body, headerMap);
+        }
+    }
+
+
     public void authorize(String username, String extension, String password){
         HashMap<String, String> body = new HashMap<>();
         //Body
