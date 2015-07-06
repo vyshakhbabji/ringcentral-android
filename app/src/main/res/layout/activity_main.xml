@@ -8,7 +8,10 @@
     <Button android:id="@+id/button1" android:layout_height="wrap_content"
         android:layout_width="wrap_content" android:text="Login"  />
     <Button android:id="@+id/button2" android:layout_height="wrap_content"
-        android:layout_width="wrap_content" android:text="Version" android:layout_toRightOf="@+id/button1" />
-
+        android:layout_width="wrap_content" android:text="Account" android:layout_toRightOf="@+id/button1" />
+    <Button android:id="@+id/button3" android:layout_height="wrap_content"
+        android:layout_width="wrap_content" android:text="Revoke" android:layout_toRightOf="@+id/button2" />
+    <Button android:id="@+id/button4" android:layout_height="wrap_content"
+        android:layout_width="wrap_content" android:text="SMS" android:layout_below="@+id/button1" />
 
 </RelativeLayout>

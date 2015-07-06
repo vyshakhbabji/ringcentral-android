@@ -6,9 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RequestAsyncTask;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -37,7 +35,7 @@ public class Platform{
     static final String REVOKE_ENDPOINT = "/restapi/oauth/revoke";
     static final String API_VERSION = "v1.0";
     static String ACCESS_TOKEN_TTL = "3600"; //60 minutes
-    //static String REFRESH_TOKEN_TTL = "36000"  // 10 hours
+    //static String REFRESH_TOKEN_TTL = "36000";  // 10 hours
     static String REFRESH_TOKEN_TTL = "604800";  // 1 week
 
     public Platform(String appKey, String appSecret, String server){
@@ -92,7 +90,8 @@ public class Platform{
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", REVOKE_ENDPOINT);
-        this.authCall(body, headerMap);
+        headerMap.put(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
+        this.logoutPost(body, headerMap);
         this.auth.reset();
     }
 
@@ -125,41 +124,20 @@ public class Platform{
                 public void onFailure(Request request, IOException e) {
                     e.printStackTrace();
                 }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-                    //callResponse = response;
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-
-                    Gson gson = new Gson();
-                    Type mapType = new TypeToken<Map<String, String>>() {}.getType();
-                    responseMap = gson.fromJson(responseString, mapType);
-                    setAuthData(responseMap);
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void apiCall(RCRequest request){
-        RCRequest RCRequest = request;
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.getAccessToken());
-        RCRequest.setURL(RCRequest.getUrl());
-        try {
-            RCRequest.get(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
 
                 @Override
                 public void onResponse(Response response) throws IOException {
                     if (!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
+                    //callResponse = response;
                     String responseString = response.body().string();
                     System.out.print(responseString);
+
+                    Gson gson = new Gson();
+                    Type mapType = new TypeToken<Map<String, String>>() {
+                    }.getType();
+                    responseMap = gson.fromJson(responseString, mapType);
+                    setAuthData(responseMap);
                 }
             });
         } catch (Exception e) {
@@ -220,25 +198,92 @@ public class Platform{
     public void get(HashMap<String, String> body, HashMap<String, String> headerMap) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("GET");
-        this.apiCall(RCRequest);
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.getAccessToken());
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
+        try {
+            RCRequest.get(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    String responseString = response.body().string();
+                    System.out.print(responseString);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void post(HashMap<String, String> body, HashMap<String, String> headerMap) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("POST");
-        this.apiCall(RCRequest);
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
+        try {
+            RCRequest.post(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    String responseString = response.body().string();
+                    System.out.print(responseString);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logoutPost(HashMap<String, String> body, HashMap<String, String> headerMap) {
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
+        RCRequest.setMethod("POST");
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
+        try {
+            RCRequest.post(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    String responseString = response.body().string();
+                    System.out.print(responseString);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void put(HashMap<String, String> body, HashMap<String, String> headerMap) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("PUT");
-        this.apiCall(RCRequest);
+        //this.apiCall(RCRequest);
     }
 
     public void delete(HashMap<String, String> body, HashMap<String, String> headerMap) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("DELETE");
-        this.apiCall(RCRequest);
+        //this.apiCall(RCRequest);
     }
 
 //    public void RequestResponseProcessFinish(boolean isAuth, Map result){

@@ -63,7 +63,7 @@ public class RCHeaders {
     }
 
     public void setContentType(String contentType){
-        this.CONTENT_TYPE = contentType;
+        this.map.put(CONTENT_TYPE, contentType);
     }
 
     public boolean isContentType(String contentType){

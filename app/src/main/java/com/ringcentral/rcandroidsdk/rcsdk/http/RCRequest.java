@@ -40,6 +40,8 @@ public class RCRequest extends RCHeaders {
     OkHttpClient client = new OkHttpClient();
     public static final MediaType MEDIA_TYPE_MARKDOWN
             = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
+    public static final MediaType JSON_TYPE_MARKDOWN
+            = MediaType.parse("application/json; charset=utf-8");
     public Response callResponse;
     public String responseString;
     public Map<String, String> responseMap;
@@ -52,6 +54,9 @@ public class RCRequest extends RCHeaders {
             this.query = headerMap.get("query");
         } else {
             this.query = "";
+        }
+        if(headerMap.containsKey("Content-Type")){
+            this.RCHeaders.setContentType(headerMap.get("Content-Type"));
         }
         if(body != null){
             this.body = body;
@@ -115,10 +120,22 @@ public class RCRequest extends RCHeaders {
         String body = "";
         try {
             StringBuilder data = new StringBuilder();
-
-            data.append("grant_type=" + URLEncoder.encode(this.body.get("grant_type"), "UTF-8"));
-            data.append("&username=" + URLEncoder.encode(this.body.get("username"), "UTF-8"));
-            data.append("&password=" + URLEncoder.encode(this.body.get("password"), "UTF-8"));
+            int count = 0;
+            for(Map.Entry<String, String> entry: this.body.entrySet()){
+                if(entry.getKey() == "body"){
+                    data.append(entry.getValue());
+                    break;
+                }
+                if (count != 0){
+                    data.append("&");
+                }
+                data.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+                count++;
+            }
+//
+//            data.append("grant_type=" + URLEncoder.encode(this.body.get("grant_type"), "UTF-8"));
+//            data.append("&username=" + URLEncoder.encode(this.body.get("username"), "UTF-8"));
+//            data.append("&password=" + URLEncoder.encode(this.body.get("password"), "UTF-8"));
             body = data.toString();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -212,13 +229,19 @@ public class RCRequest extends RCHeaders {
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
         }
-        Request request = requestBuilder
-                .url(this.url)
-                .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
-                .build();
-
+        Request request;
+        if(this.RCHeaders.map.containsValue("application/json")){
+            request = requestBuilder
+                    .url(this.url)
+                    .post(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
+                    .build();
+        } else {
+            request = requestBuilder
+                    .url(this.url)
+                    .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                    .build();
+        }
         client.newCall(request).enqueue(c);
     }
-
 
 }
