@@ -63,10 +63,7 @@ public class RCRequest extends RCHeaders {
         } else {
             this.body = null;
         }
-//        RCHeaders.setHeader("ACCEPT", JSON_CONTENT_TYPE);
-//        RCHeaders.setHeader("Content-Type", JSON_CONTENT_TYPE);
     }
-
 
     public void setMethod(String method){
         this.method = method;
@@ -132,10 +129,6 @@ public class RCRequest extends RCHeaders {
                 data.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
                 count++;
             }
-//
-//            data.append("grant_type=" + URLEncoder.encode(this.body.get("grant_type"), "UTF-8"));
-//            data.append("&username=" + URLEncoder.encode(this.body.get("username"), "UTF-8"));
-//            data.append("&password=" + URLEncoder.encode(this.body.get("password"), "UTF-8"));
             body = data.toString();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -143,75 +136,6 @@ public class RCRequest extends RCHeaders {
         return body;
     }
 
-////Not finished
-//    public RCResponse send() {
-//        HttpsURLConnection httpConn = null;
-//        RCResponse RCResponse = null;
-//        int responseCode = 0;
-//        String auth = this.RCHeaders.getHeader("authorization");
-//        try {
-//            URL request = new URL(this.url);
-//            httpConn = (HttpsURLConnection) request.openConnection();
-//            httpConn.setRequestMethod(this.method);
-//            String ahah = httpConn.getRequestMethod();
-//            if(this.method.equals("POST") || this.method.equals("PUT") || this.method.equals("DELETE")){
-//                httpConn.setDoOutput(true);
-//            }
-//            for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
-//                httpConn.setRequestProperty(entry.getKey(), entry.getValue());
-//            }
-//
-//            if(this.method.equals("POST")) {
-//                OutputStream postStream = httpConn.getOutputStream();
-//                byte[] encodedBody = this.getEncodedBody();
-//                postStream.write(encodedBody, 0, encodedBody.length);
-//                postStream.close();
-//
-//                responseCode = httpConn.getResponseCode();
-////            String responseMessage = httpConn.getResponseMessage();
-////            InputStream error = httpConn.getErrorStream();
-////
-////            InputStreamReader reader = new InputStreamReader(error);
-////            BufferedReader in = new BufferedReader(reader);
-////            StringBuffer content = new StringBuffer();
-////            String line;
-////            while ((line = in.readLine()) != null) {
-////                content.append(line + "\n");
-////            }
-//
-//            }
-//
-//            InputStream stream;
-//            if(responseCode == 200) {
-//                stream = httpConn.getInputStream();
-//            } else {
-//                stream = httpConn.getErrorStream();
-//            }
-//            InputStreamReader reader = new InputStreamReader(stream);
-//            BufferedReader in = new BufferedReader(reader);
-//            StringBuffer content = new StringBuffer();
-//            String line;
-//            while ((line = in.readLine()) != null) {
-//                content.append(line + "\n");
-//            }
-//            in.close();
-//            //this.body = content.toString();
-//            Map<String, List<String>> header =  httpConn.getHeaderFields();
-//            System.out.print("alksdjfl;ask");
-//            RCResponse = new RCResponse(responseCode, content.toString(), header);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        } finally {
-//            httpConn.disconnect();
-//        }
-//        return RCResponse;
-//    }
-
-
-
-
-
-    ////OKHTTP
     public void get(Callback c) throws IOException {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
@@ -220,7 +144,6 @@ public class RCRequest extends RCHeaders {
         Request request = requestBuilder
                 .url(this.url)
                 .build();
-
         client.newCall(request).enqueue(c);
     }
 
@@ -241,6 +164,18 @@ public class RCRequest extends RCHeaders {
                     .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
                     .build();
         }
+        client.newCall(request).enqueue(c);
+    }
+
+    public void delete(Callback c) throws IOException {
+        Request.Builder requestBuilder = new Request.Builder();
+        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        }
+        Request request = requestBuilder
+                .url(this.url)
+                .delete()
+                .build();
         client.newCall(request).enqueue(c);
     }
 

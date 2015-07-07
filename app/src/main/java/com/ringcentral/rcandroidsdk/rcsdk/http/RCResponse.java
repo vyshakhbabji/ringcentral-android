@@ -20,9 +20,6 @@ public class RCResponse extends RCHeaders {
         this.status = status;
         this.body = body;
         this.header = header;
-        //Add some more
-        //HashMap<String, String> h = (HashMap) header;
-        //this.setHeaders(h);
     }
 
     public boolean checkStatus(){

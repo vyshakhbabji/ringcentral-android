@@ -1,5 +1,10 @@
 package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
+import android.text.format.Time;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +17,11 @@ public class Auth {
 
     String access_token;
     String expires_in;
-    String expire_time;
+    Date expire_time;
 
     String refresh_token;
     String refresh_token_expires_in;
-    String refresh_token_expire_time;
+    Date refresh_token_expire_time;
 
     String scope;
     String owner_id;
@@ -25,10 +30,10 @@ public class Auth {
         token_type = "";
         access_token = "";
         expires_in = "";
-        expire_time = "";
+        expire_time = null;
         refresh_token = "";
         refresh_token_expires_in = "";
-        refresh_token_expire_time = "";
+        refresh_token_expire_time = null;
         scope = "";
         owner_id = "";
     }
@@ -51,9 +56,15 @@ public class Auth {
         if (parameters.containsKey("expires_in")) {
             this.expires_in = parameters.get("expires_in");
         }
-        if (parameters.containsKey("expire_time")) {
-            this.expire_time = parameters.get("expire_time");
+        if (!parameters.containsKey("expire_time") && parameters.containsKey("expires_in")) {
+            int expiresIn = Integer.parseInt(parameters.get("expires_in"));
+            Calendar calendar = new GregorianCalendar();
+            calendar.add(Calendar.SECOND, expiresIn);
+            this.expire_time = calendar.getTime();
         }
+//        else if(parameters.containsKey("expire_time")){
+//            this.expire_time = (Date) parameters.get("expire_time");
+//        }
         // Refresh Token
         if (parameters.containsKey("refresh_token")) {
             this.refresh_token = parameters.get("refresh_token");
@@ -61,33 +72,26 @@ public class Auth {
         if (parameters.containsKey("refresh_token_expires_in")) {
             this.refresh_token_expires_in = parameters.get("refresh_token_expires_in");
         }
-        if (parameters.containsKey("refresh_token_expire_time")) {
-            this.refresh_token_expire_time = parameters.get("refresh_token_expire_time");
+        if (!parameters.containsKey("refresh_token_expire_time") && parameters.containsKey("refresh_token_expires_in")) {
+            int expiresIn = Integer.parseInt(parameters.get("refresh_token_expires_in"));
+            Calendar calendar = new GregorianCalendar();
+            calendar.add(Calendar.SECOND, expiresIn);
+            this.refresh_token_expire_time = calendar.getTime();
         }
     }
 
-    public Map<String, String> getData(){
-        Map<String, String> map = new HashMap<>();
-        map.put("token_type", this.token_type);
-        map.put("access_token", this.access_token);
-        map.put("expires_in", this.expires_in);
-        map.put("expire_time", this.expire_time);
-        map.put("refresh_token", this.refresh_token);
-        map.put("refresh_token_expires_in", this.refresh_token_expires_in);
-        map.put("refresh_token_expire_time", this.refresh_token_expire_time);
-        map.put("scope", this.scope);
-        map.put("owner_id", this.owner_id);
-        return map;
+    public Auth getData(){
+        return this;
     }
 
     public void reset(){
         this.token_type = "";
         this.access_token = "";
         this.expires_in = "";
-        this.expire_time = "";
+        this.expire_time = null;
         this.refresh_token = "";
         this.refresh_token_expires_in = "";
-        this.refresh_token_expire_time = "";
+        this.refresh_token_expire_time = null;
         this.scope = "";
         this.owner_id = "";
     }
@@ -110,6 +114,10 @@ public class Auth {
 
     public boolean isRefreshTokenValid(){
         return true;
+    }
+
+    public boolean isTokenDateValid(GregorianCalendar token_date){
+        return (token_date.compareTo(new GregorianCalendar()) > 1);
     }
 
 

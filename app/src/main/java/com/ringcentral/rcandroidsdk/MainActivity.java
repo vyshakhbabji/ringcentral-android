@@ -1,6 +1,7 @@
 package com.ringcentral.rcandroidsdk;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
-    Button button1, button2, button3, button4;
+    Button button1, button2, button3, button4, button5;
 
     String appKey = "xhK3uzISTEaEYhFAtadVug";
     String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
@@ -42,6 +43,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         button3.setOnClickListener(this);
         button4 = (Button) findViewById(R.id.button4);
         button4.setOnClickListener(this);
+        button5 = (Button) findViewById(R.id.button5);
+        button5.setOnClickListener(this);
 
         Rcsdk rcsdk = new Rcsdk(appKey, appSecret, RC_SERVER_SANDBOX);
         platform = rcsdk.getPlatform();
@@ -78,7 +81,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 headers2.put("url", "/restapi/v1.0/account/~/extension/~/sms");
                 headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
                 platform.post(body2, headers2);
+//                Intent smsIntent = new Intent(this, DisplaySMSActivity.class);
+//                smsIntent.putExtra("MyPlatform", platform);
+//                startActivity(smsIntent);
+                break;
 
+            case R.id.button5:
+                HashMap<String, String> body3 = new HashMap<>();
+                HashMap<String, String> headers3 = new HashMap<>();
+                headers3.put("url", "/restapi/v1.0/account/~/extension/~/message-store/1150177004");
+                platform.delete(body3, headers3);
                 break;
         }
     }

@@ -21,6 +21,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DisplaySMSActivity"
+            android:label="@string/title_activity_display_sms" >
+        </activity>
     </application>
 
 </manifest>

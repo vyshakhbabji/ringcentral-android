@@ -1,5 +1,6 @@
 package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
+import android.os.Parcelable;
 import android.util.Base64;
 
 import com.google.gson.Gson;
@@ -11,6 +12,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -282,8 +284,29 @@ public class Platform{
 
     public void delete(HashMap<String, String> body, HashMap<String, String> headerMap) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("DELETE");
-        //this.apiCall(RCRequest);
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
+        try {
+            RCRequest.delete(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    String responseString = response.body().string();
+                    System.out.print(responseString);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 //    public void RequestResponseProcessFinish(boolean isAuth, Map result){
