@@ -51,7 +51,7 @@ public class Platform{
         this.auth.setData(parameters);
     }
 
-    public Map<String, String> getAuthData(){
+    public Auth getAuthData(){
         return auth.getData();
     }
 
@@ -59,18 +59,18 @@ public class Platform{
         return this.auth.getAccessToken();
     }
 
-    public void isAuthorized(){
+    public void isAuthorized() throws Exception{
         if(!this.auth.isAccessTokenValid()){
             this.refresh();
         }
         if(!this.auth.isAccessTokenValid()){
-            //THROW AN ERROR
+            throw new Exception("Access token is expired");
         }
     }
 
-    public void refresh(){
+    public void refresh() throws Exception{
         if(!this.auth.isRefreshTokenValid()){
-            //THROW AN ERROR
+            throw new Exception("Refresh token is expired");
         } else{
             HashMap<String, String> body = new HashMap<>();
             //Body
@@ -111,40 +111,6 @@ public class Platform{
         headerMap.put("method", "POST");
         headerMap.put("url", TOKEN_ENDPOINT);
         this.authCall(body, headerMap);
-    }
-
-    public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap){
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
-        RCRequest.RCHeaders.setHeader(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        try {
-            RCRequest.post(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    //callResponse = response;
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-
-                    Gson gson = new Gson();
-                    Type mapType = new TypeToken<Map<String, String>>() {
-                    }.getType();
-                    responseMap = gson.fromJson(responseString, mapType);
-                    setAuthData(responseMap);
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public String getApiKey(){
@@ -195,6 +161,39 @@ public class Platform{
         }
 
         return builtUrl;
+    }
+
+    public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap){
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
+        RCRequest.RCHeaders.setHeader(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
+        try {
+            RCRequest.post(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    //callResponse = response;
+                    String responseString = response.body().string();
+                    System.out.print(responseString);
+
+                    Gson gson = new Gson();
+                    Type mapType = new TypeToken<Map<String, String>>() {
+                    }.getType();
+                    responseMap = gson.fromJson(responseString, mapType);
+                    setAuthData(responseMap);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void get(HashMap<String, String> body, HashMap<String, String> headerMap) {
@@ -308,15 +307,5 @@ public class Platform{
             e.printStackTrace();
         }
     }
-
-//    public void RequestResponseProcessFinish(boolean isAuth, Map result){
-//        responseMap = result;
-//        if(isAuth == true) {
-//            this.setAuthData(responseMap);
-//        }
-//        else {
-//            System.out.println("asldkflkj");
-//        }
-//    }
 
 }

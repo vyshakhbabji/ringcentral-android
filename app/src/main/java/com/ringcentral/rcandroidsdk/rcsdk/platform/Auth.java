@@ -62,9 +62,6 @@ public class Auth {
             calendar.add(Calendar.SECOND, expiresIn);
             this.expire_time = calendar.getTime();
         }
-//        else if(parameters.containsKey("expire_time")){
-//            this.expire_time = (Date) parameters.get("expire_time");
-//        }
         // Refresh Token
         if (parameters.containsKey("refresh_token")) {
             this.refresh_token = parameters.get("refresh_token");

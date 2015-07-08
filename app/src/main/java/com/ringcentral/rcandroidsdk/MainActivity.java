@@ -72,13 +72,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             case R.id.button4:
                 HashMap<String, String> body2 = new HashMap<>();
-                body2.put("body", "{\n" +
-                        "  \"to\": [{\"phoneNumber\": \"15106907982\"}],\n" +
-                        "  \"from\": {\"phoneNumber\": \"15856234166\"},\n" +
-                        "  \"text\": \"Test SMS message from Platform server\"\n" +
+                body2.put(
+                        "body", "{\n" +
+                        "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
+                        "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
+                        "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
+                        "  \"playPrompt\": true\n" +
                         "}");
                 HashMap<String, String> headers2 = new HashMap<>();
-                headers2.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
                 headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
                 platform.post(body2, headers2);
 //                Intent smsIntent = new Intent(this, DisplaySMSActivity.class);
