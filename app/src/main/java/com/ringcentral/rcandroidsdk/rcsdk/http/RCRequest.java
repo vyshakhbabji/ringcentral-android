@@ -167,6 +167,26 @@ public class RCRequest extends RCHeaders {
         client.newCall(request).enqueue(c);
     }
 
+    public void put(Callback c) throws Exception {
+        Request.Builder requestBuilder = new Request.Builder();
+        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        }
+        Request request;
+        if(this.RCHeaders.map.containsValue("application/x-www-form-urlencoded")){
+            request = requestBuilder
+                    .url(this.url)
+                    .put(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                    .build();
+        } else {
+            request = requestBuilder
+                    .url(this.url)
+                    .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
+                    .build();
+        }
+        client.newCall(request).enqueue(c);
+    }
+
     public void delete(Callback c) throws IOException {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){

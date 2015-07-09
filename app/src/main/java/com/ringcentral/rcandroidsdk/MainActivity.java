@@ -120,8 +120,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.button5:
                 HashMap<String, String> body3 = new HashMap<>();
                 HashMap<String, String> headers3 = new HashMap<>();
-                headers3.put("url", "/restapi/v1.0/account/~/extension/~/message-store/1150177004");
-                //platform.delete(body3, headers3);
+                body3.put("body", "{\n" +
+                        "  \"readStatus\": \"Unread\"\n" +
+                        "}");
+                headers3.put("url", "/restapi/v1.0/account/~/extension/~/message-store/1150481004");
+                headers3.put("Content-Type", "application/json");
+                platform.put(body3, headers3,
+                        new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (!response.isSuccessful())
+                            throw new IOException("Unexpected code " + response);
+                        String responseString = response.body().string();
+                        System.out.print(responseString);
+                    }
+                    });
                 break;
         }
     }

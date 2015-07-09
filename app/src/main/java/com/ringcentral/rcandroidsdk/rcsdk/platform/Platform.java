@@ -30,7 +30,6 @@ public class Platform implements Serializable{
     Auth auth;
     Map<String, String> responseMap;
 
-    static final String AUTHORIZATION = "authorization";
     static final String ACCOUNT_ID = "~";
     static final String ACCOUNT_PREFIX = "/account/";
     static final String URL_PREFIX = "/restapi";
@@ -93,7 +92,7 @@ public class Platform implements Serializable{
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", REVOKE_ENDPOINT);
-        headerMap.put(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
+        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
         this.logoutPost(body, headerMap, c);
         this.auth.reset();
     }
@@ -166,8 +165,8 @@ public class Platform implements Serializable{
 
     public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap){
         RCRequest RCRequest = new RCRequest(body, headerMap);
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
-        RCRequest.RCHeaders.setHeader(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
+        RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
+        RCRequest.RCHeaders.setHeader("Content-Type", "application/x-www-form-urlencoded");
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
@@ -200,7 +199,7 @@ public class Platform implements Serializable{
     public void get(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("GET");
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.getAccessToken());
+        RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
@@ -217,7 +216,7 @@ public class Platform implements Serializable{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("POST");
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
+        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
         try {
             RCRequest.post(c);
         } catch (Exception e) {
@@ -231,7 +230,7 @@ public class Platform implements Serializable{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("POST");
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
+        RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
         try {
             RCRequest.post(c);
         } catch (Exception e) {
@@ -241,8 +240,16 @@ public class Platform implements Serializable{
 
     public void put(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("PUT");
-        //this.apiCall(RCRequest);
+        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
+        try {
+            RCRequest.put(c);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void delete(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
@@ -251,7 +258,7 @@ public class Platform implements Serializable{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         RCRequest.setMethod("DELETE");
-        RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
+        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
         try {
             RCRequest.delete(c);
         } catch (Exception e) {
