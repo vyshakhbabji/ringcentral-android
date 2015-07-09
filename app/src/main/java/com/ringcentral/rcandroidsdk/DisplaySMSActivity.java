@@ -5,18 +5,76 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
+import com.ringcentral.rcandroidsdk.rcsdk.SDK;
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 
-public class DisplaySMSActivity extends ActionBarActivity {
+public class DisplaySMSActivity extends ActionBarActivity implements View.OnClickListener {
 
+    SDK SDK;
+    Platform platform;
+    Button button1, button2, button3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_sms);
         Intent intent = getIntent();
-        Platform platform = (Platform) intent.getSerializableExtra("MyPlatform");
+        SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
+        platform = SDK.getPlatform();
+        button1 = (Button) findViewById(R.id.button1);
+        button1.setOnClickListener(this);
+        button2 = (Button) findViewById(R.id.button2);
+        button2.setOnClickListener(this);
+        button3 = (Button) findViewById(R.id.button3);
+        button3.setOnClickListener(this);
+    }
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.button1:
+                HashMap<String, String> body2 = new HashMap<>();
+                body2.put(
+                        "body", "{\n" +
+                        "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
+                        "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
+                        "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
+                        "  \"playPrompt\": true\n" +
+                        "}");
+                HashMap<String, String> headers2 = new HashMap<>();
+                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
+                platform.post(body2, headers2,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                String responseString = response.body().string();
+                                System.out.print(responseString);
+                            }
+                        });
+                break;
+//
+//            case R.id.button2:
+//                break;
+
+        }
     }
 
     @Override

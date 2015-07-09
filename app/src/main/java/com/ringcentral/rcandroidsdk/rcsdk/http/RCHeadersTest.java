@@ -2,6 +2,7 @@ package com.ringcentral.rcandroidsdk.rcsdk.http;
 
 import android.test.InstrumentationTestCase;
 
+
 /**
  * Created by andrew.pang on 6/25/15.
  */

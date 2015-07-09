@@ -17,14 +17,14 @@ public class PlatformTest extends InstrumentationTestCase {
 
     Platform p;
 
-    public void testAuthorize() throws Exception{
-        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
-        p.authorize(username, extension, password);
-        //String token = platform.getAccessToken();
-        //assertTrue(platform.auth.access_token.equals(""));
-    }
-
-    public void testAccessToken() throws Exception{
-        String token = p.getAccessToken();
-    }
+//    public void testAuthorize() throws Exception{
+//        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+//        p.authorize(username, extension, password);
+//        //String token = platform.getAccessToken();
+//        //assertTrue(platform.auth.access_token.equals(""));
+//    }
+//
+//    public void testAccessToken() throws Exception{
+//        String token = p.getAccessToken();
+//    }
 }

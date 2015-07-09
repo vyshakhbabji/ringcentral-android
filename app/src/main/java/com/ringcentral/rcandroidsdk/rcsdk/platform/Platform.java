@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -21,7 +22,7 @@ import java.util.Map;
 /**
  * Created by andrew.pang on 6/25/15.
  */
-public class Platform{
+public class Platform implements Serializable{
     String appKey;
     String appSecret;
     String server;
@@ -47,8 +48,8 @@ public class Platform{
         this.auth = new Auth();
     }
 
-    public void setAuthData(Map<String, String> parameters){
-        this.auth.setData(parameters);
+    public void setAuthData(Map<String, String> authData){
+        this.auth.setData(authData);
     }
 
     public Auth getAuthData(){
@@ -86,14 +87,14 @@ public class Platform{
         }
     }
 
-    public void logout(){
+    public void logout(Callback c){
         HashMap<String, String> body = new HashMap<>();
         body.put("token", this.getAccessToken());
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", REVOKE_ENDPOINT);
         headerMap.put(RCHeaders.CONTENT_TYPE, RCHeaders.URL_ENCODED_CONTENT_TYPE);
-        this.logoutPost(body, headerMap);
+        this.logoutPost(body, headerMap, c);
         this.auth.reset();
     }
 
@@ -196,7 +197,7 @@ public class Platform{
         }
     }
 
-    public void get(HashMap<String, String> body, HashMap<String, String> headerMap) {
+    public void get(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("GET");
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, this.auth.getTokenType() + " " + this.getAccessToken());
@@ -204,25 +205,13 @@ public class Platform{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         try {
-            RCRequest.get(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-                }
-            });
+            RCRequest.get(c);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void post(HashMap<String, String> body, HashMap<String, String> headerMap) {
+    public void post(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
@@ -230,26 +219,13 @@ public class Platform{
         RCRequest.setMethod("POST");
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
         try {
-            RCRequest.post(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-                }
-            });
+            RCRequest.post(c);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void logoutPost(HashMap<String, String> body, HashMap<String, String> headerMap) {
+    public void logoutPost(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
@@ -257,31 +233,19 @@ public class Platform{
         RCRequest.setMethod("POST");
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Basic " + this.getApiKey());
         try {
-            RCRequest.post(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-                }
-            });
+            RCRequest.post(c);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void put(HashMap<String, String> body, HashMap<String, String> headerMap) {
+    public void put(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("PUT");
         //this.apiCall(RCRequest);
     }
 
-    public void delete(HashMap<String, String> body, HashMap<String, String> headerMap) {
+    public void delete(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
@@ -289,20 +253,7 @@ public class Platform{
         RCRequest.setMethod("DELETE");
         RCRequest.RCHeaders.setHeader(AUTHORIZATION, "Bearer " + this.getAccessToken());
         try {
-            RCRequest.delete(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-                }
-            });
+            RCRequest.delete(c);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -2,17 +2,19 @@ package com.ringcentral.rcandroidsdk;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.ringcentral.rcandroidsdk.rcsdk.Rcsdk;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
+import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 
@@ -29,6 +31,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     String RC_SERVER_SANDBOX = "https://platform.devtest.ringcentral.com";
 
     Platform platform;
+    SDK SDK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         button5 = (Button) findViewById(R.id.button5);
         button5.setOnClickListener(this);
 
-        Rcsdk rcsdk = new Rcsdk(appKey, appSecret, RC_SERVER_SANDBOX);
-        platform = rcsdk.getPlatform();
+        SDK = new SDK(appKey, appSecret, RC_SERVER_SANDBOX);
+        platform = SDK.getPlatform();
     }
 
     @Override
@@ -57,42 +60,68 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             case R.id.button1:
                 platform.authorize(username, extension, password);
+                System.out.println(platform.getAccessToken());
                 break;
 
             case R.id.button2:
                 HashMap<String, String> body = null;
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("url", "/restapi/v1.0/account/~");
-                platform.get(body, headers);
+                platform.get(body, headers,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                String responseString = response.body().string();
+                                System.out.print(responseString);
+                            }
+                        });
                 break;
 
             case R.id.button3:
-                platform.logout();
+                platform.logout(new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (!response.isSuccessful())
+                            throw new IOException("Unexpected code " + response);
+                        String responseString = response.body().string();
+                        System.out.print(responseString);
+                    }
+                });
                 break;
 
             case R.id.button4:
-                HashMap<String, String> body2 = new HashMap<>();
-                body2.put(
-                        "body", "{\n" +
-                        "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
-                        "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
-                        "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
-                        "  \"playPrompt\": true\n" +
-                        "}");
-                HashMap<String, String> headers2 = new HashMap<>();
-                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
-                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-                platform.post(body2, headers2);
-//                Intent smsIntent = new Intent(this, DisplaySMSActivity.class);
-//                smsIntent.putExtra("MyPlatform", platform);
-//                startActivity(smsIntent);
+//                HashMap<String, String> body2 = new HashMap<>();
+//                body2.put(
+//                        "body", "{\n" +
+//                        "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
+//                        "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
+//                        "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
+//                        "  \"playPrompt\": true\n" +
+//                        "}");
+//                HashMap<String, String> headers2 = new HashMap<>();
+//                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+//                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
+//                platform.post(body2, headers2);
+                Intent smsIntent = new Intent(this, DisplaySMSActivity.class);
+                smsIntent.putExtra("MyRcsdk", SDK);
+                startActivity(smsIntent);
                 break;
 
             case R.id.button5:
                 HashMap<String, String> body3 = new HashMap<>();
                 HashMap<String, String> headers3 = new HashMap<>();
                 headers3.put("url", "/restapi/v1.0/account/~/extension/~/message-store/1150177004");
-                platform.delete(body3, headers3);
+                //platform.delete(body3, headers3);
                 break;
         }
     }

@@ -4,15 +4,17 @@ import android.os.AsyncTask;
 
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 
+import java.io.Serializable;
+
 /**
  * Created by andrew.pang on 6/26/15.
  */
-public class Rcsdk {
+public class SDK implements Serializable{
 
     static String version = "";
     Platform p;
 
-    public Rcsdk(String appKey, String appSecret, String server){
+    public SDK(String appKey, String appSecret, String server){
         p = new Platform(appKey, appSecret, server);
     }
 

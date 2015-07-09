@@ -2,6 +2,7 @@ package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
 import android.text.format.Time;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * Created by andrew.pang on 6/25/15.
  */
-public class Auth {
+public class Auth implements Serializable{
 
     String token_type;
 
