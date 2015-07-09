@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
@@ -19,15 +20,16 @@ import java.io.IOException;
 import java.util.HashMap;
 
 
-public class DisplaySMSActivity extends ActionBarActivity implements View.OnClickListener {
+public class OptionsActivity extends ActionBarActivity implements View.OnClickListener {
 
     SDK SDK;
     Platform platform;
     Button button1, button2, button3;
+    TextView textView1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_sms);
+        setContentView(R.layout.activity_options);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
         platform = SDK.getPlatform();
@@ -37,6 +39,7 @@ public class DisplaySMSActivity extends ActionBarActivity implements View.OnClic
         button2.setOnClickListener(this);
         button3 = (Button) findViewById(R.id.button3);
         button3.setOnClickListener(this);
+
     }
     @Override
     public void onClick(View v) {
@@ -70,9 +73,27 @@ public class DisplaySMSActivity extends ActionBarActivity implements View.OnClic
                             }
                         });
                 break;
-//
-//            case R.id.button2:
-//                break;
+
+            case R.id.button2:
+                HashMap<String, String> body = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("url", "/restapi/v1.0/account/~");
+                platform.get(body, headers,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                String responseString = response.body().string();
+                                textView1 = (TextView) findViewById(R.id.textView1);
+                                textView1.setText(responseString);
+                            }
+                        });
+                break;
 
         }
     }

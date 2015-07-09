@@ -1,13 +1,10 @@
 package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
-import android.os.Parcelable;
 import android.util.Base64;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -28,7 +25,7 @@ public class Platform implements Serializable{
     String server;
     String account = ACCOUNT_ID;
     Auth auth;
-    Map<String, String> responseMap;
+
 
     static final String ACCOUNT_ID = "~";
     static final String ACCOUNT_PREFIX = "/account/";
@@ -71,7 +68,7 @@ public class Platform implements Serializable{
     public void refresh() throws Exception{
         if(!this.auth.isRefreshTokenValid()){
             throw new Exception("Refresh token is expired");
-        } else{
+        } else {
             HashMap<String, String> body = new HashMap<>();
             //Body
             body.put("grant_type", "password");
@@ -82,7 +79,27 @@ public class Platform implements Serializable{
             HashMap<String, String> headerMap = new HashMap<>();
             headerMap.put("method", "POST");
             headerMap.put("url", TOKEN_ENDPOINT);
-            this.authCall(body, headerMap);
+            this.authCall(body, headerMap,
+                    new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            if (!response.isSuccessful())
+                                throw new IOException("Unexpected code " + response);
+                            //callResponse = response;
+                            String responseString = response.body().string();
+                            System.out.print(responseString);
+
+                            Gson gson = new Gson();
+                            Type mapType = new TypeToken<Map<String, String>>() {
+                            }.getType();
+                            Map<String, String> responseMap = gson.fromJson(responseString, mapType);
+                            setAuthData(responseMap);
+                        }
+                    });
         }
     }
 
@@ -97,7 +114,7 @@ public class Platform implements Serializable{
         this.auth.reset();
     }
 
-    public void authorize(String username, String extension, String password){
+    public void authorize(String username, String extension, String password, Callback c){
         HashMap<String, String> body = new HashMap<>();
         //Body
         body.put("grant_type", "password");
@@ -110,7 +127,7 @@ public class Platform implements Serializable{
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", TOKEN_ENDPOINT);
-        this.authCall(body, headerMap);
+        this.authCall(body, headerMap, c);
     }
 
     public String getApiKey(){
@@ -163,7 +180,7 @@ public class Platform implements Serializable{
         return builtUrl;
     }
 
-    public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap){
+    public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
         RCRequest.RCHeaders.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -171,26 +188,7 @@ public class Platform implements Serializable{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         try {
-            RCRequest.post(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    //callResponse = response;
-                    String responseString = response.body().string();
-                    System.out.print(responseString);
-
-                    Gson gson = new Gson();
-                    Type mapType = new TypeToken<Map<String, String>>() {
-                    }.getType();
-                    responseMap = gson.fromJson(responseString, mapType);
-                    setAuthData(responseMap);
-                }
-            });
+            RCRequest.post(c);
         } catch (Exception e) {
             e.printStackTrace();
         }

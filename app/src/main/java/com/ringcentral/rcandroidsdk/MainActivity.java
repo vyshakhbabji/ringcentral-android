@@ -1,6 +1,7 @@
 package com.ringcentral.rcandroidsdk;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,20 +10,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Properties;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -92,7 +90,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 String username = editText1.getText().toString();
                 String extension = editText2.getText().toString();
                 String password = editText3.getText().toString();
-                platform.authorize(username, extension, password);
+                Context context = this;
+                platform.authorize(username, extension, password,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                //Parse JSON response to a map
+                                String responseString = response.body().string();
+                                Gson gson = new Gson();
+                                Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+                                Map<String, String> responseMap = gson.fromJson(responseString, mapType);
+                                platform.setAuthData(responseMap);
+                                //Display next Activity
+                                Intent smsIntent = new Intent(MainActivity.this, OptionsActivity.class);
+                                smsIntent.putExtra("MyRcsdk", SDK);
+                                startActivity(smsIntent);
+                            }
+                        });
                 break;
 //
 //            case R.id.button2:
@@ -144,7 +164,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 ////                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
 ////                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
 ////                platform.post(body2, headers2);
-//                Intent smsIntent = new Intent(this, DisplaySMSActivity.class);
+//                Intent smsIntent = new Intent(this, OptionsActivity.class);
 //                smsIntent.putExtra("MyRcsdk", SDK);
 //                startActivity(smsIntent);
 //                break;
