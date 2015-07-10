@@ -1,6 +1,8 @@
 package com.ringcentral.rcandroidsdk;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -39,6 +41,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         button2.setOnClickListener(this);
         button3 = (Button) findViewById(R.id.button3);
         button3.setOnClickListener(this);
+        textView1 = (TextView) findViewById(R.id.textView1);
 
     }
     @Override
@@ -89,14 +92,28 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 String responseString = response.body().string();
-                                textView1 = (TextView) findViewById(R.id.textView1);
-                                textView1.setText(responseString);
+
+                                Message msg = handler.obtainMessage();
+                                msg.what = 2;
+                                msg.obj = responseString;
+                                handler.sendMessage(msg);
+
                             }
                         });
                 break;
 
         }
     }
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what==2){
+                textView1.setText((String)msg.obj);
+            }
+            super.handleMessage(msg);
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

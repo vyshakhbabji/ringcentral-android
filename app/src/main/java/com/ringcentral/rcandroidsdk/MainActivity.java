@@ -108,9 +108,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 Map<String, String> responseMap = gson.fromJson(responseString, mapType);
                                 platform.setAuthData(responseMap);
                                 //Display next Activity
-                                Intent smsIntent = new Intent(MainActivity.this, OptionsActivity.class);
-                                smsIntent.putExtra("MyRcsdk", SDK);
-                                startActivity(smsIntent);
+                                Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
+                                optionsIntent.putExtra("MyRcsdk", SDK);
+                                startActivity(optionsIntent);
                             }
                         });
                 break;
