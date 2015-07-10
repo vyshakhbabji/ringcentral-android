@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -67,7 +68,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                String responseString = response.body().string();
+                                RCResponse versionResponse = new RCResponse(response);
+                                String responseString = versionResponse.getBody();
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;
@@ -91,7 +93,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                String responseString = response.body().string();
+                                RCResponse callLogResponse = new RCResponse(response);
+                                String responseString = callLogResponse.getBody();
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;
@@ -115,7 +118,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                String responseString = response.body().string();
+                                RCResponse messageStoreResponse = new RCResponse(response);
+                                String responseString = messageStoreResponse.getBody();
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;

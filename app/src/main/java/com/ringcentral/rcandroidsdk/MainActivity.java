@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -20,6 +21,7 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -101,13 +103,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                //Parse JSON response to a map
-                                String responseString = response.body().string();
-                                Gson gson = new Gson();
-                                Type mapType = new TypeToken<Map<String, String>>() {}.getType();
-                                Map<String, String> responseMap = gson.fromJson(responseString, mapType);
+                                //Create RCResponse and set Auth data to the parsed JSON
+                                RCResponse authResponse = new RCResponse(response);
+                                Map<String, String> responseMap= authResponse.getJson();
                                 platform.setAuthData(responseMap);
-                                //Display next Activity
+                                //Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
                                 optionsIntent.putExtra("MyRcsdk", SDK);
                                 startActivity(optionsIntent);
