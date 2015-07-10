@@ -26,7 +26,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 
     SDK SDK;
     Platform platform;
-    Button button1, button2, button3;
+    Button button1, button2, button3, button4, button5;
     TextView textView1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,10 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         button2.setOnClickListener(this);
         button3 = (Button) findViewById(R.id.button3);
         button3.setOnClickListener(this);
+        button4 = (Button) findViewById(R.id.button4);
+        button4.setOnClickListener(this);
+        button5 = (Button) findViewById(R.id.button5);
+        button5.setOnClickListener(this);
         textView1 = (TextView) findViewById(R.id.textView1);
 
     }
@@ -50,34 +54,6 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-                HashMap<String, String> body2 = new HashMap<>();
-                body2.put(
-                        "body", "{\n" +
-                        "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
-                        "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
-                        "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
-                        "  \"playPrompt\": true\n" +
-                        "}");
-                HashMap<String, String> headers2 = new HashMap<>();
-                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
-                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-                platform.post(body2, headers2,
-                        new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                e.printStackTrace();
-                            }
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                if (!response.isSuccessful())
-                                    throw new IOException("Unexpected code " + response);
-                                String responseString = response.body().string();
-                                System.out.print(responseString);
-                            }
-                        });
-                break;
-
-            case R.id.button2:
                 HashMap<String, String> body = null;
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("url", "/restapi/v1.0/account/~");
@@ -92,9 +68,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 String responseString = response.body().string();
-
                                 Message msg = handler.obtainMessage();
-                                msg.what = 2;
+                                msg.what = 1;
                                 msg.obj = responseString;
                                 handler.sendMessage(msg);
 
@@ -102,13 +77,73 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                         });
                 break;
 
+            case R.id.button2:
+                HashMap<String, String> callLogBody = null;
+                HashMap<String, String> callLogHeaders = new HashMap<>();
+                callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
+                platform.get(callLogBody, callLogHeaders,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                String responseString = response.body().string();
+                                Message msg = handler.obtainMessage();
+                                msg.what = 1;
+                                msg.obj = responseString;
+                                handler.sendMessage(msg);
+
+                            }
+                        });
+                break;
+
+            case R.id.button3:
+                HashMap<String, String> messageStoreBody = null;
+                HashMap<String, String> messageStoreHeaders = new HashMap<>();
+                messageStoreHeaders.put("url", "/restapi/v1.0/account/~/extension/~/message-store");
+                platform.get(messageStoreBody, messageStoreHeaders,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                String responseString = response.body().string();
+                                Message msg = handler.obtainMessage();
+                                msg.what = 1;
+                                msg.obj = responseString;
+                                handler.sendMessage(msg);
+
+                            }
+                        });
+                break;
+
+            case R.id.button4:
+                //Display RingOut Activity
+                Intent ringOutIntent = new Intent(OptionsActivity.this, RingOutActivity.class);
+                ringOutIntent.putExtra("MyRcsdk", SDK);
+                startActivity(ringOutIntent);
+                break;
+
+            case R.id.button5:
+                //Display SMS Activity
+                Intent smsIntent = new Intent(OptionsActivity.this, SMSActivity.class);
+                smsIntent.putExtra("MyRcsdk", SDK);
+                startActivity(smsIntent);
         }
     }
 
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            if(msg.what==2){
+            if(msg.what==1){
                 textView1.setText((String)msg.obj);
             }
             super.handleMessage(msg);

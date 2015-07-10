@@ -21,9 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".OptionsActivity" >
+        </activity>
         <activity
-            android:name=".OptionsActivity"
-            android:label="@string/title_activity_display_sms" >
+            android:name=".RingOutActivity"
+            android:label="@string/title_activity_ring_out" >
+        </activity>
+        <activity
+            android:name=".SMSActivity"
+            android:label="@string/title_activity_sms" >
         </activity>
     </application>
 

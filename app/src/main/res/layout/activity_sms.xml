@@ -1,0 +1,21 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.ringcentral.rcandroidsdk.SMSActivity">
+
+    <EditText
+        android:id="@+id/toMessage" android:inputType="phone" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="To" android:layout_marginTop="30dp"/>
+    <EditText
+        android:id="@+id/fromMessage" android:inputType="phone" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="From" android:layout_below="@id/toMessage" android:layout_marginTop="10dp"/>
+    <EditText
+        android:id="@+id/SMSMessage" android:inputType="textMultiLine" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Message" android:layout_below="@id/fromMessage" android:minLines="6" android:scrollbars="vertical"/>
+    <Button android:id="@+id/button1" android:layout_height="wrap_content"
+        android:layout_width="match_parent" android:text="Send SMS" android:layout_below="@id/SMSMessage" android:layout_marginTop="10dp"/>
+
+</RelativeLayout>
