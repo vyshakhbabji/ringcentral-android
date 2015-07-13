@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -264,4 +265,53 @@ public class Platform implements Serializable{
         }
     }
 
+    public void version(Callback c){
+        HashMap<String, String> body = null;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/account/~");
+        this.get(body, headers, c);
+    }
+
+    public void callLog(Callback c){
+        HashMap<String, String> callLogBody = null;
+        HashMap<String, String> callLogHeaders = new HashMap<>();
+        callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
+        this.get(callLogBody, callLogHeaders, c);
+    }
+
+    public void messageStore(Callback c){
+        HashMap<String, String> messageStoreBody = null;
+        HashMap<String, String> messageStoreHeaders = new HashMap<>();
+        messageStoreHeaders.put("url", "/restapi/v1.0/account/~/extension/~/message-store");
+        this.get(messageStoreBody, messageStoreHeaders, c);
+    }
+
+    public void ringOut(String to, String from, String callerId, String hasPrompt, Callback c){
+        HashMap<String, String> body2 = new HashMap<>();
+        body2.put("body", "{\n" +
+                "  \"to\": {\"phoneNumber\": \"" + to
+                + "\"},\n" +
+                "  \"from\": {\"phoneNumber\": \"" + from
+                + "\"},\n" +
+                "  \"callerId\": {\"phoneNumber\": \"" + callerId
+                + "\"},\n" +
+                "  \"playPrompt\": " + hasPrompt
+                + "\n" + "}");
+        HashMap<String, String> headers2 = new HashMap<>();
+        headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+        headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
+        this.post(body2, headers2, c);
+    }
+
+    public void sendSMS(String to, String from, String message, Callback c){
+        HashMap<String, String> body2 = new HashMap<>();
+        body2.put("body", "{\n" +
+                "  \"to\": [{\"phoneNumber\": \"" + to + "\"}],\n" +
+                "  \"from\": {\"phoneNumber\": \"" + from + "\"},\n" +
+                "  \"text\": \"" + message + "\"\n" + "}");
+        HashMap<String, String> headers2 = new HashMap<>();
+        headers2.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+        headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
+        this.post(body2, headers2, c);
+    }
 }

@@ -55,10 +55,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-                HashMap<String, String> body = null;
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("url", "/restapi/v1.0/account/~");
-                platform.get(body, headers,
+                platform.version(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
@@ -80,10 +77,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 break;
 
             case R.id.button2:
-                HashMap<String, String> callLogBody = null;
-                HashMap<String, String> callLogHeaders = new HashMap<>();
-                callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
-                platform.get(callLogBody, callLogHeaders,
+                platform.callLog(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
@@ -105,10 +99,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 break;
 
             case R.id.button3:
-                HashMap<String, String> messageStoreBody = null;
-                HashMap<String, String> messageStoreHeaders = new HashMap<>();
-                messageStoreHeaders.put("url", "/restapi/v1.0/account/~/extension/~/message-store");
-                platform.get(messageStoreBody, messageStoreHeaders,
+                platform.messageStore(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {

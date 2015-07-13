@@ -49,21 +49,15 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
         switch (v.getId()) {
 
             case R.id.button1:
-                HashMap<String, String> body2 = new HashMap<>();
-                body2.put("body", "{\n" +
-                        "  \"to\": [{\"phoneNumber\": \"" + toText.getText().toString() + "\"}],\n" +
-                        "  \"from\": {\"phoneNumber\": \"" + fromText.getText().toString() + "\"},\n" +
-                        "  \"text\": \"" + smsText.getText().toString() + "\"\n" + "}");
-                HashMap<String, String> headers2 = new HashMap<>();
-                headers2.put("url", "/restapi/v1.0/account/~/extension/~/sms");
-                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-                platform.post(body2, headers2,
+                String to = toText.getText().toString();
+                String from = fromText.getText().toString();
+                String message = smsText.getText().toString();
+                platform.sendSMS(to, from, message,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
                                 e.printStackTrace();
                             }
-
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())

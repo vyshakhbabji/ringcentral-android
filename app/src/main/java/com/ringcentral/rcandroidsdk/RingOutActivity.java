@@ -64,26 +64,10 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-                HashMap<String, String> body2 = new HashMap<>();
-//                body2.put("body", "{\n" +
-//                                "  \"to\": {\"phoneNumber\": \"16502823614\"},\n" +
-//                                "  \"from\": {\"phoneNumber\": \"15106907982\"},\n" +
-//                                "  \"callerId\": {\"phoneNumber\": \"15856234166\"},\n" +
-//                                "  \"playPrompt\": true\n" +
-//                                "}");
-                body2.put("body", "{\n" +
-                        "  \"to\": {\"phoneNumber\": \"" + toText.getText().toString()
-                        + "\"},\n" +
-                        "  \"from\": {\"phoneNumber\": \"" + fromText.getText().toString()
-                        + "\"},\n" +
-                        "  \"callerId\": {\"phoneNumber\": \"" + callerIDText.getText().toString()
-                        + "\"},\n" +
-                        "  \"playPrompt\": " + hasPrompt
-                        + "\n" + "}");
-                HashMap<String, String> headers2 = new HashMap<>();
-                headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
-                headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-                platform.post(body2, headers2,
+                String to = toText.getText().toString();
+                String from = fromText.getText().toString();
+                String callerId = callerIDText.getText().toString();
+                platform.ringOut(to, from, callerId, hasPrompt,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {

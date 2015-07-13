@@ -14,7 +14,7 @@
         android:layout_height="wrap_content" android:hint="From" android:layout_below="@id/toMessage" android:layout_marginTop="10dp"/>
     <EditText
         android:id="@+id/SMSMessage" android:inputType="textMultiLine" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:hint="Message" android:layout_below="@id/fromMessage" android:minLines="6" android:scrollbars="vertical"/>
+        android:hint="Message" android:layout_below="@id/fromMessage" android:minLines="6" android:maxLines="6" android:scrollbars="vertical"/>
     <Button android:id="@+id/button1" android:layout_height="wrap_content"
         android:layout_width="match_parent" android:text="Send SMS" android:layout_below="@id/SMSMessage" android:layout_marginTop="10dp"/>
 
