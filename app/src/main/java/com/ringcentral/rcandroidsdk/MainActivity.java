@@ -92,7 +92,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 String username = editText1.getText().toString();
                 String extension = editText2.getText().toString();
                 String password = editText3.getText().toString();
-                Context context = this;
+                //Hardcoded for ease of testing
+                username = "15856234166";
+                password = "P@ssw0rd";
                 platform.authorize(username, extension, password,
                         new Callback() {
                             @Override

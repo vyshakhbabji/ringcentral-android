@@ -38,6 +38,12 @@ public class Platform implements Serializable{
     //static String REFRESH_TOKEN_TTL = "36000";  // 10 hours
     static String REFRESH_TOKEN_TTL = "604800";  // 1 week
 
+    /**
+     *
+     * @param appKey
+     * @param appSecret
+     * @param server Pass in either "SANDBOX" or "PRODUCTION"
+     */
     public Platform(String appKey, String appSecret, String server){
         this.appKey = appKey;
         this.appSecret = appSecret;
@@ -45,6 +51,11 @@ public class Platform implements Serializable{
         this.auth = new Auth();
     }
 
+    /**
+     * Sets authentication data for platform's auth
+     *
+     * @param authData A map of the parsed authentication response
+     */
     public void setAuthData(Map<String, String> authData){
         this.auth.setData(authData);
     }
@@ -53,10 +64,19 @@ public class Platform implements Serializable{
         return auth.getData();
     }
 
+    /**
+     *
+     * @return AccessToken from auth
+     */
     public String getAccessToken(){
         return this.auth.getAccessToken();
     }
 
+    /**
+     * Checks if the access token is valid, and if not refreshes the token
+     *
+     * @throws Exception
+     */
     public void isAuthorized() throws Exception{
         if(!this.auth.isAccessTokenValid()){
             this.refresh();
@@ -66,6 +86,11 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Uses the refresh token to refresh authentication
+     *
+     * @throws Exception
+     */
     public void refresh() throws Exception{
         if(!this.auth.isRefreshTokenValid()){
             throw new Exception("Refresh token is expired");
@@ -104,6 +129,11 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Revokes access for current access token
+     *
+     * @param c
+     */
     public void logout(Callback c){
         HashMap<String, String> body = new HashMap<>();
         body.put("token", this.getAccessToken());
@@ -115,6 +145,14 @@ public class Platform implements Serializable{
         this.auth.reset();
     }
 
+    /**
+     * Takes in parameters used for authorization and makes an auth call
+     *
+     * @param username
+     * @param extension
+     * @param password
+     * @param c
+     */
     public void authorize(String username, String extension, String password, Callback c){
         HashMap<String, String> body = new HashMap<>();
         //Body
@@ -131,6 +169,11 @@ public class Platform implements Serializable{
         this.authCall(body, headerMap, c);
     }
 
+    /**
+     * Encodes the app key and app secret in base64 to be used in authentication
+     *
+     * @return
+     */
     public String getApiKey(){
         String keySec = appKey + ":" + appSecret;
         byte[] message = new byte[0];
@@ -144,6 +187,13 @@ public class Platform implements Serializable{
         return apiKey;
     }
 
+    /**
+     * Takes in part of a URL along with options to return the endpoint for the API call
+     *
+     * @param url
+     * @param options
+     * @return
+     */
     public String apiURL(String url, HashMap<String, String> options){
         String builtUrl = "";
         boolean has_http = url.contains("http://") || url.contains("https://");
@@ -181,6 +231,13 @@ public class Platform implements Serializable{
         return builtUrl;
     }
 
+    /**
+     * POST request set up for making authorization calls
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
@@ -195,6 +252,13 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Sets the header and body to make a GET request
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void get(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.setMethod("GET");
@@ -209,6 +273,13 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Sets the header and body to make a POST request
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void post(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
@@ -223,6 +294,13 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * POST request set up for logging out
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void logoutPost(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
@@ -237,6 +315,13 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Sets up body and header for a PUT request
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void put(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
@@ -251,6 +336,13 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Sets up body and headers for a DELETE request
+     *
+     * @param body
+     * @param headerMap
+     * @param c
+     */
     public void delete(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         RCRequest RCRequest = new RCRequest(body, headerMap);
         HashMap<String, String> options = new HashMap<>();
@@ -265,6 +357,11 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * GET Version API call
+     *
+     * @param c
+     */
     public void version(Callback c){
         HashMap<String, String> body = null;
         HashMap<String, String> headers = new HashMap<>();
@@ -272,6 +369,11 @@ public class Platform implements Serializable{
         this.get(body, headers, c);
     }
 
+    /**
+     * GET Call Log API call
+     *
+     * @param c
+     */
     public void callLog(Callback c){
         HashMap<String, String> callLogBody = null;
         HashMap<String, String> callLogHeaders = new HashMap<>();
@@ -279,6 +381,11 @@ public class Platform implements Serializable{
         this.get(callLogBody, callLogHeaders, c);
     }
 
+    /**
+     * GET Message Store API call
+     *
+     * @param c
+     */
     public void messageStore(Callback c){
         HashMap<String, String> messageStoreBody = null;
         HashMap<String, String> messageStoreHeaders = new HashMap<>();
@@ -286,6 +393,14 @@ public class Platform implements Serializable{
         this.get(messageStoreBody, messageStoreHeaders, c);
     }
 
+    /**
+     * RingOut API call using POST request
+     * @param to Phone number calling to
+     * @param from Phone number calling from
+     * @param callerId Phone number used for caller ID
+     * @param hasPrompt "True" or "False" states whether a prompt plays before call
+     * @param c
+     */
     public void ringOut(String to, String from, String callerId, String hasPrompt, Callback c){
         HashMap<String, String> body2 = new HashMap<>();
         body2.put("body", "{\n" +
@@ -303,6 +418,14 @@ public class Platform implements Serializable{
         this.post(body2, headers2, c);
     }
 
+    /**
+     * SMS API call using POST request
+     *
+     * @param to Phone number sending SMS to
+     * @param from Phone number sending SMS from
+     * @param message SMS text message body
+     * @param c
+     */
     public void sendSMS(String to, String from, String message, Callback c){
         HashMap<String, String> body2 = new HashMap<>();
         body2.put("body", "{\n" +

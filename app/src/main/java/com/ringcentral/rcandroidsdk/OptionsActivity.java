@@ -20,7 +20,9 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class OptionsActivity extends ActionBarActivity implements View.OnClickListener {
@@ -66,11 +68,18 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 RCResponse versionResponse = new RCResponse(response);
-                                String responseString = versionResponse.getBody();
-                                Message msg = handler.obtainMessage();
-                                msg.what = 1;
-                                msg.obj = responseString;
-                                handler.sendMessage(msg);
+                                //String responseString = versionResponse.getBody();
+//                                String responseString = "";
+//                                Map<String, String> responseMap = versionResponse.getJson();
+//                                for (Map.Entry<String, String> entry : responseMap.entrySet())
+//                                {
+//                                    responseString += entry.getKey() + " : " + entry.getValue();
+//                                }
+                                Collection coll = versionResponse.getJson2();
+                                //Message msg = handler.obtainMessage();
+                                //msg.what = 1;
+                                //msg.obj = responseString;
+                                //handler.sendMessage(msg);
 
                             }
                         });

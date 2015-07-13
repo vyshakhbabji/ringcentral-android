@@ -6,6 +6,7 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,13 @@ public class RCResponse extends RCHeaders {
         Gson gson = new Gson();
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();
         Map<String, String> ser = gson.fromJson(this.body, mapType);
+        return ser;
+    }
+
+    public Collection getJson2(){
+        Gson gson = new Gson();
+        Type collectionType = new TypeToken<Collection<String>>() {}.getType();
+        Collection<String> ser = gson.fromJson(this.body, collectionType);
         return ser;
     }
 
