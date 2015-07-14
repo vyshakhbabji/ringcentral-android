@@ -75,7 +75,6 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 //                                {
 //                                    responseString += entry.getKey() + " : " + entry.getValue();
 //                                }
-                                Collection coll = versionResponse.getJson2();
                                 //Message msg = handler.obtainMessage();
                                 //msg.what = 1;
                                 //msg.obj = responseString;
@@ -97,7 +96,9 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 RCResponse callLogResponse = new RCResponse(response);
-                                String responseString = callLogResponse.getBody();
+
+                                String responseString = callLogResponse.getCallLogJson();
+//                                String responseString = callLogResponse.getBody();
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;

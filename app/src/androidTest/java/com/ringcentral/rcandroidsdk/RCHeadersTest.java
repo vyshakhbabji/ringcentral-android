@@ -1,12 +1,11 @@
-package com.ringcentral.rcandroidsdk.rcsdk.http;
+package com.ringcentral.rcandroidsdk;
 
 import android.test.InstrumentationTestCase;
 
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 
-
 /**
- * Created by andrew.pang on 6/25/15.
+ * Created by andrew.pang on 7/14/15.
  */
 public class RCHeadersTest extends InstrumentationTestCase {
 
@@ -49,3 +48,4 @@ public class RCHeadersTest extends InstrumentationTestCase {
         assertTrue(h.isURLEncoded());
     }
 }
+

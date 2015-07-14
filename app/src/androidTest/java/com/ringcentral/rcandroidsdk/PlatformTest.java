@@ -1,6 +1,8 @@
-package com.ringcentral.rcandroidsdk.rcsdk.platform;
+package com.ringcentral.rcandroidsdk;
 
 import android.test.InstrumentationTestCase;
+
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 
 /**
  * Created by andrew.pang on 7/7/15.

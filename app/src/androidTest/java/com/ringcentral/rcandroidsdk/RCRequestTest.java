@@ -1,6 +1,8 @@
-package com.ringcentral.rcandroidsdk.rcsdk.http;
+package com.ringcentral.rcandroidsdk;
 
 import android.test.InstrumentationTestCase;
+
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 
 import java.util.HashMap;
 

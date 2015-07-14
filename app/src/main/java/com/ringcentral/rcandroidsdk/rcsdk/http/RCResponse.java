@@ -1,8 +1,15 @@
 package com.ringcentral.rcandroidsdk.rcsdk.http;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Response;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -19,7 +26,9 @@ public class RCResponse extends RCHeaders {
     int status;
     String body;
 
+    public RCResponse(){
 
+    }
     public RCResponse(Response response){
         try {
             this.response = response;
@@ -42,6 +51,10 @@ public class RCResponse extends RCHeaders {
         return this.status;
     }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public Map getJson(){
         Gson gson = new Gson();
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();
@@ -49,11 +62,19 @@ public class RCResponse extends RCHeaders {
         return ser;
     }
 
-    public Collection getJson2(){
-        Gson gson = new Gson();
-        Type collectionType = new TypeToken<Collection<String>>() {}.getType();
-        Collection<String> ser = gson.fromJson(this.body, collectionType);
-        return ser;
+    public String getCallLogJson(){
+        String result = "";
+        try {
+            JSONObject jsonObject = new JSONObject(this.body);
+            JSONArray records = jsonObject.getJSONArray("records");
+            for (int i = 0; i < records.length(); i++) {
+                JSONObject record = records.getJSONObject(i);
+                result += record.getJSONObject("to").toString();
+            }
+        }catch(JSONException j){
+            j.printStackTrace();
+        }
+        return result;
     }
 
 //    public String getResponses(){
