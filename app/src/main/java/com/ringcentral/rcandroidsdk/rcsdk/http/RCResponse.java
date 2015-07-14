@@ -62,21 +62,6 @@ public class RCResponse extends RCHeaders {
         return ser;
     }
 
-    public String getCallLogJson(){
-        String result = "";
-        try {
-            JSONObject jsonObject = new JSONObject(this.body);
-            JSONArray records = jsonObject.getJSONArray("records");
-            for (int i = 0; i < records.length(); i++) {
-                JSONObject record = records.getJSONObject(i);
-                result += record.getJSONObject("to").toString();
-            }
-        }catch(JSONException j){
-            j.printStackTrace();
-        }
-        return result;
-    }
-
 //    public String getResponses(){
 //        if (!this.isMultipart()){
 //            Log.e("Error", "RCResponse is not Batch (Multipart)");

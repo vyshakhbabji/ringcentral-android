@@ -19,6 +19,10 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,9 +100,18 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 RCResponse callLogResponse = new RCResponse(response);
-
-                                String responseString = callLogResponse.getCallLogJson();
-//                                String responseString = callLogResponse.getBody();
+                                String responseString = "";
+                                String body = callLogResponse.getBody();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(body);
+                                    JSONArray records = jsonObject.getJSONArray("records");
+                                    for (int i = 0; i < records.length(); i++) {
+                                        JSONObject record = records.getJSONObject(i);
+                                        responseString += record.getJSONObject("to").toString();
+                                    }
+                                } catch (JSONException e){
+                                    e.printStackTrace();
+                                }
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;
