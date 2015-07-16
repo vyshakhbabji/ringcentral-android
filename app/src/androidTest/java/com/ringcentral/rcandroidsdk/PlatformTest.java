@@ -2,7 +2,12 @@ package com.ringcentral.rcandroidsdk;
 
 import android.test.InstrumentationTestCase;
 
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Auth;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Created by andrew.pang on 7/7/15.
@@ -19,14 +24,14 @@ public class PlatformTest extends InstrumentationTestCase {
 
     Platform p;
 
-//    public void testAuthorize() throws Exception{
-//        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
-//        p.authorize(username, extension, password);
-//        //String token = platform.getAccessToken();
-//        //assertTrue(platform.auth.access_token.equals(""));
+    public void testSetAuthDataAndGetAuthData() throws Exception{
+//        Platform p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+//        Map<String, String> authData = new HashMap<>();
+//        authData.put("access_token", "value");
+//        Auth a = new Auth();
+//        a.setData(authData);
+//        p.setAuthData(authData);
+//        assertEquals(a.getData(), p.getAuthData());
 //    }
-//
-//    public void testAccessToken() throws Exception{
-//        String token = p.getAccessToken();
-//    }
+
 }

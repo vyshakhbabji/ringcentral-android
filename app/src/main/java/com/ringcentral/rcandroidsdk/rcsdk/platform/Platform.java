@@ -6,9 +6,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
+import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.subscription.Subscription;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -24,16 +29,10 @@ public class Platform implements Serializable{
     String appKey;
     String appSecret;
     String server;
-    String account = ACCOUNT_ID;
+    String account = "~";
     Auth auth;
+    Subscription subscription;
 
-
-    static final String ACCOUNT_ID = "~";
-    static final String ACCOUNT_PREFIX = "/account/";
-    static final String URL_PREFIX = "/restapi";
-    static final String TOKEN_ENDPOINT = "/restapi/oauth/token";
-    static final String REVOKE_ENDPOINT = "/restapi/oauth/revoke";
-    static final String API_VERSION = "v1.0";
     static String ACCESS_TOKEN_TTL = "3600"; //60 minutes
     //static String REFRESH_TOKEN_TTL = "36000";  // 10 hours
     static String REFRESH_TOKEN_TTL = "604800";  // 1 week
@@ -104,7 +103,7 @@ public class Platform implements Serializable{
             //Header
             HashMap<String, String> headerMap = new HashMap<>();
             headerMap.put("method", "POST");
-            headerMap.put("url", TOKEN_ENDPOINT);
+            headerMap.put("url", "/restapi/oauth/token");
             this.authCall(body, headerMap,
                     new Callback() {
                         @Override
@@ -139,7 +138,7 @@ public class Platform implements Serializable{
         body.put("token", this.getAccessToken());
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
-        headerMap.put("url", REVOKE_ENDPOINT);
+        headerMap.put("url", "/restapi/oauth/revoke");
         headerMap.put("Content-Type", "application/x-www-form-urlencoded");
         this.logoutPost(body, headerMap, c);
         this.auth.reset();
@@ -165,7 +164,7 @@ public class Platform implements Serializable{
         //Header
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
-        headerMap.put("url", TOKEN_ENDPOINT);
+        headerMap.put("url", "/restapi/oauth/token");
         this.authCall(body, headerMap, c);
     }
 
@@ -200,12 +199,12 @@ public class Platform implements Serializable{
         if(options.containsKey("addServer") && !has_http){
             builtUrl += this.server;
         }
-        if(url.contains(URL_PREFIX) == false && !has_http){
-            builtUrl += URL_PREFIX + "/" + API_VERSION;
+        if(url.contains("/restapi") == false && !has_http){
+            builtUrl += "/restapi" + "/" + "v1.0";
         }
 
-        if(url.contains(ACCOUNT_PREFIX) == true){
-            builtUrl = builtUrl.replace(ACCOUNT_PREFIX + ACCOUNT_ID, ACCOUNT_PREFIX + this.account);
+        if(url.contains("/account/") == true){
+            builtUrl = builtUrl.replace("/account/" + "~", "/account/" + this.account);
         }
 
         builtUrl += url;
@@ -358,11 +357,11 @@ public class Platform implements Serializable{
     }
 
     /**
-     * GET Version API call
+     * GET Account Info API call
      *
      * @param c
      */
-    public void version(Callback c){
+    public void accountInfo(Callback c){
         HashMap<String, String> body = null;
         HashMap<String, String> headers = new HashMap<>();
         headers.put("url", "/restapi/v1.0/account/~");
@@ -402,8 +401,8 @@ public class Platform implements Serializable{
      * @param c
      */
     public void ringOut(String to, String from, String callerId, String hasPrompt, Callback c){
-        HashMap<String, String> body2 = new HashMap<>();
-        body2.put("body", "{\n" +
+        HashMap<String, String> body = new HashMap<>();
+        body.put("body", "{\n" +
                 "  \"to\": {\"phoneNumber\": \"" + to
                 + "\"},\n" +
                 "  \"from\": {\"phoneNumber\": \"" + from
@@ -412,10 +411,10 @@ public class Platform implements Serializable{
                 + "\"},\n" +
                 "  \"playPrompt\": " + hasPrompt
                 + "\n" + "}");
-        HashMap<String, String> headers2 = new HashMap<>();
-        headers2.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
-        headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-        this.post(body2, headers2, c);
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+        headers.put("Content-Type", "application/json");
+        this.post(body, headers, c);
     }
 
     /**
@@ -427,14 +426,59 @@ public class Platform implements Serializable{
      * @param c
      */
     public void sendSMS(String to, String from, String message, Callback c){
-        HashMap<String, String> body2 = new HashMap<>();
-        body2.put("body", "{\n" +
+        HashMap<String, String> body = new HashMap<>();
+        body.put("body", "{\n" +
                 "  \"to\": [{\"phoneNumber\": \"" + to + "\"}],\n" +
                 "  \"from\": {\"phoneNumber\": \"" + from + "\"},\n" +
                 "  \"text\": \"" + message + "\"\n" + "}");
-        HashMap<String, String> headers2 = new HashMap<>();
-        headers2.put("url", "/restapi/v1.0/account/~/extension/~/sms");
-        headers2.put(RCHeaders.CONTENT_TYPE, RCHeaders.JSON_CONTENT_TYPE);
-        this.post(body2, headers2, c);
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+        headers.put("Content-Type", "application/json");
+        this.post(body, headers, c);
+    }
+
+    public void postSubscription(){
+        HashMap<String, String> body = new HashMap<>();
+        body.put("body", "{\n" +
+                "  \"eventFilters\": [ \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
+                "  ], \n" +
+                "  \"deliveryMode\": { \n" +
+                "    \"transportType\": \"PubNub\", \n" +
+                "    \"encryption\": \"false\" \n" +
+                "  } \n" +
+                "}");
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/subscription");
+        headers.put("Content-Type", "application/json");
+        this.post(body, headers,
+                new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (!response.isSuccessful())
+                            throw new IOException("Unexpected code " + response);
+                        RCResponse rcResponse = new RCResponse(response);
+                        try {
+                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+                            JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
+                            String subscriberKey = deliveryMode.getString("subscriberKey");
+                            String secretKey = deliveryMode.getString("secretKey");
+                            String encryptionKey = deliveryMode.getString("encryptionKey");
+                            String address = deliveryMode.getString("address");
+                            //Subscription
+                            subscription = new Subscription(subscriberKey, secretKey);
+                            subscription.subscribe(address);
+                            subscription.presence();
+                        } catch(JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
     }
 }

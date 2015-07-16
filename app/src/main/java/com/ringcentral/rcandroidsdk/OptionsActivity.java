@@ -33,7 +33,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 
     SDK SDK;
     Platform platform;
-    Button button1, button2, button3, button4, button5;
+    Button button1, button2, button3, button4, button5, button6;
     TextView textView1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +52,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         button4.setOnClickListener(this);
         button5 = (Button) findViewById(R.id.button5);
         button5.setOnClickListener(this);
+        button6 = (Button) findViewById(R.id.button6);
+        button6.setOnClickListener(this);
         textView1 = (TextView) findViewById(R.id.textView1);
 
     }
@@ -61,28 +63,36 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-                platform.version(
+                platform.accountInfo(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
                                 e.printStackTrace();
                             }
+
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 RCResponse versionResponse = new RCResponse(response);
-                                //String responseString = versionResponse.getBody();
-//                                String responseString = "";
-//                                Map<String, String> responseMap = versionResponse.getJson();
-//                                for (Map.Entry<String, String> entry : responseMap.entrySet())
-//                                {
-//                                    responseString += entry.getKey() + " : " + entry.getValue();
-//                                }
-                                //Message msg = handler.obtainMessage();
-                                //msg.what = 1;
-                                //msg.obj = responseString;
-                                //handler.sendMessage(msg);
+                                String responseString = "";
+                                String body = versionResponse.getBody();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(body);
+                                    JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
+                                    JSONObject servicePlan = serviceInfo.getJSONObject("servicePlan");
+                                    responseString += "Service Plan: "  + "\n" + servicePlan.getString("name") + "\n\n";
+                                    JSONObject billingPlan = serviceInfo.getJSONObject("billingPlan");
+                                    responseString += "Billing Plan: " + "\n" + billingPlan.getString("name") + "\n\n";
+                                    responseString += "Main Number: " + "\n" + jsonObject.getString("mainNumber") + "\n\n";
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Message msg = handler.obtainMessage();
+                                msg.what = 1;
+                                msg.obj = responseString;
+                                handler.sendMessage(msg);
 
                             }
                         });
@@ -107,7 +117,13 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                     JSONArray records = jsonObject.getJSONArray("records");
                                     for (int i = 0; i < records.length(); i++) {
                                         JSONObject record = records.getJSONObject(i);
-                                        responseString += record.getJSONObject("to").toString();
+                                        JSONObject to =  record.getJSONObject("to");
+                                        responseString += "To: " + to.getString("phoneNumber") + "                                       ";
+                                        responseString += "Duration: " + record.getString("duration");
+                                        responseString += "\n";
+                                        JSONObject from =  record.getJSONObject("from");
+                                        responseString += "From: " + from.getString("phoneNumber") + " ";
+                                        responseString += "\n\n";
                                     }
                                 } catch (JSONException e){
                                     e.printStackTrace();
@@ -133,7 +149,25 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
                                 RCResponse messageStoreResponse = new RCResponse(response);
-                                String responseString = messageStoreResponse.getBody();
+                                String responseString = "";
+                                String body = messageStoreResponse.getBody();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(body);
+                                    JSONArray records = jsonObject.getJSONArray("records");
+                                    for (int i = 0; i < records.length(); i++) {
+                                        JSONObject record = records.getJSONObject(i);
+                                        JSONArray to =  record.getJSONArray("to");
+                                        JSONObject phoneNumber = to.getJSONObject(0);
+                                        responseString += "To: " + phoneNumber.getString("phoneNumber") + "                                    ";
+                                        responseString += "Status: " + record.getString("readStatus");
+                                        responseString += "\n";
+                                        JSONObject from =  record.getJSONObject("from");
+                                        responseString += "From: " + from.getString("phoneNumber") + " ";
+                                        responseString += "\n\n";
+                                    }
+                                } catch (JSONException e){
+                                    e.printStackTrace();
+                                }
                                 Message msg = handler.obtainMessage();
                                 msg.what = 1;
                                 msg.obj = responseString;
@@ -155,6 +189,13 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 Intent smsIntent = new Intent(OptionsActivity.this, SMSActivity.class);
                 smsIntent.putExtra("MyRcsdk", SDK);
                 startActivity(smsIntent);
+                break;
+
+            case R.id.button6:
+                Intent subscriptionIntent = new Intent(OptionsActivity.this, SubscriptionActivity.class);
+                subscriptionIntent.putExtra("MyRcsdk", SDK);
+                startActivity(subscriptionIntent );
+                break;
         }
     }
 

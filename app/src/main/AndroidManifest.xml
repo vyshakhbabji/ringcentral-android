@@ -31,6 +31,10 @@
             android:name=".SMSActivity"
             android:label="@string/title_activity_sms" >
         </activity>
+        <activity
+            android:name=".SubscriptionActivity"
+            android:label="@string/title_activity_subscription" >
+        </activity>
     </application>
 
 </manifest>

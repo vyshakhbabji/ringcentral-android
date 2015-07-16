@@ -6,4 +6,5 @@
     <string name="title_activity_display_sms">DisplaySMSActivity</string>
     <string name="title_activity_ring_out">RingOutActivity</string>
     <string name="title_activity_sms">SMSActivity</string>
+    <string name="title_activity_subscription">SubscriptionActivity</string>
 </resources>
