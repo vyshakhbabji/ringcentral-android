@@ -55,6 +55,10 @@ public class RCResponse extends RCHeaders {
         this.status = status;
     }
 
+    /**
+     * Parses JSON string to a Map<String, String> that is used to set authorization data
+     * @return
+     */
     public Map getJson(){
         Gson gson = new Gson();
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();

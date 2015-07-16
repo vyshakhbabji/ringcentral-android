@@ -55,7 +55,7 @@ public class Subscription {
         }
     }
 
-    public void presence(){
+    public void presence(String channel){
         Callback callback = new Callback() {
             @Override
             public void connectCallback(String channel, Object message) {
@@ -92,7 +92,7 @@ public class Subscription {
         };
 
         try {
-            pubnub.presence("my_channel", callback);
+            pubnub.presence(channel, callback);
         } catch (PubnubException e) {
             System.out.println(e.toString());
         }

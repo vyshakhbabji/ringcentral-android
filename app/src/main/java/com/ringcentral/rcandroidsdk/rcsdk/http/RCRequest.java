@@ -113,6 +113,10 @@ public class RCRequest extends RCHeaders {
         return this.getMethod().equals("DELETE");
     }
 
+    /**
+     * Encodes data to be passed in the request as form data
+     * @return
+     */
     public String getBodyString(){
         String body = "";
         try {
@@ -136,6 +140,12 @@ public class RCRequest extends RCHeaders {
         return body;
     }
 
+    /**
+     * Sets the request headers and url endpoint to make a GET call using OKHTTP
+     *
+     * @param c Callback is made in method that calls this method, to receive the response
+     * @throws IOException
+     */
     public void get(Callback c) throws IOException {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
@@ -147,6 +157,13 @@ public class RCRequest extends RCHeaders {
         client.newCall(request).enqueue(c);
     }
 
+    /**
+     * Sets the request headers and url endpoint to make a POST call using OKHTTP.
+     * Checks the header to see what type of markdown the POST body is.
+     *
+     * @param c Callback is made in method that calls this method, to receive the response
+     * @throws IOException
+     */
     public void post(Callback c) throws Exception {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
@@ -167,6 +184,13 @@ public class RCRequest extends RCHeaders {
         client.newCall(request).enqueue(c);
     }
 
+    /**
+     * Sets the request headers and url endpoint to make a PUT call using OKHTTP.
+     * Checks the header to see what type of markdown the PUT body is.
+     *
+     * @param c Callback is made in method that calls this method, to receive the response
+     * @throws IOException
+     */
     public void put(Callback c) throws Exception {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
@@ -187,6 +211,12 @@ public class RCRequest extends RCHeaders {
         client.newCall(request).enqueue(c);
     }
 
+    /**
+     * Sets the request headers and url endpoint to make a DELETE call using OKHTTP.
+     *
+     * @param c Callback is made in method that calls this method, to receive the response
+     * @throws IOException
+     */
     public void delete(Callback c) throws IOException {
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){

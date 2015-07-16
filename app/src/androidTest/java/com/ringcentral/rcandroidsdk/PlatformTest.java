@@ -24,7 +24,7 @@ public class PlatformTest extends InstrumentationTestCase {
 
     Platform p;
 
-    public void testSetAuthDataAndGetAuthData() throws Exception{
+    public void testSetAuthDataAndGetAuthData() throws Exception {
 //        Platform p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
 //        Map<String, String> authData = new HashMap<>();
 //        authData.put("access_token", "value");
@@ -33,5 +33,6 @@ public class PlatformTest extends InstrumentationTestCase {
 //        p.setAuthData(authData);
 //        assertEquals(a.getData(), p.getAuthData());
 //    }
+    }
 
 }

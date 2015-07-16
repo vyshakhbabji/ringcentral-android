@@ -64,8 +64,9 @@ public class Platform implements Serializable{
     }
 
     /**
+     * Returns AccessToken from auth onject
      *
-     * @return AccessToken from auth
+     * @return
      */
     public String getAccessToken(){
         return this.auth.getAccessToken();
@@ -472,8 +473,8 @@ public class Platform implements Serializable{
                             String address = deliveryMode.getString("address");
                             //Subscription
                             subscription = new Subscription(subscriberKey, secretKey);
-                            subscription.subscribe(address);
-                            subscription.presence();
+                            //subscription.subscribe(address);
+                            subscription.presence(address);
                         } catch(JSONException e){
                             e.printStackTrace();
                         }

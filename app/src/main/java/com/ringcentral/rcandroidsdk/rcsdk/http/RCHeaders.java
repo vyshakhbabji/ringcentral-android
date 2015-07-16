@@ -12,8 +12,6 @@ public class RCHeaders {
 
     public static String CONTENT_TYPE = "Content-Type";
     public static final String HEADER_SEPARATOR = ":";
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String ACCEPT = "accept";
     public static final String URL_ENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String MULTIPART_CONTENT_TYPE = "multipart/mixed";

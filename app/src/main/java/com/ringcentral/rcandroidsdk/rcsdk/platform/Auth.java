@@ -105,13 +105,17 @@ public class Auth implements Serializable{
     public String getTokenType(){
         return this.token_type;
     }
-    //Need to implement comparing with time
+
     public boolean isAccessTokenValid(){
-        return true;
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(this.expire_time);
+        return isTokenDateValid(cal);
     }
 
     public boolean isRefreshTokenValid(){
-        return true;
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(this.refresh_token_expire_time);
+        return isTokenDateValid(cal);
     }
 
     public boolean isTokenDateValid(GregorianCalendar token_date){
