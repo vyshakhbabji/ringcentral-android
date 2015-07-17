@@ -14,32 +14,32 @@ import static com.google.dexmaker.*;
  */
 public class RCResponseTest extends InstrumentationTestCase {
 
-    @Override
-    protected void setUp()throws Exception {
-
-        super.setUp();
-
-        System.setProperty(“dexmaker.dexcache”,getInstrumentation().getTargetContext().getCacheDir().getPath());
-
-    }
-
-    /*
-    *
-     */
-    public void testCheckStatus() throws Exception{
-        RCResponse mockedResponse = mock(RCResponse.class);
-        int a = 3+2;
-        //mockedResponse.add("one");
-        //verify(mockedResponse).add("one");
-        //when(mockedResponse.getStatus()).thenReturn(200);
-        //mockedResponse.setStatus(200);
-        //System.out.print(mockedResponse.getStatus());
-//        RCResponse rcResponse = new RCResponse(mockedResponse);
-//        rcResponse.setStatus(200);
-//        assertTrue(rcResponse.checkStatus());
-//        r.setStatus(205);
-//        assertTrue(r.checkStatus());
-//        r.setStatus(300);
-//        assertFalse(r.checkStatus());
-    }
+//    @Override
+//    protected void setUp()throws Exception {
+//
+//        super.setUp();
+//
+//       // System.setProperty(“dexmaker.dexcache”,getInstrumentation().getTargetContext().getCacheDir().getPath());
+//
+//    }
+//
+//    /*
+//    *
+//     */
+//    public void testCheckStatus() throws Exception{
+//        RCResponse mockedResponse = mock(RCResponse.class);
+//        int a = 3+2;
+//        //mockedResponse.add("one");
+//        //verify(mockedResponse).add("one");
+//        //when(mockedResponse.getStatus()).thenReturn(200);
+//        //mockedResponse.setStatus(200);
+//        //System.out.print(mockedResponse.getStatus());
+////        RCResponse rcResponse = new RCResponse(mockedResponse);
+////        rcResponse.setStatus(200);
+////        assertTrue(rcResponse.checkStatus());
+////        r.setStatus(205);
+////        assertTrue(r.checkStatus());
+////        r.setStatus(300);
+////        assertFalse(r.checkStatus());
+//    }
 }

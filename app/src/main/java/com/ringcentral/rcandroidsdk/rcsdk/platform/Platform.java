@@ -141,7 +141,7 @@ public class Platform implements Serializable{
         headerMap.put("method", "POST");
         headerMap.put("url", "/restapi/oauth/revoke");
         headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.logoutPost(body, headerMap, c);
+        this.authCall(body, headerMap, c);
         this.auth.reset();
     }
 
@@ -252,6 +252,29 @@ public class Platform implements Serializable{
         }
     }
 
+    public void apiCall(String method, HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+        RCRequest RCRequest = new RCRequest(body, headerMap);
+        RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
+        RCRequest.setMethod(method);
+        try {
+            if(method.equals("DELETE")){
+                RCRequest.delete(c);
+            } else if(method.equals("POST")){
+                RCRequest.post(c);
+            } else if(method.equals("PUT")){
+                RCRequest.put(c);
+            } else {
+                RCRequest.get(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
     /**
      * Sets the header and body to make a GET request
      *
@@ -260,17 +283,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void get(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        RCRequest.setMethod("GET");
-        RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        try {
-            RCRequest.get(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.apiCall("GET", body, headerMap, c);
     }
 
     /**
@@ -281,38 +294,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void post(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        RCRequest.setMethod("POST");
-        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
-        try {
-            RCRequest.post(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * POST request set up for logging out
-     *
-     * @param body
-     * @param headerMap
-     * @param c
-     */
-    public void logoutPost(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        RCRequest.setMethod("POST");
-        RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
-        try {
-            RCRequest.post(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.apiCall("POST", body, headerMap, c);
     }
 
     /**
@@ -323,17 +305,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void put(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        RCRequest.setMethod("PUT");
-        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
-        try {
-            RCRequest.put(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.apiCall("PUT", body, headerMap, c);
     }
 
     /**
@@ -344,17 +316,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void delete(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        RCRequest.setMethod("DELETE");
-        RCRequest.RCHeaders.setHeader("authorization", "Bearer " + this.getAccessToken());
-        try {
-            RCRequest.delete(c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.apiCall("DELETE", body, headerMap, c);
     }
 
     /**
@@ -472,9 +434,10 @@ public class Platform implements Serializable{
                             String encryptionKey = deliveryMode.getString("encryptionKey");
                             String address = deliveryMode.getString("address");
                             //Subscription
-                            subscription = new Subscription(subscriberKey, secretKey);
-                            //subscription.subscribe(address);
-                            subscription.presence(address);
+                            System.out.println(encryptionKey);
+                            subscription = new Subscription(subscriberKey, secretKey, encryptionKey);
+                            subscription.subscribe(address);
+                            //subscription.presence(address);
                         } catch(JSONException e){
                             e.printStackTrace();
                         }

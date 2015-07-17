@@ -2,6 +2,7 @@ package com.ringcentral.rcandroidsdk.rcsdk.http;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
@@ -139,6 +140,51 @@ public class RCRequest extends RCHeaders {
         }
         return body;
     }
+    public void apiCall(String method, Callback c) throws IOException{
+        Request.Builder requestBuilder = new Request.Builder();
+        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        }
+        Request request = null;
+        if(method.equals("GET")) {
+            request = requestBuilder
+                    .url(this.url)
+                    .build();
+        }
+        else if(method.equals("DELETE")){
+            request = requestBuilder
+                    .url(this.url)
+                    .delete()
+                    .build();
+        }
+        else if(this.RCHeaders.map.containsValue("application/json")) {
+            if (method.equals("POST")) {
+                request = requestBuilder
+                        .url(this.url)
+                        .post(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            } else if (method.equals("PUT")) {
+                request = requestBuilder
+                        .url(this.url)
+                        .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            }
+        }
+        else {
+            if (method.equals("POST")) {
+                request = requestBuilder
+                        .url(this.url)
+                        .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            } else if (method.equals("PUT")){
+                request = requestBuilder
+                        .url(this.url)
+                        .put(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            }
+        }
+        client.newCall(request).enqueue(c);
+    }
 
     /**
      * Sets the request headers and url endpoint to make a GET call using OKHTTP
@@ -147,14 +193,7 @@ public class RCRequest extends RCHeaders {
      * @throws IOException
      */
     public void get(Callback c) throws IOException {
-        Request.Builder requestBuilder = new Request.Builder();
-        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        Request request = requestBuilder
-                .url(this.url)
-                .build();
-        client.newCall(request).enqueue(c);
+        this.apiCall("GET", c);
     }
 
     /**
@@ -165,23 +204,7 @@ public class RCRequest extends RCHeaders {
      * @throws IOException
      */
     public void post(Callback c) throws Exception {
-        Request.Builder requestBuilder = new Request.Builder();
-        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        Request request;
-        if(this.RCHeaders.map.containsValue("application/json")){
-            request = requestBuilder
-                    .url(this.url)
-                    .post(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
-                    .build();
-        } else {
-            request = requestBuilder
-                    .url(this.url)
-                    .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
-                    .build();
-        }
-        client.newCall(request).enqueue(c);
+        this.apiCall("POST", c);
     }
 
     /**
@@ -192,23 +215,7 @@ public class RCRequest extends RCHeaders {
      * @throws IOException
      */
     public void put(Callback c) throws Exception {
-        Request.Builder requestBuilder = new Request.Builder();
-        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        Request request;
-        if(this.RCHeaders.map.containsValue("application/x-www-form-urlencoded")){
-            request = requestBuilder
-                    .url(this.url)
-                    .put(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
-                    .build();
-        } else {
-            request = requestBuilder
-                    .url(this.url)
-                    .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
-                    .build();
-        }
-        client.newCall(request).enqueue(c);
+        this.apiCall("PUT", c);
     }
 
     /**
@@ -218,15 +225,7 @@ public class RCRequest extends RCHeaders {
      * @throws IOException
      */
     public void delete(Callback c) throws IOException {
-        Request.Builder requestBuilder = new Request.Builder();
-        for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        Request request = requestBuilder
-                .url(this.url)
-                .delete()
-                .build();
-        client.newCall(request).enqueue(c);
+        this.apiCall("DELETE", c);
     }
 
 }
