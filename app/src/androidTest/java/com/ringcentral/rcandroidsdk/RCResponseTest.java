@@ -25,6 +25,16 @@ public class RCResponseTest extends InstrumentationTestCase {
         assertFalse(r.checkStatus());
     }
 
+    public void testSetStatusAndGetStatus() throws Exception{
+        RCResponse r = new RCResponse();
+        r.setStatus(200);
+        assertEquals(200, r.getStatus());
+        r.setStatus(304);
+        assertEquals(304, r.getStatus());
+        r.setStatus(0);
+        assertEquals(0, r.getStatus());
+    }
+
     public void testSetBodyAndGetBody() throws Exception{
         RCResponse r = new RCResponse();
         String expected = "This is a test";

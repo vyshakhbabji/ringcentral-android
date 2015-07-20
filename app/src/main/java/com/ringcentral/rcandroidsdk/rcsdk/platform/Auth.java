@@ -39,39 +39,39 @@ public class Auth implements Serializable{
         owner_id = "";
     }
 
-    public void setData(Map<String, String> parameters) {
+    public void setData(Map<String, String> authData) {
         // Misc
-        if (parameters.containsKey("token_type")) {
-            this.token_type = parameters.get("token_type");
+        if (authData.containsKey("token_type")) {
+            this.token_type = authData.get("token_type");
         }
-        if (parameters.containsKey("scope")) {
-            this.scope = parameters.get("scope");
+        if (authData.containsKey("scope")) {
+            this.scope = authData.get("scope");
         }
-        if (parameters.containsKey("owner_id")) {
-            this.owner_id = parameters.get("owner_id");
+        if (authData.containsKey("owner_id")) {
+            this.owner_id = authData.get("owner_id");
         }
         // Access Token
-        if (parameters.containsKey("access_token")) {
-            this.access_token = parameters.get("access_token");
+        if (authData.containsKey("access_token")) {
+            this.access_token = authData.get("access_token");
         }
-        if (parameters.containsKey("expires_in")) {
-            this.expires_in = parameters.get("expires_in");
+        if (authData.containsKey("expires_in")) {
+            this.expires_in = authData.get("expires_in");
         }
-        if (!parameters.containsKey("expire_time") && parameters.containsKey("expires_in")) {
-            int expiresIn = Integer.parseInt(parameters.get("expires_in"));
+        if (!authData.containsKey("expire_time") && authData.containsKey("expires_in")) {
+            int expiresIn = Integer.parseInt(authData.get("expires_in"));
             Calendar calendar = new GregorianCalendar();
             calendar.add(Calendar.SECOND, expiresIn);
             this.expire_time = calendar.getTime();
         }
         // Refresh Token
-        if (parameters.containsKey("refresh_token")) {
-            this.refresh_token = parameters.get("refresh_token");
+        if (authData.containsKey("refresh_token")) {
+            this.refresh_token = authData.get("refresh_token");
         }
-        if (parameters.containsKey("refresh_token_expires_in")) {
-            this.refresh_token_expires_in = parameters.get("refresh_token_expires_in");
+        if (authData.containsKey("refresh_token_expires_in")) {
+            this.refresh_token_expires_in = authData.get("refresh_token_expires_in");
         }
-        if (!parameters.containsKey("refresh_token_expire_time") && parameters.containsKey("refresh_token_expires_in")) {
-            int expiresIn = Integer.parseInt(parameters.get("refresh_token_expires_in"));
+        if (!authData.containsKey("refresh_token_expire_time") && authData.containsKey("refresh_token_expires_in")) {
+            int expiresIn = Integer.parseInt(authData.get("refresh_token_expires_in"));
             Calendar calendar = new GregorianCalendar();
             calendar.add(Calendar.SECOND, expiresIn);
             this.refresh_token_expire_time = calendar.getTime();
@@ -119,7 +119,7 @@ public class Auth implements Serializable{
     }
 
     public boolean isTokenDateValid(GregorianCalendar token_date){
-        return (token_date.compareTo(new GregorianCalendar()) > 1);
+        return (token_date.compareTo(new GregorianCalendar()) > 0);
     }
 
 
