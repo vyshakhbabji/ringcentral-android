@@ -16,6 +16,8 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import javax.crypto.Cipher;
@@ -41,22 +43,21 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
 
         byte[] a = new byte[0];
         byte[] b = new byte[0];
-        byte[] decrypted = new byte[0];
+        String decryptedString = "";
         try {
             a = "Hb3NQslzsa2lzKw5HpjG+A==".getBytes("UTF-8");
             b = "x+ujFJPXkuym1I/Sj8LbWSeOYAf7bgIC/zF7hH048dJBvBZD07XfvYbao5I/FBSKgf2lB0hxkGKWP48Z+P5+rB0gWDJv2lPN9MjmcwAERK5iP/ruLKLbtDSJJH28fuGU38hiRyUxAl8sgQvMVgTLY6AOv4ZLiqNY+zy/9Z3Qrl1zen9y4L+/dbOawETaLQ2Pfs9xJrPKeRS+yxQEZdcRC/L7zWzQCSFQzgfvr7mK0RzgZXRTd0uK5tvTFnn9k0Yn4v1yDH7Q26L38x8qUh1Sco60c5ivL2YuiBmEPw6xyO0=".getBytes("UTF-8");
-
-            byte[] key = Base64.decode(a, Base64.DEFAULT);
+            byte[] key = Base64.decode(a, Base64.NO_WRAP);
             SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
-            byte[] data = Base64.decode(b, Base64.DEFAULT);
-            //byte[] data = datas.getBytes("UTF-8");
+            byte[] data = Base64.decode(b, Base64.NO_WRAP);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-            decrypted = cipher.doFinal(data);
+            byte[] decrypted = cipher.doFinal(data);
+            decryptedString = new String(decrypted);
+
         }catch (Exception e){
             e.printStackTrace();
         }
-        String decryptedString = decrypted.toString();
         System.out.println("SUBSCRIBE : " + " : " + decryptedString);
     }
 

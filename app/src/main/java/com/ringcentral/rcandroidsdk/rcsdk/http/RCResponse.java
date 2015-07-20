@@ -27,7 +27,9 @@ public class RCResponse extends RCHeaders {
     String body;
 
     public RCResponse(){
-
+        this.response = null;
+        this.status = 0;
+        this.body = "";
     }
     public RCResponse(Response response){
         try {
@@ -45,6 +47,10 @@ public class RCResponse extends RCHeaders {
 
     public String getBody(){
         return this.body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public int getStatus(){

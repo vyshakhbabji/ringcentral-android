@@ -13,15 +13,16 @@ import javax.crypto.spec.SecretKeySpec;
 public class Subscription {
 
     Pubnub pubnub;
-    String encryptionKey = "";
+    public static String encryptionKey = "";
     public Subscription(String subscribeKey, String secretKey, String encryptionKey) {
         pubnub = new Pubnub("", subscribeKey, secretKey);
         this.encryptionKey = encryptionKey;
     }
 
-    public void subscribe(String channel) {
+    public void subscribe(String address) {
+
         try {
-            pubnub.subscribe(channel, new Callback() {
+            pubnub.subscribe(address, new Callback() {
 
                         @Override
                         public void connectCallback(String channel, Object message) {
@@ -37,6 +38,7 @@ public class Subscription {
                                     + message.toString());
                         }
 
+                        @Override
                         public void reconnectCallback(String channel, Object message) {
                             System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
                                     + " : " + message.getClass() + " : "
@@ -45,26 +47,8 @@ public class Subscription {
 
                         @Override
                         public void successCallback(String channel, Object message) {
-                            byte[] a = new byte[0];
-                            byte[] b = new byte[0];
-                            byte[] decrypted = new byte[0];
-                            try {
-                                a = "Hb3NQslzsa2lzKw5HpjG+A==".getBytes("UTF-8");
-                                b = "x+ujFJPXkuym1I/Sj8LbWSeOYAf7bgIC/zF7hH048dJBvBZD07XfvYbao5I/FBSKgf2lB0hxkGKWP48Z+P5+rB0gWDJv2lPN9MjmcwAERK5iP/ruLKLbtDSJJH28fuGU38hiRyUxAl8sgQvMVgTLY6AOv4ZLiqNY+zy/9Z3Qrl1zen9y4L+/dbOawETaLQ2Pfs9xJrPKeRS+yxQEZdcRC/L7zWzQCSFQzgfvr7mK0RzgZXRTd0uK5tvTFnn9k0Yn4v1yDH7Q26L38x8qUh1Sco60c5ivL2YuiBmEPw6xyO0=".getBytes("UTF-8");
-
-                                byte[] key = Base64.encode(a, Base64.DEFAULT);
-                                SecretKeySpec skeySpec = new SecretKeySpec(key, "AES/ECB/PKCS5Padding");
-                                byte[] data = Base64.encode(b, Base64.DEFAULT);
-                                Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                                cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-                                decrypted = cipher.doFinal(data);
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                            String decryptedString = decrypted.toString();
                             System.out.println("SUBSCRIBE : " + channel + " : "
-                                    + message.getClass() + " : " + decryptedString);
-                           // System.out.println(message.toString());
+                                    + message.getClass() + " : " + message.toString());
                         }
 
                         @Override
@@ -72,6 +56,7 @@ public class Subscription {
                             System.out.println("SUBSCRIBE : ERROR on channel " + channel
                                     + " : " + error.toString());
                         }
+
                     }
             );
         } catch (PubnubException e) {
@@ -120,6 +105,22 @@ public class Subscription {
         } catch (PubnubException e) {
             System.out.println(e.toString());
         }
+    }
+
+    public String notify(String message){
+        byte[] key = Base64.decode(this.encryptionKey, Base64.NO_WRAP);
+        SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
+        byte[] data = Base64.decode(message, Base64.NO_WRAP);
+        String decryptedString = "";
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            byte[] decrypted = cipher.doFinal(data);
+            decryptedString = new String(decrypted);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return decryptedString;
     }
 
 }

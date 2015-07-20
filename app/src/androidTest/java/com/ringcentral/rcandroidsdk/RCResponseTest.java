@@ -4,42 +4,44 @@ import android.test.InstrumentationTestCase;
 
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
-import static com.google.dexmaker.*;
 
 /**
  * Created by andrew.pang on 7/14/15.
  */
 public class RCResponseTest extends InstrumentationTestCase {
 
-//    @Override
-//    protected void setUp()throws Exception {
-//
-//        super.setUp();
-//
-//       // System.setProperty(“dexmaker.dexcache”,getInstrumentation().getTargetContext().getCacheDir().getPath());
-//
-//    }
-//
-//    /*
-//    *
-//     */
-//    public void testCheckStatus() throws Exception{
-//        RCResponse mockedResponse = mock(RCResponse.class);
-//        int a = 3+2;
-//        //mockedResponse.add("one");
-//        //verify(mockedResponse).add("one");
-//        //when(mockedResponse.getStatus()).thenReturn(200);
-//        //mockedResponse.setStatus(200);
-//        //System.out.print(mockedResponse.getStatus());
-////        RCResponse rcResponse = new RCResponse(mockedResponse);
-////        rcResponse.setStatus(200);
-////        assertTrue(rcResponse.checkStatus());
-////        r.setStatus(205);
-////        assertTrue(r.checkStatus());
-////        r.setStatus(300);
-////        assertFalse(r.checkStatus());
-//    }
+    public void testCheckStatus() throws Exception{
+        RCResponse r = new RCResponse();
+        r.setStatus(200);
+        assertTrue(r.checkStatus());
+        r.setStatus(205);
+        assertTrue(r.checkStatus());
+        r.setStatus(300);
+        assertFalse(r.checkStatus());
+    }
+
+    public void testSetBodyAndGetBody() throws Exception{
+        RCResponse r = new RCResponse();
+        String expected = "This is a test";
+        r.setBody(expected);
+        assertEquals(expected, r.getBody());
+        r.setBody("");
+        assertEquals("", r.getBody());
+    }
+
+    public void testGetJson() throws Exception{
+        RCResponse r = new RCResponse();
+        Map<String, String> expected = new HashMap<>();
+        expected.put("test", "a");
+        expected.put("foo", "bar");
+        String body = "{\"test\":\"a\", \"foo\":\"bar\"}";
+        r.setBody(body);
+        Map<String, String> actual = r.getJson();
+        assertEquals(expected, actual);
+    }
 }
