@@ -33,10 +33,6 @@ public class Platform implements Serializable{
     Auth auth;
     Subscription subscription;
 
-    static String ACCESS_TOKEN_TTL = "3600"; //60 minutes
-    //static String REFRESH_TOKEN_TTL = "36000";  // 10 hours
-    static String REFRESH_TOKEN_TTL = "604800";  // 1 week
-
     /**
      *
      * @param appKey
@@ -70,103 +66,6 @@ public class Platform implements Serializable{
      */
     public String getAccessToken(){
         return this.auth.getAccessToken();
-    }
-
-    /**
-     * Checks if the access token is valid, and if not refreshes the token
-     *
-     * @throws Exception
-     */
-    public void isAuthorized() throws Exception{
-        if(!this.auth.isAccessTokenValid()){
-            this.refresh();
-        }
-        if(!this.auth.isAccessTokenValid()){
-            throw new Exception("Access token is expired");
-        }
-    }
-
-    /**
-     * Uses the refresh token to refresh authentication
-     *
-     * @throws Exception
-     */
-    public void refresh() throws Exception{
-        if(!this.auth.isRefreshTokenValid()){
-            throw new Exception("Refresh token is expired");
-        } else {
-            HashMap<String, String> body = new HashMap<>();
-            //Body
-            body.put("grant_type", "password");
-            body.put("refresh_token", this.auth.getRefreshToken());
-            body.put("access_token_ttl", ACCESS_TOKEN_TTL);
-            body.put("refresh_token_ttl", REFRESH_TOKEN_TTL);
-            //Header
-            HashMap<String, String> headerMap = new HashMap<>();
-            headerMap.put("method", "POST");
-            headerMap.put("url", "/restapi/oauth/token");
-            this.authCall(body, headerMap,
-                    new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-                            e.printStackTrace();
-                        }
-                        @Override
-                        public void onResponse(Response response) throws IOException {
-                            if (!response.isSuccessful())
-                                throw new IOException("Unexpected code " + response);
-                            //callResponse = response;
-                            String responseString = response.body().string();
-                            System.out.print(responseString);
-
-                            Gson gson = new Gson();
-                            Type mapType = new TypeToken<Map<String, String>>() {
-                            }.getType();
-                            Map<String, String> responseMap = gson.fromJson(responseString, mapType);
-                            setAuthData(responseMap);
-                        }
-                    });
-        }
-    }
-
-    /**
-     * Revokes access for current access token
-     *
-     * @param c
-     */
-    public void logout(Callback c){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("token", this.getAccessToken());
-        HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("method", "POST");
-        headerMap.put("url", "/restapi/oauth/revoke");
-        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(body, headerMap, c);
-        this.auth.reset();
-    }
-
-    /**
-     * Takes in parameters used for authorization and makes an auth call
-     *
-     * @param username
-     * @param extension
-     * @param password
-     * @param c
-     */
-    public void authorize(String username, String extension, String password, Callback c){
-        HashMap<String, String> body = new HashMap<>();
-        //Body
-        body.put("grant_type", "password");
-        body.put("username", username);
-        body.put("extension", extension);
-        body.put("password", password);
-        body.put("access_token_ttl", ACCESS_TOKEN_TTL);
-        body.put("refresh_token_ttl", REFRESH_TOKEN_TTL);
-        //Header
-        HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("method", "POST");
-        headerMap.put("url", "/restapi/oauth/token");
-        this.authCall(body, headerMap, c);
     }
 
     /**
@@ -232,6 +131,130 @@ public class Platform implements Serializable{
     }
 
     /**
+     * Checks if the access token is valid, and if not refreshes the token
+     *
+     * @throws Exception
+     */
+    public void isAuthorized() throws Exception{
+        if(!this.auth.isAccessTokenValid()){
+            this.refresh();
+        }
+        if(!this.auth.isAccessTokenValid()){
+            throw new Exception("Access token is expired");
+        }
+    }
+
+    /**
+     * Uses the refresh token to refresh authentication
+     *
+     * @throws Exception
+     */
+    public void refresh() throws Exception{
+        if(!this.auth.isRefreshTokenValid()){
+            throw new Exception("Refresh token is expired");
+        } else {
+            HashMap<String, String> body = new HashMap<>();
+            //Body
+            body.put("grant_type", "password");
+            body.put("refresh_token", this.auth.getRefreshToken());
+            //Header
+            HashMap<String, String> headerMap = new HashMap<>();
+            headerMap.put("method", "POST");
+            headerMap.put("url", "/restapi/oauth/token");
+            this.authCall(body, headerMap,
+                    new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            if (!response.isSuccessful())
+                                throw new IOException("Unexpected code " + response);
+                            //callResponse = response;
+                            String responseString = response.body().string();
+                            System.out.print(responseString);
+
+                            Gson gson = new Gson();
+                            Type mapType = new TypeToken<Map<String, String>>() {
+                            }.getType();
+                            Map<String, String> responseMap = gson.fromJson(responseString, mapType);
+                            setAuthData(responseMap);
+                        }
+                    });
+        }
+    }
+
+//    /**
+//     * Revokes access for current access token
+//     *
+//     * @param c
+//     */
+//    public void logout(Callback c){
+//        HashMap<String, String> body = new HashMap<>();
+//        body.put("token", this.getAccessToken());
+//        HashMap<String, String> headerMap = new HashMap<>();
+//        headerMap.put("method", "POST");
+//        headerMap.put("url", "/restapi/oauth/revoke");
+//        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
+//        this.authCall(body, headerMap, c);
+//        this.auth.reset();
+//    }
+
+    /**
+     * Method used for API calls, with the request type, body, headers, and callback as parameters.
+     *
+     * @param method
+     * @param body
+     * @param headerMap
+     * @param c
+     */
+    public void apiCall(String method, HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+        try{
+            this.isAuthorized();
+            RCRequest RCRequest = new RCRequest(body, headerMap);
+            RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
+            HashMap<String, String> options = new HashMap<>();
+            options.put("addServer", "true");
+            RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
+            RCRequest.setMethod(method);
+            if(method.equals("DELETE")){
+                RCRequest.delete(c);
+            } else if(method.equals("POST")){
+                RCRequest.post(c);
+            } else if(method.equals("PUT")){
+                RCRequest.put(c);
+            } else {
+                RCRequest.get(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Takes in parameters used for authorization and makes an auth call
+     *
+     * @param username
+     * @param extension
+     * @param password
+     * @param c
+     */
+    public void authorize(String username, String extension, String password, Callback c){
+        HashMap<String, String> body = new HashMap<>();
+        //Body
+        body.put("grant_type", "password");
+        body.put("username", username);
+        body.put("extension", extension);
+        body.put("password", password);
+        //Header
+        HashMap<String, String> headerMap = new HashMap<>();
+        headerMap.put("method", "POST");
+        headerMap.put("url", "/restapi/oauth/token");
+        this.authCall(body, headerMap, c);
+    }
+
+    /**
      * POST request set up for making authorization calls
      *
      * @param body
@@ -252,29 +275,6 @@ public class Platform implements Serializable{
         }
     }
 
-    public void apiCall(String method, HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
-        RCRequest RCRequest = new RCRequest(body, headerMap);
-        RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
-        RCRequest.setMethod(method);
-        try {
-            if(method.equals("DELETE")){
-                RCRequest.delete(c);
-            } else if(method.equals("POST")){
-                RCRequest.post(c);
-            } else if(method.equals("PUT")){
-                RCRequest.put(c);
-            } else {
-                RCRequest.get(c);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
     /**
      * Sets the header and body to make a GET request
      *

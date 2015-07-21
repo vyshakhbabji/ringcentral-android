@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class PlatformTest extends InstrumentationTestCase {
 
-    String appKey = "xhK3uzISTEaEYhFAtadVug";
-    String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
+    String appKey = "abcd123efg";
+    String appSecret = "hij123klm";
     String username = "15856234166";
     String password = "P@ssw0rd";
     String extension = "";
@@ -24,15 +24,32 @@ public class PlatformTest extends InstrumentationTestCase {
 
     Platform p;
 
-    public void testSetAuthDataAndGetAuthData() throws Exception {
-//        Platform p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
-//        Map<String, String> authData = new HashMap<>();
-//        authData.put("access_token", "value");
-//        Auth a = new Auth();
-//        a.setData(authData);
-//        p.setAuthData(authData);
-//        assertEquals(a.getData(), p.getAuthData());
-//    }
+    public void testGetApiKey() throws Exception {
+        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+        String actual = p.getApiKey();
+        String expected = "YWJjZDEyM2VmZzpoaWoxMjNrbG0=";
+        assertEquals(expected, actual);
     }
+
+    public void testApiUrl() throws Exception {
+        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+        HashMap<String, String> options = new HashMap<>();
+        options.put("addServer", "true");
+        String actualUrl1 = p.apiURL("/restapi/v1.0/account/~/call-log", options);
+        String actualUrl2 = p.apiURL("/test", options);
+        String actualUrl3 = p.apiURL("/restapi/v1.0/account/~/message-store", options);
+        options.put("addToken", "true");
+        String actualUrl4 = p.apiURL("/test", options);
+        options.remove("addToken");
+        options.put("addMethod", "testMethod");
+        String actualUrl5 = p.apiURL("/test", options);
+
+        assertEquals("https://platform.devtest.ringcentral.com/restapi/v1.0/account/~/call-log", actualUrl1);
+        assertEquals("https://platform.devtest.ringcentral.com/restapi/v1.0/test", actualUrl2);
+        assertEquals("https://platform.devtest.ringcentral.com/restapi/v1.0/account/~/message-store", actualUrl3);
+        assertEquals("https://platform.devtest.ringcentral.com/restapi/v1.0/test?access_token=", actualUrl4);
+        assertEquals("https://platform.devtest.ringcentral.com/restapi/v1.0/test?_method=testMethod", actualUrl5);
+    }
+
 
 }

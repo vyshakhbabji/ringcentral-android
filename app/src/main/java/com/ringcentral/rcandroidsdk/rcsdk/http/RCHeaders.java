@@ -11,7 +11,6 @@ public class RCHeaders {
     HashMap<String, String> map;
 
     public static String CONTENT_TYPE = "Content-Type";
-    public static final String HEADER_SEPARATOR = ":";
     public static final String URL_ENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String MULTIPART_CONTENT_TYPE = "multipart/mixed";
@@ -29,6 +28,11 @@ public class RCHeaders {
         this.map.put(key, val);
     }
 
+    /**
+     * Sets multiple headers with a hashmap of keys and values.
+     *
+     * @param headers
+     */
     public void setHeaders(HashMap<String, String> headers){
         for(Map.Entry<String, String> entry: headers.entrySet()){
             setHeader(entry.getKey(), entry.getValue());
@@ -51,7 +55,7 @@ public class RCHeaders {
         String[] array = new String[this.map.size()];
         int count = 0;
         for(Map.Entry<String, String> entry: this.map.entrySet()){
-            array[count] = entry.getKey() + HEADER_SEPARATOR + entry.getValue();
+            array[count] = entry.getKey() + ":" + entry.getValue();
             count++;
         }
         return array;
@@ -69,14 +73,27 @@ public class RCHeaders {
         return (this.map.get(CONTENT_TYPE).equals(contentType));
     }
 
+    /**
+     * Returns true if the content-type headers is "application/json"
+     *
+     * @return
+     */
     public boolean isJson(){
         return isContentType(JSON_CONTENT_TYPE);
     }
-
+    /**
+     * Returns true if the content-type headers is "multipart/mixed"
+     *
+     * @return
+     */
     public boolean isMultipart(){
         return isContentType(MULTIPART_CONTENT_TYPE);
     }
-
+    /**
+     * Returns true if the content-type headers is "application/x-www-form-urlencoded"
+     *
+     * @return
+     */
     public boolean isURLEncoded(){
         return isContentType(URL_ENCODED_CONTENT_TYPE);
     }

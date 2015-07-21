@@ -115,7 +115,8 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Encodes data to be passed in the request as form data
+     * Encodes data in UTF-8 format to be passed in the request as form data.
+     *
      * @return
      */
     public String getBodyString(){
@@ -140,6 +141,15 @@ public class RCRequest extends RCHeaders {
         }
         return body;
     }
+
+    /**
+     * Makes an API call using OKHTTP request. Builds request from the headers
+     * and method, and makes an asynchronous call which returns a response to the Callback.
+     *
+     * @param method
+     * @param c Callback is overriden in a parent method that calls this method, and recieves the response.
+     * @throws IOException
+     */
     public void apiCall(String method, Callback c) throws IOException{
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: this.RCHeaders.map.entrySet()){
@@ -187,9 +197,9 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Sets the request headers and url endpoint to make a GET call using OKHTTP
+     * Makes an apiCall with the GET method
      *
-     * @param c Callback is made in method that calls this method, to receive the response
+     * @param c
      * @throws IOException
      */
     public void get(Callback c) throws IOException {
@@ -197,10 +207,9 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Sets the request headers and url endpoint to make a POST call using OKHTTP.
-     * Checks the header to see what type of markdown the POST body is.
+     * Makes an apiCall with the POST method
      *
-     * @param c Callback is made in method that calls this method, to receive the response
+     * @param c
      * @throws IOException
      */
     public void post(Callback c) throws Exception {
@@ -208,10 +217,9 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Sets the request headers and url endpoint to make a PUT call using OKHTTP.
-     * Checks the header to see what type of markdown the PUT body is.
+     * Makes an apiCall with the PUT method
      *
-     * @param c Callback is made in method that calls this method, to receive the response
+     * @param c
      * @throws IOException
      */
     public void put(Callback c) throws Exception {
@@ -219,9 +227,9 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Sets the request headers and url endpoint to make a DELETE call using OKHTTP.
+     * Makes an apiCall with the GET method
      *
-     * @param c Callback is made in method that calls this method, to receive the response
+     * @param c
      * @throws IOException
      */
     public void delete(Callback c) throws IOException {
