@@ -15,14 +15,13 @@ Create an instance of the global SDK object in your application, and configure i
 '''java
 SDK = new SDK(appKey, appSecret, "https://platform.devtest.ringcentral.com";
 '''
-###Get Platform Singleton
-'''java
+####Get Platform Singleton
+```java
 platform = SDK.getPlatform();
-'''
+```
 With the platform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
 ##Authentication
-
-'''java
+```java
 SDK.platform.authorize(
 	"username", // Phone number in full format
  	"extension", // Input "" if direct number is used
@@ -36,5 +35,5 @@ SDK.platform.authorize(
 		public void onResponse(Response response) throws IOException {
 			if(!response.isSuccessful())
 				throw new IOException("Unexpected code " + response);
-''' 
+``` 
 
