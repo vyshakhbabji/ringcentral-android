@@ -14,6 +14,7 @@ public class Subscription {
 
     Pubnub pubnub;
     public static String encryptionKey = "";
+    public String responseMessage = "";
     public Subscription(String subscribeKey, String secretKey, String encryptionKey) {
         pubnub = new Pubnub("", subscribeKey, secretKey);
         this.encryptionKey = encryptionKey;

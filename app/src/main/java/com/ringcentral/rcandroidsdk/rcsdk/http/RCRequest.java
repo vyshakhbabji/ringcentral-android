@@ -6,6 +6,7 @@ import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -43,6 +44,8 @@ public class RCRequest extends RCHeaders {
             = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
     public static final MediaType JSON_TYPE_MARKDOWN
             = MediaType.parse("application/json; charset=utf-8");
+    public static final MediaType MULTI_TYPE_MARKDOWN
+            = MediaType.parse("multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
     public Response callResponse;
     public String responseString;
     public Map<String, String> responseMap;
@@ -177,6 +180,19 @@ public class RCRequest extends RCHeaders {
                 request = requestBuilder
                         .url(this.url)
                         .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            }
+        }
+        else if(this.RCHeaders.map.containsValue("multipart/mixed")) {
+            if (method.equals("POST")) {
+                request = requestBuilder
+                        .url(this.url)
+                        .post(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
+                        .build();
+            } else if (method.equals("PUT")) {
+                request = requestBuilder
+                        .url(this.url)
+                        .put(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
                         .build();
             }
         }

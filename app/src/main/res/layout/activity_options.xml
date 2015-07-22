@@ -17,6 +17,8 @@
         android:layout_width="wrap_content" android:text="SMS" android:layout_below="@+id/button1" />
     <Button android:id="@+id/button6" android:layout_height="wrap_content" android:layout_toRightOf="@+id/button5"
         android:layout_width="wrap_content" android:text="Subscription" android:layout_below="@+id/button1" />
+    <Button android:id="@+id/button7" android:layout_height="wrap_content"
+        android:layout_width="wrap_content" android:text="Fax" android:layout_below="@+id/button4" />
 
     <ScrollView
         android:id="@+id/SCROLLER_ID"
@@ -24,7 +26,7 @@
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
         android:fillViewport="true"
-        android:layout_below="@+id/button4">
+        android:layout_below="@+id/button7">
 
         <TextView android:id="@+id/textView1" android:text="" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 

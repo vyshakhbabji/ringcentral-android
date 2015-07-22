@@ -70,7 +70,7 @@ public class RCHeaders {
     }
 
     public boolean isContentType(String contentType){
-        return (this.map.get(CONTENT_TYPE).equals(contentType));
+        return (this.map.get(CONTENT_TYPE).contains(contentType));
     }
 
     /**

@@ -437,6 +437,7 @@ public class Platform implements Serializable{
                             System.out.println(encryptionKey);
                             subscription = new Subscription(subscriberKey, secretKey, encryptionKey);
                             subscription.subscribe(address);
+                            subscription.notify("lalala");
                             //subscription.presence(address);
                         } catch(JSONException e){
                             e.printStackTrace();

@@ -1,10 +1,14 @@
 package com.ringcentral.rcandroidsdk.rcsdk.http;
 
+import android.preference.PreferenceActivity;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
@@ -23,19 +27,28 @@ import java.util.Map;
 public class RCResponse extends RCHeaders {
 
     Response response;
+    RCHeaders headers;
     int status;
+    String statusText;
     String body;
 
     public RCResponse(){
         this.response = null;
         this.status = 0;
+        this.statusText = "";
         this.body = "";
     }
     public RCResponse(Response response){
         try {
             this.response = response;
             this.status = response.code();
+            this.statusText = response.message();
             this.body = response.body().string();
+            this.headers = new RCHeaders();
+            Headers okHttpHeader = response.headers();
+            for(String name: okHttpHeader.names()){
+                this.headers.setHeader(name, okHttpHeader.get(name));
+            }
         } catch (IOException e){
             e.printStackTrace();
         }

@@ -1,7 +1,5 @@
 package com.ringcentral.rcandroidsdk.rcsdk;
 
-import android.os.AsyncTask;
-
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 
 import java.io.Serializable;
@@ -12,14 +10,14 @@ import java.io.Serializable;
 public class SDK implements Serializable{
 
     static String version = "";
-    Platform p;
+    Platform platform;
 
     public SDK(String appKey, String appSecret, String server){
-        p = new Platform(appKey, appSecret, server);
+        platform = new Platform(appKey, appSecret, server);
     }
 
     public Platform getPlatform(){
-        return this.p;
+        return this.platform;
     }
 
 }

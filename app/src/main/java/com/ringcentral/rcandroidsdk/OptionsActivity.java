@@ -33,7 +33,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 
     SDK SDK;
     Platform platform;
-    Button button1, button2, button3, button4, button5, button6;
+    Button button1, button2, button3, button4, button5, button6, button7;
     TextView textView1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +54,8 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         button5.setOnClickListener(this);
         button6 = (Button) findViewById(R.id.button6);
         button6.setOnClickListener(this);
+        button7 = (Button) findViewById(R.id.button7);
+        button7.setOnClickListener(this);
         textView1 = (TextView) findViewById(R.id.textView1);
 
     }
@@ -196,6 +198,45 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 subscriptionIntent.putExtra("MyRcsdk", SDK);
                 startActivity(subscriptionIntent );
                 break;
+
+            case R.id.button7:
+                HashMap<String, String> body = new HashMap<>();
+                body.put("body", "--Boundary_1_14413901_1361871080888\n" +
+                        "Content-Type: application/json\n" +
+                        "\n" +
+                        "{\n" +
+                        "  \"to\":[{\"phoneNumber\":\"18005630003\"}],\n" +
+                        "  \"faxResolution\":\"High\",\n" +
+                        "  \"sendTime\":\"2013-02-26T09:31:20.882Z\"\n" +
+                        "}\n" +
+                        "\n" +
+                        "--Boundary_1_14413901_1361871080888\n" +
+                        "Content-Type: text/plain\n" +
+                        "\n" +
+                        "Hello, World!\n" +
+                        "\n" +
+                        "--Boundary_1_14413901_1361871080888--");
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("url", "/restapi/v1.0/account/~/extension/~/fax");
+                headers.put("Content-Type", "multipart/mixed");
+                platform.post(body, headers,
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+
+                            }
+
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                RCResponse messageStoreResponse = new RCResponse(response);
+                                String body = messageStoreResponse.getBody();
+                                Message msg = handler.obtainMessage();
+                                msg.what = 1;
+                                msg.obj = body;
+                                handler.sendMessage(msg);
+                            }
+                        }
+                );
         }
     }
 
