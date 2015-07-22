@@ -4,9 +4,26 @@
 2. [Basic Usage](#basic-usage)
 3. [Examples](#examples)
 #Installation
-
-##STUB
-
+##Android Studio Environment
+###Android Manifest
+Add these permissions to your AndroidManifest.xml
+```java
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+```
+###Gradle
+Add these to your app's Gradle dependencies
+```java
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.pubnub:pubnub-android:3.7.4'
+}
+```
 #Basic Usage
 ##Initialization
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
@@ -57,7 +74,9 @@ For all API calls, create a HashMap for headers and add header-type
 as the key, and header values as the value.
 ```java
 HashMap<String, String> headers = new HashMap();
-headers.put("content-type", "application/json"); // Add headers this way
+// Add headers (e.g. "Content-Type", "url") 
+headers.put("Content-Type", "application/json");
+headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
 ```
 Example post request, passing in the body, headers, and Callback: 
 ```java
@@ -102,10 +121,10 @@ platform.ringOut(
 The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
 ```java
 platform.sendSMS(
-        "15101234567", // Phone number calling "To"
-        "18881234567", // Phone number calling "From"
+	"15101234567", // Phone number calling "To"
+	"18881234567", // Phone number calling "From"
 	"This is a sample text message",
-        new Callback() {
+	new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
                         e.printStackTrace();
@@ -117,8 +136,24 @@ platform.sendSMS(
                 RCResponse rcResponse = new RCResponse(response);                       // Your code goes here
                 }
 });
-	
-	
+```
+##Getting the call log
+The call log GET API call has a helper function written that returns the response in the Callback.
+```java
+platform.callLog(
+	new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                if(!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                RCResponse rcResponse = new RCResponse(response);                       // Your code goes here
+                }
+});	
+```	
 
 
 
