@@ -1,8 +1,8 @@
 #Table of contents
 
-1.Installation
-2.Basic Usage
-
+1. [Installation](#installation)
+2. [Basic Usage](#basic-usage)
+3. [Examples](#examples)
 #Installation
 
 ##STUB
@@ -40,7 +40,7 @@ SDK.platform.authorize(
 			platform.setAuthData(responseMap);
                		// Your code goes here
 		}
-	});
+});
 ``` 
 ####Checking Authentication State
 To check in your Application if the user is authenticated, you can call the platform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
@@ -71,10 +71,52 @@ platform.post(body, headers,
 		public void onResponse(Response response) throws IOException {
 		if(!response.isSuccessful())
 			throw new IOException("Unexpected code " + response);
+		RCResponse rcResponse = new RCResponse(response);
 		// Your code goes here
 		}
-	});
+});
 ```
+#Examples
+##Performing a RingOut
+The RingOut POST API call has a helper function written so you can just input the "To", "From", and "Caller ID" phone numbers.
+```java
+platform.ringOut(
+	"15101234567", // Phone number calling "To"
+	"18881234567", // Phone number calling "From"
+	"12223334444", // Caller ID number
+	"True", // "True" or "False" states whether a prompt plays before a call
+	new Callback() {
+		@Override
+                public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                if(!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+        	RCResponse rcResponse = new RCResponse(response);      			// Your code goes here
+                }
+});	
+```
+##Sending an SMS
+The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
+```java
+platform.sendSMS(
+        "15101234567", // Phone number calling "To"
+        "18881234567", // Phone number calling "From"
+	"This is a sample text message",
+        new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                }
+                @Override
+                public void onResponse(Response response) throws IOException {
+                if(!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                RCResponse rcResponse = new RCResponse(response);                       // Your code goes here
+                }
+});
 	
 	
 
