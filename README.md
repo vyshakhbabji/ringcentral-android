@@ -12,9 +12,9 @@
 #Basic Usage
 ##Initialization
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
-'''java
+```java
 SDK = new SDK(appKey, appSecret, "https://platform.devtest.ringcentral.com";
-'''
+```
 ####Get Platform Singleton
 ```java
 platform = SDK.getPlatform();
@@ -35,5 +35,12 @@ SDK.platform.authorize(
 		public void onResponse(Response response) throws IOException {
 			if(!response.isSuccessful())
 				throw new IOException("Unexpected code " + response);
+			// Create RCResponse and parse the JSON response to set Auth data
+			RCResponse authResponse = new RCResponse(response);
+			Map<String, String> responseMap = authResponse.getJson();
+			platform.setAuthData(responseMap);
+                        // Your code here
+		}
+	});
 ``` 
 

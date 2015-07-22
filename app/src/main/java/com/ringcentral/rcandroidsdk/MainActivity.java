@@ -105,11 +105,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                //Create RCResponse and set Auth data to the parsed JSON
+                                // Create RCResponse and parse the JSON response to set Auth data
                                 RCResponse authResponse = new RCResponse(response);
-                                Map<String, String> responseMap= authResponse.getJson();
+                                Map<String, String> responseMap = authResponse.getJson();
                                 platform.setAuthData(responseMap);
-                                //Display options Activity
+                                // Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
                                 optionsIntent.putExtra("MyRcsdk", SDK);
                                 startActivity(optionsIntent);
