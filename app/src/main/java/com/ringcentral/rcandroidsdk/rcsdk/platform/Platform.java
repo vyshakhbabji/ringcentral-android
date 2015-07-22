@@ -278,11 +278,11 @@ public class Platform implements Serializable{
     /**
      * Sets the header and body to make a GET request
      *
-     * @param body
      * @param headerMap
      * @param c
      */
-    public void get(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
+    public void get(HashMap<String, String> headerMap, Callback c) {
+        HashMap<String, String> body = null;
         this.apiCall("GET", body, headerMap, c);
     }
 
@@ -311,11 +311,11 @@ public class Platform implements Serializable{
     /**
      * Sets up body and headers for a DELETE request
      *
-     * @param body
      * @param headerMap
      * @param c
      */
-    public void delete(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
+    public void delete(HashMap<String, String> headerMap, Callback c) {
+        HashMap<String, String> body = null;
         this.apiCall("DELETE", body, headerMap, c);
     }
 
@@ -325,10 +325,9 @@ public class Platform implements Serializable{
      * @param c
      */
     public void accountInfo(Callback c){
-        HashMap<String, String> body = null;
         HashMap<String, String> headers = new HashMap<>();
         headers.put("url", "/restapi/v1.0/account/~");
-        this.get(body, headers, c);
+        this.get(headers, c);
     }
 
     /**
@@ -337,10 +336,9 @@ public class Platform implements Serializable{
      * @param c
      */
     public void callLog(Callback c){
-        HashMap<String, String> callLogBody = null;
         HashMap<String, String> callLogHeaders = new HashMap<>();
         callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
-        this.get(callLogBody, callLogHeaders, c);
+        this.get(callLogHeaders, c);
     }
 
     /**
@@ -349,10 +347,9 @@ public class Platform implements Serializable{
      * @param c
      */
     public void messageStore(Callback c){
-        HashMap<String, String> messageStoreBody = null;
         HashMap<String, String> messageStoreHeaders = new HashMap<>();
         messageStoreHeaders.put("url", "/restapi/v1.0/account/~/extension/~/message-store");
-        this.get(messageStoreBody, messageStoreHeaders, c);
+        this.get(messageStoreHeaders, c);
     }
 
     /**
