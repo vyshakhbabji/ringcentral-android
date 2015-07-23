@@ -9,6 +9,7 @@
 	1. [RingOut](##performing-a-ringout)
 	2. [SMS](##sending-an-sms)
 	3. [Call Log](##getting-the-call-log)
+5. [Stub]
 #Overview
 This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the toekn lifecycle, makes API requests, and parses API responses.
 #Installation
