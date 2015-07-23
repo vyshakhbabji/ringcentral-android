@@ -9,7 +9,8 @@ import java.io.Serializable;
  */
 public class SDK implements Serializable{
 
-    static String version = "";
+    static final String RC_SERVER_PRODUCTION = "https://platform.ringcentral.com";
+    static final String RC_SERVER_SANDBOX = "https://platform.devtest.ringcentral.com";
     Platform platform;
 
     public SDK(String appKey, String appSecret, String server){

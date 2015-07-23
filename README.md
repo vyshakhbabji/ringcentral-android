@@ -28,8 +28,12 @@ dependencies {
 #Basic Usage
 ##Initialization
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
+#####Production:
 ```java
-SDK = new SDK(appKey, appSecret, "https://platform.devtest.ringcentral.com";
+SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_PRODUCTION);
+```
+#####Sandbox
+SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
 ```
 ####Get Platform Singleton
 ```java
@@ -56,7 +60,7 @@ SDK.platform.authorize(
 			RCResponse authResponse = new RCResponse(response);
 			Map<String, String> responseMap = authResponse.getJson();
 			platform.setAuthData(responseMap);
-               		// Your code goes here
+            	// Your code goes here
 		}
 });
 ``` 
@@ -92,7 +96,7 @@ platform.post(body, headers,
 		if(!response.isSuccessful())
 			throw new IOException("Unexpected code " + response);
 		RCResponse rcResponse = new RCResponse(response);
-		// Your code goes here
+			// Your code goes here
 		}
 });
 ```
@@ -114,7 +118,8 @@ platform.ringOut(
                 public void onResponse(Response response) throws IOException {
                 if(!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
-        	RCResponse rcResponse = new RCResponse(response);      			// Your code goes here
+        		RCResponse rcResponse = new RCResponse(response);
+        	      	// Your code goes here
                 }
 });	
 ```
@@ -134,7 +139,8 @@ platform.sendSMS(
                 public void onResponse(Response response) throws IOException {
                 if(!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
-                RCResponse rcResponse = new RCResponse(response);                       // Your code goes here
+                RCResponse rcResponse = new RCResponse(response);                       
+                	// Your code goes here
                 }
 });
 ```
@@ -151,7 +157,8 @@ platform.callLog(
                 public void onResponse(Response response) throws IOException {
                 if(!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
-                RCResponse rcResponse = new RCResponse(response);                       // Your code goes here
+                RCResponse rcResponse = new RCResponse(response);                       
+                	// Your code goes here
                 }
 });	
 ```	
