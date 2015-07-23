@@ -1,9 +1,16 @@
 #Table of contents
 
-1. [Installation](#installation)
-2. [Basic Usage](#basic-usage)
-3. [Examples](#examples)
-
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Basic Usage](#basic-usage)
+	a. [Initialization](##initialization)
+	b. [Authentication](##authentication)
+4. [Examples](#examples)
+	a. [RingOut](##performing-a-ringout)
+	b. [SMS](##sending-an-sms)
+	c. [Call Log](##getting-the-call-log)
+#Overview
+This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the toekn lifecycle, makes API requests, and parses API responses.
 #Installation
 ##Android Studio Environment
 ###Android Manifest
@@ -33,6 +40,7 @@ Create an instance of the global SDK object in your application, and configure i
 SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_PRODUCTION);
 ```
 #####Sandbox
+```java
 SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
 ```
 ####Get Platform Singleton
