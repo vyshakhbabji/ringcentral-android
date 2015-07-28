@@ -43,8 +43,13 @@ public class Platform implements Serializable{
     public Platform(String appKey, String appSecret, String server){
         this.appKey = appKey;
         this.appSecret = appSecret;
-        this.server = server;
         this.auth = new Auth();
+        if(server.toUpperCase().equals("SANDBOX")){
+            this.server = "https://platform.devtest.ringcentral.com";
+        }
+        else if(server.toUpperCase().equals("PRODUCTION")){
+            this.server = "https://platform.ringcentral.com";
+        }
     }
 
     /**

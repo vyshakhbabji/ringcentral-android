@@ -161,7 +161,6 @@ public class RCRequest extends RCHeaders {
                     .url(this.url)
                     .build();
         }
-        ////// to UPPER CASE
         else if(method.toUpperCase().equals("DELETE")){
             request = requestBuilder
                     .url(this.url)
@@ -182,12 +181,12 @@ public class RCRequest extends RCHeaders {
             }
         }
         else if(this.RCHeaders.map.containsValue("multipart/mixed")) {
-            if (method.equals("POST")) {
+            if (method.toUpperCase().equals("POST")) {
                 request = requestBuilder
                         .url(this.url)
                         .post(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
                         .build();
-            } else if (method.equals("PUT")) {
+            } else if (method.toUpperCase().equals("PUT")) {
                 request = requestBuilder
                         .url(this.url)
                         .put(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
@@ -195,12 +194,12 @@ public class RCRequest extends RCHeaders {
             }
         }
         else {
-            if (method.equals("POST")) {
+            if (method.toUpperCase().equals("POST")) {
                 request = requestBuilder
                         .url(this.url)
                         .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
                         .build();
-            } else if (method.equals("PUT")){
+            } else if (method.toUpperCase().equals("PUT")){
                 request = requestBuilder
                         .url(this.url)
                         .put(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
