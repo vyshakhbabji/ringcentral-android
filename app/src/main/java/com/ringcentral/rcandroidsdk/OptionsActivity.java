@@ -205,7 +205,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                         "Content-Type: application/json\n" +
                         "\n" +
                         "{\n" +
-                        "  \"to\":[{\"phoneNumber\":\"18005630003\"}],\n" +
+                        "  \"to\":[{\"phoneNumber\":\"16502823614\"}],\n" +
                         "  \"faxResolution\":\"High\",\n" +
                         "  \"sendTime\":\"2013-02-26T09:31:20.882Z\"\n" +
                         "}\n" +
