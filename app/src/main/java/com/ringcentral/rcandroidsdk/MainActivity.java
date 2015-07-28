@@ -32,11 +32,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     String appKey = "xhK3uzISTEaEYhFAtadVug";
     String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
-//    String username = "15856234166";
-//    String password = "P@ssw0rd";
-//    String extension = "";
-    String RC_SERVER_PRODUCTION = "https://platform.ringcentral.com";
-    String RC_SERVER_SANDBOX = "https://platform.devtest.ringcentral.com";
 
     Platform platform;
     SDK SDK;
@@ -61,7 +56,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        button5 = (Button) findViewById(R.id.button5);
 //        button5.setOnClickListener(this);
 
-        SDK = new SDK(appKey, appSecret, RC_SERVER_SANDBOX);
+        SDK = new SDK(appKey, appSecret, "SANDBOX");
         platform = SDK.getPlatform();
 //        Properties properties = new Properties();
 //        InputStream input = null;
