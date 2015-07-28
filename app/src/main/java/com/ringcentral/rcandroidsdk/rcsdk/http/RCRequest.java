@@ -46,9 +46,6 @@ public class RCRequest extends RCHeaders {
             = MediaType.parse("application/json; charset=utf-8");
     public static final MediaType MULTI_TYPE_MARKDOWN
             = MediaType.parse("multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
-    public Response callResponse;
-    public String responseString;
-    public Map<String, String> responseMap;
 
     public RCRequest(HashMap<String, String> body, HashMap<String, String> headerMap){
         RCHeaders = new RCHeaders();
@@ -159,24 +156,25 @@ public class RCRequest extends RCHeaders {
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
         }
         Request request = null;
-        if(method.equals("GET")) {
+        if(method.toUpperCase().equals("GET")) {
             request = requestBuilder
                     .url(this.url)
                     .build();
         }
-        else if(method.equals("DELETE")){
+        ////// to UPPER CASE
+        else if(method.toUpperCase().equals("DELETE")){
             request = requestBuilder
                     .url(this.url)
                     .delete()
                     .build();
         }
         else if(this.RCHeaders.map.containsValue("application/json")) {
-            if (method.equals("POST")) {
+            if (method.toUpperCase().equals("POST")) {
                 request = requestBuilder
                         .url(this.url)
                         .post(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
                         .build();
-            } else if (method.equals("PUT")) {
+            } else if (method.toUpperCase().equals("PUT")) {
                 request = requestBuilder
                         .url(this.url)
                         .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))

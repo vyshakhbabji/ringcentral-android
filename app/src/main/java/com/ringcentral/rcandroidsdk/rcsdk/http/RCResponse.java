@@ -81,8 +81,8 @@ public class RCResponse extends RCHeaders {
     public Map getJson(){
         Gson gson = new Gson();
         Type mapType = new TypeToken<Map<String, String>>() {}.getType();
-        Map<String, String> ser = gson.fromJson(this.body, mapType);
-        return ser;
+        Map<String, String> jsonMap = gson.fromJson(this.body, mapType);
+        return jsonMap;
     }
 
 //    public String getResponses(){

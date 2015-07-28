@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.pubnub.api.PubnubError;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
@@ -171,14 +172,8 @@ public class Platform implements Serializable{
                         public void onResponse(Response response) throws IOException {
                             if (!response.isSuccessful())
                                 throw new IOException("Unexpected code " + response);
-                            //callResponse = response;
-                            String responseString = response.body().string();
-                            System.out.print(responseString);
-
-                            Gson gson = new Gson();
-                            Type mapType = new TypeToken<Map<String, String>>() {
-                            }.getType();
-                            Map<String, String> responseMap = gson.fromJson(responseString, mapType);
+                            RCResponse refreshResponse = new RCResponse(response);
+                            Map<String, String> responseMap = refreshResponse.getJson();
                             setAuthData(responseMap);
                         }
                     });
@@ -218,11 +213,11 @@ public class Platform implements Serializable{
             options.put("addServer", "true");
             RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
             RCRequest.setMethod(method);
-            if(method.equals("DELETE")){
+            if(method.toUpperCase().equals("DELETE")){
                 RCRequest.delete(c);
-            } else if(method.equals("POST")){
+            } else if(method.toUpperCase().equals("POST")){
                 RCRequest.post(c);
-            } else if(method.equals("PUT")){
+            } else if(method.toUpperCase().equals("PUT")){
                 RCRequest.put(c);
             } else {
                 RCRequest.get(c);
@@ -397,6 +392,7 @@ public class Platform implements Serializable{
         this.post(body, headers, c);
     }
 
+//UNDER CONSTRUCTION
     public void postSubscription(){
         HashMap<String, String> body = new HashMap<>();
         body.put("body", "{\n" +

@@ -14,6 +14,7 @@ public class SDK implements Serializable{
     Platform platform;
 
     public SDK(String appKey, String appSecret, String server){
+        //Production or Sandbox
         platform = new Platform(appKey, appSecret, server);
     }
 

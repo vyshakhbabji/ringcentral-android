@@ -51,6 +51,8 @@ public class RCHeaders {
         return map;
     }
 
+    /*
+    * Creates a string array from all the headers
     public String[] getHeadersArray(){
         String[] array = new String[this.map.size()];
         int count = 0;
@@ -60,6 +62,7 @@ public class RCHeaders {
         }
         return array;
     }
+    */
 
     public String getContentType(){
         return hasHeader(CONTENT_TYPE) ? getHeader(CONTENT_TYPE):"";
@@ -69,6 +72,12 @@ public class RCHeaders {
         this.map.put(CONTENT_TYPE, contentType);
     }
 
+    /**
+     * Returns true if the content-type matches the passed in parameter content-type
+     *
+     * @param contentType
+     * @return
+     */
     public boolean isContentType(String contentType){
         return (this.map.get(CONTENT_TYPE).contains(contentType));
     }

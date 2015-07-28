@@ -13,12 +13,17 @@ import javax.crypto.spec.SecretKeySpec;
 public class Subscription {
 
     Pubnub pubnub;
-    public static String encryptionKey = "";
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    public String encryptionKey = "";
     public String responseMessage = "";
     public Subscription(String subscribeKey, String secretKey, String encryptionKey) {
         pubnub = new Pubnub("", subscribeKey, secretKey);
         this.encryptionKey = encryptionKey;
     }
+
 
     public void subscribe(String address) {
 
@@ -27,6 +32,7 @@ public class Subscription {
 
                         @Override
                         public void connectCallback(String channel, Object message) {
+
                             System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
                                     + " : " + message.getClass() + " : "
                                     + message.toString());
@@ -43,6 +49,7 @@ public class Subscription {
                         public void reconnectCallback(String channel, Object message) {
                             System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
                                     + " : " + message.getClass() + " : "
+
                                     + message.toString());
                         }
 
