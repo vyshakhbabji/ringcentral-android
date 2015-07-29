@@ -89,56 +89,13 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="TEST" name="jna-3.4.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-support-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="jetty-http-8.1.15.v20140411" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="netty-3.5.5.Final" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-safari-driver-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="commons-codec-1.9" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="platform-3.4.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="xml-apis-1.4.01" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="htmlunit-2.15" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="java-client-2.0.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="xercesImpl-2.11.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="webbit-0.4.15" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="javassist-3.12.1.GA" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="junit-4.11" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="commons-collections-3.2.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-remote-driver-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="commons-lang3-3.3.2" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="serializer-2.7.1" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
     <orderEntry type="library" exported="" name="okhttp-2.4.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="guava-17.0" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="multidex-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="htmlunit-core-js-2.15" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="jetty-websocket-8.1.15.v20140411" level="project" />
     <orderEntry type="library" exported="" name="pubnub-android-3.7.4" level="project" />
     <orderEntry type="library" exported="" name="okio-1.4.0" level="project" />
-    <orderEntry type="library" exported="" name="multidex-1.0.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="xalan-2.7.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="commons-io-2.4" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="jetty-util-8.1.15.v20140411" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="asm-4.2" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-api-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="commons-exec-1.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="dexmaker-1.2" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="jetty-io-8.1.15.v20140411" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="dom4j-1.6.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="cssparser-0.9.14" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-firefox-driver-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-java-2.43.1" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-ie-driver-2.43.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="sac-1.3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="nekohtml-1.9.21" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="cglib-3.1" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.3.1" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="httpmime-4.3.3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-htmlunit-driver-2.43.1" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="reflections-0.9.8" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="cglib-nodep-2.1_3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="selenium-chrome-driver-2.43.1" level="project" />
   </component>
 </module>

@@ -19,20 +19,19 @@ public class PlatformTest extends InstrumentationTestCase {
     String username = "15856234166";
     String password = "P@ssw0rd";
     String extension = "";
-    String RC_SERVER_PRODUCTION = "https://platform.ringcentral.com";
-    String RC_SERVER_SANDBOX = "https://platform.devtest.ringcentral.com";
+
 
     Platform p;
 
     public void testGetApiKey() throws Exception {
-        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+        p = new Platform(appKey, appSecret, "SANDBOX");
         String actual = p.getApiKey();
         String expected = "YWJjZDEyM2VmZzpoaWoxMjNrbG0=";
         assertEquals(expected, actual);
     }
 
     public void testApiUrl() throws Exception {
-        p = new Platform(appKey, appSecret, RC_SERVER_SANDBOX);
+        p = new Platform(appKey, appSecret, "SANDBOX");
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
         String actualUrl1 = p.apiURL("/restapi/v1.0/account/~/call-log", options);
