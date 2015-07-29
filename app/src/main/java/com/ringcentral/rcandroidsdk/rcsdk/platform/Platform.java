@@ -23,6 +23,9 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
 /**
  * Created by andrew.pang on 6/25/15.
  */
@@ -430,13 +433,52 @@ public class Platform implements Serializable{
                             JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
                             String subscriberKey = deliveryMode.getString("subscriberKey");
                             String secretKey = deliveryMode.getString("secretKey");
-                            String encryptionKey = deliveryMode.getString("encryptionKey");
+                            final String encryptionKey = deliveryMode.getString("encryptionKey");
                             String address = deliveryMode.getString("address");
                             //Subscription
                             System.out.println(encryptionKey);
                             subscription = new Subscription(subscriberKey, secretKey, encryptionKey);
-                            subscription.subscribe(address);
-                            subscription.notify("lalala");
+                            subscription.subscribe(address,
+                                    new com.pubnub.api.Callback() {
+
+                                        @Override
+                                        public void connectCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
+                                                    + " : " + message.getClass() + " : "
+                                                    + message.toString());
+                                        }
+
+                                        @Override
+                                        public void disconnectCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
+                                                    + " : " + message.getClass() + " : "
+                                                    + message.toString());
+                                        }
+
+                                        @Override
+                                        public void reconnectCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
+                                                    + " : " + message.getClass() + " : "
+
+                                                    + message.toString());
+                                        }
+
+                                        @Override
+                                        public void successCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : " + channel + " : "
+                                                    + message.getClass() + " : " + message.toString());
+                                            String decryptedString = subscription.notify(message.toString(), encryptionKey);
+                                            System.out.print(decryptedString);
+                                        }
+
+                                        @Override
+                                        public void errorCallback(String channel, PubnubError error) {
+                                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
+                                                    + " : " + error.toString());
+                                        }
+
+                                    });
+                            //subscription.notify("lalala");
                             //subscription.presence(address);
                         } catch(JSONException e){
                             e.printStackTrace();

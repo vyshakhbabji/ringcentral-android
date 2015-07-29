@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Subscription {
 
-    Pubnub pubnub;
+    public Pubnub pubnub;
     public void setEncryptionKey(String encryptionKey) {
         this.encryptionKey = encryptionKey;
     }
@@ -25,48 +25,11 @@ public class Subscription {
     }
 
 
-    public void subscribe(String address) {
-
+    public void subscribe(String address, Callback c) {
+        final String encKey = this.encryptionKey;
         try {
-            pubnub.subscribe(address, new Callback() {
-
-                        @Override
-                        public void connectCallback(String channel, Object message) {
-
-                            System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
-                                    + " : " + message.getClass() + " : "
-                                    + message.toString());
-                        }
-
-                        @Override
-                        public void disconnectCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
-                                    + " : " + message.getClass() + " : "
-                                    + message.toString());
-                        }
-
-                        @Override
-                        public void reconnectCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
-                                    + " : " + message.getClass() + " : "
-
-                                    + message.toString());
-                        }
-
-                        @Override
-                        public void successCallback(String channel, Object message) {
-                            System.out.println("SUBSCRIBE : " + channel + " : "
-                                    + message.getClass() + " : " + message.toString());
-                        }
-
-                        @Override
-                        public void errorCallback(String channel, PubnubError error) {
-                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
-                                    + " : " + error.toString());
-                        }
-
-                    }
-            );
+            pubnub.subscribe(address, c);
+            //);
         } catch (PubnubException e) {
             e.printStackTrace();
         }
@@ -115,8 +78,8 @@ public class Subscription {
 //        }
 //    }
 
-    public String notify(String message){
-        byte[] key = Base64.decode(this.encryptionKey, Base64.NO_WRAP);
+    public String notify(String message, String encryptionKey){
+        byte[] key = Base64.decode(encryptionKey, Base64.NO_WRAP);
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         byte[] data = Base64.decode(message, Base64.NO_WRAP);
         String decryptedString = "";
