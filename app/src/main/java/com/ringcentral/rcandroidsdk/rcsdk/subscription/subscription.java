@@ -72,48 +72,48 @@ public class Subscription {
         }
     }
 
-    public void presence(String channel){
-        Callback callback = new Callback() {
-            @Override
-            public void connectCallback(String channel, Object message) {
-                System.out.println("CONNECT on channel:" + channel
-                        + " : " + message.getClass() + " : "
-                        + message.toString());
-            }
-
-            @Override
-            public void disconnectCallback(String channel, Object message) {
-                System.out.println("DISCONNECT on channel:" + channel
-                        + " : " + message.getClass() + " : "
-                        + message.toString());
-            }
-
-            @Override
-            public void reconnectCallback(String channel, Object message) {
-                System.out.println("RECONNECT on channel:" + channel
-                        + " : " + message.getClass() + " : "
-                        + message.toString());
-            }
-
-            @Override
-            public void successCallback(String channel, Object message) {
-                System.out.println(channel + " : "
-                        + message.getClass() + " : " + message.toString());
-            }
-
-            @Override
-            public void errorCallback(String channel, PubnubError error) {
-                System.out.println("ERROR on channel " + channel
-                        + " : " + error.toString());
-            }
-        };
-
-        try {
-            pubnub.presence(channel, callback);
-        } catch (PubnubException e) {
-            System.out.println(e.toString());
-        }
-    }
+//    public void presence(String channel){
+//        Callback callback = new Callback() {
+//            @Override
+//            public void connectCallback(String channel, Object message) {
+//                System.out.println("CONNECT on channel:" + channel
+//                        + " : " + message.getClass() + " : "
+//                        + message.toString());
+//            }
+//
+//            @Override
+//            public void disconnectCallback(String channel, Object message) {
+//                System.out.println("DISCONNECT on channel:" + channel
+//                        + " : " + message.getClass() + " : "
+//                        + message.toString());
+//            }
+//
+//            @Override
+//            public void reconnectCallback(String channel, Object message) {
+//                System.out.println("RECONNECT on channel:" + channel
+//                        + " : " + message.getClass() + " : "
+//                        + message.toString());
+//            }
+//
+//            @Override
+//            public void successCallback(String channel, Object message) {
+//                System.out.println(channel + " : "
+//                        + message.getClass() + " : " + message.toString());
+//            }
+//
+//            @Override
+//            public void errorCallback(String channel, PubnubError error) {
+//                System.out.println("ERROR on channel " + channel
+//                        + " : " + error.toString());
+//            }
+//        };
+//
+//        try {
+//            pubnub.presence(channel, callback);
+//        } catch (PubnubException e) {
+//            System.out.println(e.toString());
+//        }
+//    }
 
     public String notify(String message){
         byte[] key = Base64.decode(this.encryptionKey, Base64.NO_WRAP);

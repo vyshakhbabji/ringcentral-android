@@ -271,6 +271,7 @@ public class Platform implements Serializable{
         try {
             RCRequest.post(c);
         } catch (Exception e) {
+            System.out.println("yo");
             e.printStackTrace();
         }
     }

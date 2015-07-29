@@ -64,13 +64,18 @@ SDK.platform.authorize(
 		} 
 		@Override
 		public void onResponse(Response response) throws IOException {
-			if(!response.isSuccessful())
-				throw new IOException("Unexpected code " + response);
-			// Create RCResponse and parse the JSON response to set Auth data
 			RCResponse authResponse = new RCResponse(response);
-			Map<String, String> responseMap = authResponse.getJson();
-			platform.setAuthData(responseMap);
-            	// Your code goes here
+            Map<String, String> responseMap = authResponse.getJson();
+            // If HTTP response is not successful, throw exception
+            if (!response.isSuccessful()){
+                throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
+            }
+            // Create RCResponse and parse the JSON response to set Auth data
+            platform.setAuthData(responseMap);
+            // Display options Activity
+            Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
+            optionsIntent.putExtra("MyRcsdk", SDK);
+            startActivity(optionsIntent);
 		}
 });
 ``` 
@@ -126,10 +131,20 @@ platform.ringOut(
                 }
                 @Override
                 public void onResponse(Response response) throws IOException {
-                if(!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-        		RCResponse rcResponse = new RCResponse(response);
-        	      	// Your code goes here
+                	RCResponse authResponse = new RCResponse(response);
+                    String responseString = authResponse.getBody();
+                    // If HTTP response is not successful, throw exception
+                    if (!response.isSuccessful()) {
+                        try {
+                        JSONObject jsonObject = new JSONObject(responseString);
+           				String errorCode = jsonObject.getString("errorCode");
+                        String message = jsonObject.getString("message");
+                        throw new IOException("Error code: "+ authResponse.getStatus() + ". Error: " + errorCode + ": " + message);
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    // Your code goes here
                 }
 });	
 ```
@@ -147,9 +162,19 @@ platform.sendSMS(
                 }
                 @Override
                 public void onResponse(Response response) throws IOException {
-                if(!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                RCResponse rcResponse = new RCResponse(response);                       
+                	RCResponse smsResponse = new RCResponse(response);
+                    String responseString = smsResponse.getBody();
+                    // If HTTP response is not successful, throw exception
+                    if (!response.isSuccessful()) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(responseString);
+                            String errorCode = jsonObject.getString("errorCode");
+                        	String message = jsonObject.getString("message");
+                            throw new IOException("Error code: "+ smsResponse.getStatus() + ". Error: " + errorCode + ": " + message);
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                     	}
+                    }
                 	// Your code goes here
                 }
 });

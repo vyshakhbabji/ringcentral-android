@@ -98,11 +98,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             }
                             @Override
                             public void onResponse(Response response) throws IOException {
-                                if (!response.isSuccessful())
-                                    throw new IOException("Unexpected code " + response);
-                                // Create RCResponse and parse the JSON response to set Auth data
                                 RCResponse authResponse = new RCResponse(response);
                                 Map<String, String> responseMap = authResponse.getJson();
+                                // If HTTP response is not successful, throw exception
+                                if (!response.isSuccessful()) {
+                                    throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
+                                }
+                                // Create RCResponse and parse the JSON response to set Auth data
                                 platform.setAuthData(responseMap);
                                 // Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
