@@ -17,25 +17,7 @@ import java.util.Map;
  */
 public class APITest extends InstrumentationTestCase {
 
-    public void testAuthentication() throws Exception{
-        SDK sdk = new SDK("xhK3uzISTEaEYhFAtadVug", "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA", "SANDBOX");
-        Platform platform = sdk.getPlatform();
-        platform.authorize("15856234166", "", "P@ssw0rd",
-                new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                    }
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        RCResponse authResponse = new RCResponse(response);
-                        assertTrue(authResponse.checkStatus());
-                    }
-                }
-        );
-    }
-
-    public void testSendSMS() throws Exception {
+    public void testApi() throws Exception{
         SDK sdk = new SDK("xhK3uzISTEaEYhFAtadVug", "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA", "SANDBOX");
         final Platform platform = sdk.getPlatform();
         platform.authorize("15856234166", "", "P@ssw0rd",
@@ -46,12 +28,13 @@ public class APITest extends InstrumentationTestCase {
                     }
                     @Override
                     public void onResponse(Response response) throws IOException {
-                        if(!response.isSuccessful())
-                            throw new IOException("Unexpected code " + response);
-                        // Create RCResponse and parse the JSON response to set Auth data
                         RCResponse authResponse = new RCResponse(response);
                         Map<String, String> responseMap = authResponse.getJson();
                         platform.setAuthData(responseMap);
+                        //Test Authorization
+                        assertTrue(authResponse.checkStatus());
+
+                        //Test Send SMS
                         platform.sendSMS("16502823614", "15856234166", "Test Message",
                                 new Callback() {
                                     @Override
@@ -64,29 +47,8 @@ public class APITest extends InstrumentationTestCase {
                                     }
                                 }
                         );
-                    }
-                }
-        );
-    }
 
-    public void testCallLog() throws Exception {
-        SDK sdk = new SDK("xhK3uzISTEaEYhFAtadVug", "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA", "SANDBOX");
-        final Platform platform = sdk.getPlatform();
-        platform.authorize("15856234166", "", "P@ssw0rd",
-                new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        if (!response.isSuccessful())
-                            throw new IOException("Unexpected code " + response);
-                        // Create RCResponse and parse the JSON response to set Auth data
-                        RCResponse authResponse = new RCResponse(response);
-                        Map<String, String> responseMap = authResponse.getJson();
-                        platform.setAuthData(responseMap);
+                        //Test Call Log
                         platform.callLog(
                                 new Callback() {
                                     @Override
@@ -100,7 +62,8 @@ public class APITest extends InstrumentationTestCase {
                                 }
                         );
                     }
-                });
+                }
+        );
     }
 
 

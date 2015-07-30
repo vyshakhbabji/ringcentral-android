@@ -436,7 +436,6 @@ public class Platform implements Serializable{
                             final String encryptionKey = deliveryMode.getString("encryptionKey");
                             String address = deliveryMode.getString("address");
                             //Subscription
-                            System.out.println(encryptionKey);
                             subscription = new Subscription(subscriberKey, secretKey, encryptionKey);
                             subscription.subscribe(address,
                                     new com.pubnub.api.Callback() {
@@ -465,8 +464,9 @@ public class Platform implements Serializable{
 
                                         @Override
                                         public void successCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : " + channel + " : "
-                                                    + message.getClass() + " : " + message.toString());
+//                                            System.out.println("SUBSCRIBE : " + channel + " : "
+//                                                    + message.getClass() + " : " + message.toString());
+                                            System.out.print(message.toString() + "\n");
                                             String decryptedString = subscription.notify(message.toString(), encryptionKey);
                                             System.out.print(decryptedString);
                                         }

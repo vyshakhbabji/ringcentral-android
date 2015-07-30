@@ -23,13 +23,10 @@ public class Subscription {
         pubnub = new Pubnub("", subscribeKey, secretKey);
         this.encryptionKey = encryptionKey;
     }
-
-
+    
     public void subscribe(String address, Callback c) {
-        final String encKey = this.encryptionKey;
         try {
             pubnub.subscribe(address, c);
-            //);
         } catch (PubnubException e) {
             e.printStackTrace();
         }
