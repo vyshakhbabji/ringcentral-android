@@ -9,6 +9,9 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -44,6 +47,28 @@ public class APITest extends InstrumentationTestCase {
                                     public void onResponse(Response response) throws IOException {
                                         RCResponse smsResponse = new RCResponse(response);
                                         assertTrue(smsResponse.checkStatus());
+                                        try {
+                                            JSONObject json = new JSONObject(smsResponse.getBody());
+                                            String messageId = json.getString("id");
+                                            //Test Delete Message
+                                            HashMap<String, String> deleteHeader = new HashMap<>();
+                                            deleteHeader.put("method", "DELETE");
+                                            deleteHeader.put("url", "/restapi/v1.0/account/~/extension/~/message-store/" + messageId);
+                                            platform.delete(deleteHeader,
+                                                    new Callback() {
+                                                        @Override
+                                                        public void onFailure(Request request, IOException e) {
+
+                                                        }
+                                                        @Override
+                                                        public void onResponse(Response response) throws IOException {
+                                                            RCResponse deleteResponse = new RCResponse(response);
+                                                            assertTrue(deleteResponse.checkStatus());
+                                                        }
+                                                    });
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                         );
@@ -54,6 +79,7 @@ public class APITest extends InstrumentationTestCase {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
                                     }
+
                                     @Override
                                     public void onResponse(Response response) throws IOException {
                                         RCResponse callLogResponse = new RCResponse(response);
