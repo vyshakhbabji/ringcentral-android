@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,13 +76,13 @@ public class RCResponse extends RCHeaders {
     }
 
     /**
-     * Parses JSON string to a Map<String, String> that is used to set authorization data
+     * Parses JSON string to a HashMap<String, String> that is used to set authorization data
      * @return
      */
-    public Map getJson(){
+    public HashMap getJson(){
         Gson gson = new Gson();
-        Type mapType = new TypeToken<Map<String, String>>() {}.getType();
-        Map<String, String> jsonMap = gson.fromJson(this.body, mapType);
+        Type mapType = new TypeToken<HashMap<String, String>>() {}.getType();
+        HashMap<String, String> jsonMap = gson.fromJson(this.body, mapType);
         return jsonMap;
     }
 

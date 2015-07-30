@@ -22,7 +22,6 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -99,7 +98,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 RCResponse authResponse = new RCResponse(response);
-                                Map<String, String> responseMap = authResponse.getJson();
+                                HashMap<String, String> responseMap = authResponse.getJson();
                                 // If HTTP response is not successful, throw exception
                                 if (!response.isSuccessful()) {
                                     throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));

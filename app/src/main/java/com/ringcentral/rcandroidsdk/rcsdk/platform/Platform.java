@@ -34,7 +34,7 @@ public class Platform implements Serializable{
     String appSecret;
     String server;
     String account = "~";
-    Auth auth;
+    public Auth auth;
     Subscription subscription;
 
     /**
@@ -58,9 +58,9 @@ public class Platform implements Serializable{
     /**
      * Sets authentication data for platform's auth
      *
-     * @param authData A map of the parsed authentication response
+     * @param authData A hashmap of the parsed authentication response
      */
-    public void setAuthData(Map<String, String> authData){
+    public void setAuthData(HashMap<String, String> authData){
         this.auth.setData(authData);
     }
 
@@ -181,7 +181,7 @@ public class Platform implements Serializable{
                             if (!response.isSuccessful())
                                 throw new IOException("Unexpected code " + response);
                             RCResponse refreshResponse = new RCResponse(response);
-                            Map<String, String> responseMap = refreshResponse.getJson();
+                            HashMap<String, String> responseMap = refreshResponse.getJson();
                             setAuthData(responseMap);
                         }
                     });

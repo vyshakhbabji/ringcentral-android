@@ -26,7 +26,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class OptionsActivity extends ActionBarActivity implements View.OnClickListener {
@@ -162,9 +161,9 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                         JSONObject phoneNumber = to.getJSONObject(0);
                                         responseString += "To: " + phoneNumber.getString("phoneNumber") + "                                    ";
                                         responseString += "Status: " + record.getString("readStatus");
-                                        responseString += "\n";
-                                        JSONObject from =  record.getJSONObject("from");
-                                        responseString += "From: " + from.getString("phoneNumber") + " ";
+//                                        responseString += "\n";
+//                                        JSONObject from =  record.getJSONObject("from");
+//                                        responseString += "From: " + from.getString("phoneNumber") + " ";
                                         responseString += "\n\n";
                                     }
                                 } catch (JSONException e){

@@ -10,7 +10,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Created by andrew.pang on 7/29/15.
@@ -29,7 +29,7 @@ public class APITest extends InstrumentationTestCase {
                     @Override
                     public void onResponse(Response response) throws IOException {
                         RCResponse authResponse = new RCResponse(response);
-                        Map<String, String> responseMap = authResponse.getJson();
+                        HashMap<String, String> responseMap = authResponse.getJson();
                         platform.setAuthData(responseMap);
                         //Test Authorization
                         assertTrue(authResponse.checkStatus());
@@ -48,8 +48,8 @@ public class APITest extends InstrumentationTestCase {
                                 }
                         );
 
-                        //Test Call Log
-                        platform.callLog(
+                        //Test GET Account Info
+                        platform.accountInfo(
                                 new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
@@ -61,11 +61,46 @@ public class APITest extends InstrumentationTestCase {
                                     }
                                 }
                         );
+
+                        //Test GET Call Log
+                        platform.callLog(
+                                new Callback() {
+                                    @Override
+                                    public void onFailure(Request request, IOException e) {
+                                    }
+
+                                    @Override
+                                    public void onResponse(Response response) throws IOException {
+                                        RCResponse callLogResponse = new RCResponse(response);
+                                        assertTrue(callLogResponse.checkStatus());
+                                    }
+                                }
+                        );
+
+                        //Test GET Message Store
+                        platform.messageStore(
+                                new Callback() {
+                                    @Override
+                                    public void onFailure(Request request, IOException e) {
+                                    }
+
+                                    @Override
+                                    public void onResponse(Response response) throws IOException {
+                                        RCResponse messageStoreResponse = new RCResponse(response);
+                                        assertTrue(messageStoreResponse.checkStatus());
+                                    }
+                                }
+                        );
+
                     }
                 }
         );
+        try{
+            Thread.sleep(1000);
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
-
 
 
 }
