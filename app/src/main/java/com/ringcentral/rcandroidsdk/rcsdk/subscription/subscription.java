@@ -4,6 +4,10 @@ import android.util.Base64;
 import com.pubnub.api.*;
 import org.json.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -13,25 +17,68 @@ import javax.crypto.spec.SecretKeySpec;
 public class Subscription {
 
     public Pubnub pubnub;
-    public void setEncryptionKey(String encryptionKey) {
-        this.encryptionKey = encryptionKey;
-    }
-
     public String encryptionKey = "";
+    ArrayList<String> eventFilters = new ArrayList<>();
+    HashMap<String, String> deliveryMode = new HashMap<>();
     public String responseMessage = "";
+
     public Subscription(String subscribeKey, String secretKey, String encryptionKey) {
         pubnub = new Pubnub("", subscribeKey, secretKey);
         this.encryptionKey = encryptionKey;
     }
-    
-    public void subscribe(String address, Callback c) {
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    public Pubnub getPubnub() {
+        return pubnub;
+    }
+
+    public void register(HashMap<String, String> options, Callback c){
+        if(this.isSubscribed()){
+            this.renew(options, c);
+        } else{
+            this.subscribe(options, c);
+        }
+    }
+    public void subscribe(HashMap<String, String> options, Callback c) {
         try {
-            pubnub.subscribe(address, c);
+            if(options.containsKey("address")) {
+                String address = options.get("address");
+                pubnub.subscribe(address, c);
+            }
         } catch (PubnubException e) {
             e.printStackTrace();
         }
     }
 
+    public void renew(HashMap<String, String> options, Callback c){
+
+    }
+
+    public void addEvents(String[] events) {
+        for(String event:events){
+            this.eventFilters.add(event);
+        }
+    }
+
+    public void setEvents(String[] events){
+        this.eventFilters = new ArrayList<String>(Arrays.asList(events));
+    }
+
+    boolean isSubscribed(){
+        return this.deliveryMode.containsKey("subscriberKey") && this.deliveryMode.containsKey("address");
+    }
+
+    public void unsubscribe(HashMap<String, String> options) {
+        if (pubnub != null && this.isSubscribed()) {
+            if (options.containsKey("address")) {
+                String address = options.get("address");
+                this.pubnub.unsubscribe(address);
+            }
+        }
+    }
 //    public void presence(String channel){
 //        Callback callback = new Callback() {
 //            @Override
