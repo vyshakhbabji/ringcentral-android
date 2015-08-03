@@ -12,7 +12,7 @@
 
 
 #Overview
-This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the token lifecycle, makes API requests, and parses API responses.
+This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the token lifecycle, makes API requests, and parses API responses. This documentation will help you get set up and going with some example API calls.
 #Installation
 ##Android Studio Environment
 ###Android Manifest
