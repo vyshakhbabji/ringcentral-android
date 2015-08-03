@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "23.0.0 rc2"
+    buildToolsVersion "23.0.0 rc3"
 
     defaultConfig {
         applicationId "com.ringcentral.rcandroidsdk"
@@ -10,7 +10,7 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
+        multiDexEnabled false
     }
     buildTypes {
         release {
@@ -21,23 +21,20 @@ android {
     lintOptions {
         abortOnError false
     }
+//    configurations {
+//        all*.exclude module: 'beans'
+//    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.pubnub:pubnub-android:3.7.4'
-
-//    androidTestCompile "org.mockito:mockito-core:1.9.5"
-//    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-//    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-//    androidTestCompile 'io.appium:java-client:2.0.0'
-    androidTestCompile 'com.google.code.gson:gson:2.3.1'
-//    testCompile 'junit:junit:4.12'
-//    testCompile('org.robolectric:robolectric:3.0-rc2') {
-//        exclude group: 'commons-logging', module: 'commons-logging'
-//        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+//    compile ('io.appium:java-client:3.1.0'){
+//        exclude module: 'cglib'
 //    }
+
 }
+

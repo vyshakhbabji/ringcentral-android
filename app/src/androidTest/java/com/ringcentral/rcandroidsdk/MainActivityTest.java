@@ -1,8 +1,8 @@
 //package com.ringcentral.rcandroidsdk;
 //
-//import org.junit.After;
-//import org.junit.Before;
-//import org.junit.Test;
+////import org.junit.After;
+////import org.junit.Before;
+////import org.junit.Test;
 //import org.openqa.selenium.By;
 //import org.openqa.selenium.WebDriver;
 //import org.openqa.selenium.WebElement;
@@ -20,7 +20,7 @@
 //public class MainActivityTest {
 //    private AppiumDriver driver;
 //
-//    @Before
+//    //@Before
 //    public void setUp() throws Exception {
 //        File classpathRoot = new File(System.getProperty("user.dir"));
 //        File appDir = new File(classpathRoot, "../../../apps/ApiDemos/bin");
@@ -34,12 +34,12 @@
 //        driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
 //    }
 //
-//    @After
+//    //@After
 //    public void tearDown() throws Exception {
 //        driver.quit();
 //    }
 //
-//    @Test
+//    //@Test
 //    public void apiDemo(){
 //        WebElement button = driver.findElement(By.name("button1"));
 //        button.click();
