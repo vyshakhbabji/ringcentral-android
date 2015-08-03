@@ -96,6 +96,14 @@ public class Platform implements Serializable{
     }
 
     /**
+     * Gives the header value needed to pass in as "authorization" for API calls
+     * @return
+     */
+    public String getAuthHeader(){
+        return this.auth.getTokenType() + " " + this.getAccessToken();
+    }
+
+    /**
      * Takes in part of a URL along with options to return the endpoint for the API call
      *
      * @param url
@@ -188,21 +196,21 @@ public class Platform implements Serializable{
         }
     }
 
-//    /**
-//     * Revokes access for current access token
-//     *
-//     * @param c
-//     */
-//    public void logout(Callback c){
-//        HashMap<String, String> body = new HashMap<>();
-//        body.put("token", this.getAccessToken());
-//        HashMap<String, String> headerMap = new HashMap<>();
-//        headerMap.put("method", "POST");
-//        headerMap.put("url", "/restapi/oauth/revoke");
-//        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-//        this.authCall(body, headerMap, c);
-//        this.auth.reset();
-//    }
+    /**
+     * Revokes access for current access token
+     *
+     * @param c
+     */
+    public void logout(Callback c){
+        HashMap<String, String> body = new HashMap<>();
+        body.put("token", this.getAccessToken());
+        HashMap<String, String> headerMap = new HashMap<>();
+        headerMap.put("method", "POST");
+        headerMap.put("url", "/restapi/oauth/revoke");
+        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
+        this.authCall(body, headerMap, c);
+        this.auth.reset();
+    }
 
     /**
      * Method used for API calls, with the request type, body, headers, and callback as parameters.
@@ -216,7 +224,7 @@ public class Platform implements Serializable{
         try{
             this.isAuthorized();
             RCRequest RCRequest = new RCRequest(body, headerMap);
-            RCRequest.RCHeaders.setHeader("authorization", this.auth.getTokenType() + " " + this.getAccessToken());
+            RCRequest.RCHeaders.setHeader("authorization", this.getAuthHeader());
             HashMap<String, String> options = new HashMap<>();
             options.put("addServer", "true");
             RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
