@@ -55,7 +55,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
             case R.id.button1:
                 String to = toText.getText().toString();
                 String from = fromText.getText().toString();
-                String message = smsText.getText().toString();
+                String message = smsText.getText().toString().replace("\n", "");
                 platform.sendSMS(to, from, message,
                         new Callback() {
                             @Override

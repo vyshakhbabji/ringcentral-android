@@ -2,10 +2,7 @@ package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
 import android.util.Base64;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.pubnub.api.PubnubError;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.subscription.Subscription;
@@ -19,12 +16,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by andrew.pang on 6/25/15.
@@ -438,61 +430,93 @@ public class Platform implements Serializable{
                         RCResponse rcResponse = new RCResponse(response);
                         try {
                             JSONObject responseJson = new JSONObject(rcResponse.getBody());
-                            JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
-                            String subscriberKey = deliveryMode.getString("subscriberKey");
-                            String secretKey = deliveryMode.getString("secretKey");
-                            final String encryptionKey = deliveryMode.getString("encryptionKey");
-                            String address = deliveryMode.getString("address");
-                            //Subscription
-                            subscription = new Subscription(subscriberKey, secretKey, encryptionKey);
-                            subscription.subscribe(address,
-                                    new com.pubnub.api.Callback() {
-
-                                        @Override
-                                        public void connectCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
-                                                    + " : " + message.getClass() + " : "
-                                                    + message.toString());
-                                        }
-
-                                        @Override
-                                        public void disconnectCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
-                                                    + " : " + message.getClass() + " : "
-                                                    + message.toString());
-                                        }
-
-                                        @Override
-                                        public void reconnectCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
-                                                    + " : " + message.getClass() + " : "
-
-                                                    + message.toString());
-                                        }
-
-                                        @Override
-                                        public void successCallback(String channel, Object message) {
-//                                            System.out.println("SUBSCRIBE : " + channel + " : "
-//                                                    + message.getClass() + " : " + message.toString());
-                                            System.out.print(message.toString() + "\n");
-                                            String decryptedString = subscription.notify(message.toString(), encryptionKey);
-                                            System.out.print(decryptedString);
-                                        }
-
-                                        @Override
-                                        public void errorCallback(String channel, PubnubError error) {
-                                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
-                                                    + " : " + error.toString());
-                                        }
-
-                                    });
-                            //subscription.notify("lalala");
-                            //subscription.presence(address);
+                            subscription = new Subscription(responseJson);
                         } catch(JSONException e){
                             e.printStackTrace();
                         }
-
                     }
                 });
     }
+
+    public void renewSubscription(){
+        HashMap<String, String> body = new HashMap<>();
+        body.put("body", "{\n" +
+                "  \"eventFilters\": [ \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
+                "  ], \n" +
+                "}");
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/subscription" + subscription.subscriptionId);
+        headers.put("Content-Type", "application/json");
+        this.put(body, headers,
+                new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (!response.isSuccessful())
+                            throw new IOException("Unexpected code " + response);
+                        RCResponse rcResponse = new RCResponse(response);
+                        try {
+                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+                            subscription.updateSubscription(responseJson);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    public void subscribe(){
+        HashMap<String, String> options = new HashMap<>();
+        options.put("address", subscription.address);
+        subscription.subscribe(options,
+                new com.pubnub.api.Callback() {
+
+                    @Override
+                    public void connectCallback(String channel, Object message) {
+                        System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
+                                + " : " + message.getClass() + " : "
+                                + message.toString());
+                    }
+
+                    @Override
+                    public void disconnectCallback(String channel, Object message) {
+//                        System.out.println("SUBSCRIBE : DISCONNECT on channel:" + channel
+//                                + " : " + message.getClass() + " : "
+//                                + message.toString());
+                        String decryptedString = subscription.notify(message.toString(), subscription.encryptionKey);
+                        System.out.print(decryptedString);
+                    }
+
+                    @Override
+                    public void reconnectCallback(String channel, Object message) {
+                        System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
+                                + " : " + message.getClass() + " : "
+
+                                + message.toString());
+                    }
+
+                    @Override
+                    public void successCallback(String channel, Object message) {
+//                                            System.out.println("SUBSCRIBE : " + channel + " : "
+//                                                    + message.getClass() + " : " + message.toString());
+                        //System.out.print(message.toString());
+                        String decryptedString = subscription.notify(message.toString(), subscription.encryptionKey);
+                        System.out.print(decryptedString);
+                    }
+
+                    @Override
+                    public void errorCallback(String channel, PubnubError error) {
+                        System.out.println("SUBSCRIBE : ERROR on channel " + channel
+                                + " : " + error.toString());
+                    }
+
+                });
+    }
+
 }

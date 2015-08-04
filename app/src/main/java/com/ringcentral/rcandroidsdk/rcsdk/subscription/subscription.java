@@ -21,10 +21,31 @@ public class Subscription {
     ArrayList<String> eventFilters = new ArrayList<>();
     HashMap<String, String> deliveryMode = new HashMap<>();
     public String responseMessage = "";
+    public String address;
+    public String subscriptionId;
+    String subscriberKey;
+    String secretKey;
 
-    public Subscription(String subscribeKey, String secretKey, String encryptionKey) {
-        pubnub = new Pubnub("", subscribeKey, secretKey);
-        this.encryptionKey = encryptionKey;
+    public Subscription(JSONObject subscriptionResponse){
+        try{
+            updateSubscription(subscriptionResponse);
+            pubnub = new Pubnub("", subscriberKey, secretKey);
+        } catch (JSONException e){
+            e.printStackTrace();
+    }
+    }
+
+    public void updateSubscription(JSONObject responseJson) throws JSONException{
+        //try {
+            this.subscriptionId = responseJson.getString("id");
+            JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
+            this.subscriberKey = deliveryMode.getString("subscriberKey");
+            this.secretKey = deliveryMode.getString("secretKey");
+            this.encryptionKey = deliveryMode.getString("encryptionKey");
+            this.address = deliveryMode.getString("address");
+//        } catch (JSONException e){
+//            e.printStackTrace();
+//        }
     }
 
     public void setEncryptionKey(String encryptionKey) {
@@ -35,13 +56,14 @@ public class Subscription {
         return pubnub;
     }
 
-    public void register(HashMap<String, String> options, Callback c){
-        if(this.isSubscribed()){
-            this.renew(options, c);
-        } else{
-            this.subscribe(options, c);
-        }
-    }
+//    public void register(HashMap<String, String> options, Callback c){
+//        if(this.isSubscribed()){
+//            this.renew(options, c);
+//        } else{
+//            this.subscribe(options, c);
+//        }
+//    }
+
     public void subscribe(HashMap<String, String> options, Callback c) {
         try {
             if(options.containsKey("address")) {
@@ -53,9 +75,9 @@ public class Subscription {
         }
     }
 
-    public void renew(HashMap<String, String> options, Callback c){
-
-    }
+//    public void renew(HashMap<String, String> options, Callback c){
+//
+//    }
 
     public void addEvents(String[] events) {
         for(String event:events){

@@ -28,7 +28,7 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
 
     SDK SDK;
     Platform platform;
-    Button button1;
+    Button button1, button2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,8 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
 
+        button2 = (Button) findViewById(R.id.button2);
+        button2.setOnClickListener(this);
 //        byte[] a = new byte[0];
 //        byte[] b = new byte[0];
 //        String decryptedString = "";
@@ -68,6 +70,10 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
 
             case R.id.button1:
                 platform.postSubscription();
+                break;
+
+            case R.id.button2:
+                platform.subscribe();
                 break;
         }
     }
