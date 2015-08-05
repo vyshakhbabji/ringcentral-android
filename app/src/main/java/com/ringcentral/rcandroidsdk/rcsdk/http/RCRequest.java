@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class RCRequest extends RCHeaders {
     String method;
     String url;
     String query;
-    HashMap<String, String> body;
+    LinkedHashMap<String, String> body;
     public RCHeaders RCHeaders;
 
     OkHttpClient client = new OkHttpClient();
@@ -47,7 +48,7 @@ public class RCRequest extends RCHeaders {
     public static final MediaType MULTI_TYPE_MARKDOWN
             = MediaType.parse("multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
 
-    public RCRequest(HashMap<String, String> body, HashMap<String, String> headerMap){
+    public RCRequest(LinkedHashMap<String, String> body, HashMap<String, String> headerMap){
         RCHeaders = new RCHeaders();
         this.method = headerMap.get("method");
         this.url = headerMap.get("url");
@@ -90,11 +91,11 @@ public class RCRequest extends RCHeaders {
         return this.query;
     }
 
-    public void setBody(HashMap<String, String> body){
+    public void setBody(LinkedHashMap<String, String> body){
         this.body = body;
     }
 
-    public HashMap<String, String> getBody(){
+    public LinkedHashMap<String, String> getBody(){
         return this.body;
     }
 
@@ -124,16 +125,29 @@ public class RCRequest extends RCHeaders {
         try {
             StringBuilder data = new StringBuilder();
             int count = 0;
+            if(!this.RCHeaders.isURLEncoded()){
+                data.append("{ ");
+            }
             for(Map.Entry<String, String> entry: this.body.entrySet()){
-                if(entry.getKey() == "body"){
+                if(this.RCHeaders.isURLEncoded()) {
+                    if (count != 0) {
+                        data.append("&");
+                    }
+                    data.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+                    count++;
+                }
+                else{
+                    if (count != 0) {
+                        data.append(", ");
+                    }
+                    data.append(entry.getKey());
+                    data.append(": ");
                     data.append(entry.getValue());
-                    break;
+                    count++;
                 }
-                if (count != 0){
-                    data.append("&");
-                }
-                data.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
-                count++;
+            }
+            if(!this.RCHeaders.isURLEncoded()){
+                data.append(" }");
             }
             body = data.toString();
         } catch (UnsupportedEncodingException e) {
@@ -167,42 +181,26 @@ public class RCRequest extends RCHeaders {
                     .delete()
                     .build();
         }
-        else if(this.RCHeaders.map.containsValue("application/json")) {
-            if (method.toUpperCase().equals("POST")) {
-                request = requestBuilder
-                        .url(this.url)
-                        .post(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
-                        .build();
-            } else if (method.toUpperCase().equals("PUT")) {
-                request = requestBuilder
-                        .url(this.url)
-                        .put(RequestBody.create(JSON_TYPE_MARKDOWN, this.getBodyString()))
-                        .build();
-            }
-        }
-        else if(this.RCHeaders.map.containsValue("multipart/mixed")) {
-            if (method.toUpperCase().equals("POST")) {
-                request = requestBuilder
-                        .url(this.url)
-                        .post(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
-                        .build();
-            } else if (method.toUpperCase().equals("PUT")) {
-                request = requestBuilder
-                        .url(this.url)
-                        .put(RequestBody.create(MULTI_TYPE_MARKDOWN, this.getBodyString()))
-                        .build();
-            }
-        }
         else {
+            MediaType mediaType;
+            if(this.RCHeaders.isJson()){
+                mediaType = JSON_TYPE_MARKDOWN;
+            }
+            else if(this.RCHeaders.isMultipart()){
+                mediaType = MULTI_TYPE_MARKDOWN;
+            }
+            else{
+                mediaType = MEDIA_TYPE_MARKDOWN;
+            }
             if (method.toUpperCase().equals("POST")) {
                 request = requestBuilder
                         .url(this.url)
-                        .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                        .post(RequestBody.create(mediaType, this.getBodyString()))
                         .build();
-            } else if (method.toUpperCase().equals("PUT")){
+            } else if (method.toUpperCase().equals("PUT")) {
                 request = requestBuilder
                         .url(this.url)
-                        .put(RequestBody.create(MEDIA_TYPE_MARKDOWN, this.getBodyString()))
+                        .put(RequestBody.create(mediaType, this.getBodyString()))
                         .build();
             }
         }

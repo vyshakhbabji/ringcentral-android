@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Created by andrew.pang on 6/25/15.
@@ -159,33 +160,33 @@ public class Platform implements Serializable{
      * @throws Exception
      */
     public void refresh() throws Exception{
-        if(!this.auth.isRefreshTokenValid()){
-            throw new Exception("Refresh token is expired");
-        } else {
-            HashMap<String, String> body = new HashMap<>();
-            //Body
-            body.put("grant_type", "password");
-            body.put("refresh_token", this.auth.getRefreshToken());
-            //Header
-            HashMap<String, String> headerMap = new HashMap<>();
-            headerMap.put("method", "POST");
-            headerMap.put("url", "/restapi/oauth/token");
-            this.authCall(body, headerMap,
-                    new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-                            e.printStackTrace();
-                        }
-                        @Override
-                        public void onResponse(Response response) throws IOException {
-                            if (!response.isSuccessful())
-                                throw new IOException("Unexpected code " + response);
-                            RCResponse refreshResponse = new RCResponse(response);
-                            HashMap<String, String> responseMap = refreshResponse.getJson();
-                            setAuthData(responseMap);
-                        }
-                    });
-        }
+//        if(!this.auth.isRefreshTokenValid()){
+//            throw new Exception("Refresh token is expired");
+//        } else {
+//            HashMap<String, String> body = new HashMap<>();
+//            //Body
+//            body.put("grant_type", "password");
+//            body.put("refresh_token", this.auth.getRefreshToken());
+//            //Header
+//            HashMap<String, String> headerMap = new HashMap<>();
+//            headerMap.put("method", "POST");
+//            headerMap.put("url", "/restapi/oauth/token");
+//            this.authCall(body, headerMap,
+//                    new Callback() {
+//                        @Override
+//                        public void onFailure(Request request, IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        @Override
+//                        public void onResponse(Response response) throws IOException {
+//                            if (!response.isSuccessful())
+//                                throw new IOException("Unexpected code " + response);
+//                            RCResponse refreshResponse = new RCResponse(response);
+//                            HashMap<String, String> responseMap = refreshResponse.getJson();
+//                            setAuthData(responseMap);
+//                        }
+//                    });
+//        }
     }
 
     /**
@@ -194,14 +195,14 @@ public class Platform implements Serializable{
      * @param c
      */
     public void logout(Callback c){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("token", this.getAccessToken());
-        HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("method", "POST");
-        headerMap.put("url", "/restapi/oauth/revoke");
-        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(body, headerMap, c);
-        this.auth.reset();
+//        HashMap<String, String> body = new HashMap<>();
+//        body.put("token", this.getAccessToken());
+//        HashMap<String, String> headerMap = new HashMap<>();
+//        headerMap.put("method", "POST");
+//        headerMap.put("url", "/restapi/oauth/revoke");
+//        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
+//        this.authCall(body, headerMap, c);
+//        this.auth.reset();
     }
 
     /**
@@ -212,7 +213,7 @@ public class Platform implements Serializable{
      * @param headerMap
      * @param c
      */
-    public void apiCall(String method, HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+    public void apiCall(String method, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
         try{
             this.isAuthorized();
             RCRequest RCRequest = new RCRequest(body, headerMap);
@@ -244,7 +245,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void authorize(String username, String extension, String password, Callback c){
-        HashMap<String, String> body = new HashMap<>();
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
         //Body
         body.put("grant_type", "password");
         body.put("username", username);
@@ -264,7 +265,7 @@ public class Platform implements Serializable{
      * @param headerMap
      * @param c
      */
-    public void authCall(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+    public void authCall(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
         RCRequest.RCHeaders.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -286,7 +287,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void get(HashMap<String, String> headerMap, Callback c) {
-        HashMap<String, String> body = null;
+        LinkedHashMap<String, String> body = null;
         this.apiCall("GET", body, headerMap, c);
     }
 
@@ -297,7 +298,7 @@ public class Platform implements Serializable{
      * @param headerMap
      * @param c
      */
-    public void post(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
+    public void post(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         this.apiCall("POST", body, headerMap, c);
     }
 
@@ -308,7 +309,7 @@ public class Platform implements Serializable{
      * @param headerMap
      * @param c
      */
-    public void put(HashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
+    public void put(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
         this.apiCall("PUT", body, headerMap, c);
     }
 
@@ -319,7 +320,7 @@ public class Platform implements Serializable{
      * @param c
      */
     public void delete(HashMap<String, String> headerMap, Callback c) {
-        HashMap<String, String> body = null;
+        LinkedHashMap<String, String> body = null;
         this.apiCall("DELETE", body, headerMap, c);
     }
 
@@ -365,16 +366,20 @@ public class Platform implements Serializable{
      * @param c
      */
     public void ringOut(String to, String from, String callerId, String hasPrompt, Callback c){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("body", "{\n" +
-                "  \"to\": {\"phoneNumber\": \"" + to
-                + "\"},\n" +
-                "  \"from\": {\"phoneNumber\": \"" + from
-                + "\"},\n" +
-                "  \"callerId\": {\"phoneNumber\": \"" + callerId
-                + "\"},\n" +
-                "  \"playPrompt\": " + hasPrompt
-                + "\n" + "}");
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
+//        body.put("body", "{\n" +
+//                "  \"to\": {\"phoneNumber\": \"" + to
+//                + "\"},\n" +
+//                "  \"from\": {\"phoneNumber\": \"" + from
+//                + "\"},\n" +
+//                "  \"callerId\": {\"phoneNumber\": \"" + callerId
+//                + "\"},\n" +
+//                "  \"playPrompt\": " + hasPrompt
+//                + "\n" + "}");
+        body.put("\"to\"", "{\"phoneNumber\": \"" + to + "\"}");
+        body.put("\"from\"", "{\"phoneNumber\": \"" + from + "\"}");
+        body.put("\"callerId\"", "{\"phoneNumber\": \"" + callerId + "\"}");
+        body.put("\"playPrompt\"", hasPrompt);
         HashMap<String, String> headers = new HashMap<>();
         headers.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
         headers.put("Content-Type", "application/json");
@@ -390,85 +395,85 @@ public class Platform implements Serializable{
      * @param c
      */
     public void sendSMS(String to, String from, String message, Callback c){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("body", "{\n" +
-                "  \"to\": [{\"phoneNumber\": \"" + to + "\"}],\n" +
-                "  \"from\": {\"phoneNumber\": \"" + from + "\"},\n" +
-                "  \"text\": \"" + message + "\"\n" + "}");
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
-        headers.put("Content-Type", "application/json");
-        this.post(body, headers, c);
+//        HashMap<String, String> body = new HashMap<>();
+//        body.put("body", "{\n" +
+//                "  \"to\": [{\"phoneNumber\": \"" + to + "\"}],\n" +
+//                "  \"from\": {\"phoneNumber\": \"" + from + "\"},\n" +
+//                "  \"text\": \"" + message + "\"\n" + "}");
+//        HashMap<String, String> headers = new HashMap<>();
+//        headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+//        headers.put("Content-Type", "application/json");
+//        this.post(body, headers, c);
     }
 
 //UNDER CONSTRUCTION
     public void postSubscription(){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("body", "{\n" +
-                "  \"eventFilters\": [ \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
-                "  ], \n" +
-                "  \"deliveryMode\": { \n" +
-                "    \"transportType\": \"PubNub\", \n" +
-                "    \"encryption\": \"false\" \n" +
-                "  } \n" +
-                "}");
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/subscription");
-        headers.put("Content-Type", "application/json");
-        this.post(body, headers,
-                new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                    }
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        if (!response.isSuccessful())
-                            throw new IOException("Unexpected code " + response);
-                        RCResponse rcResponse = new RCResponse(response);
-                        try {
-                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
-                            subscription = new Subscription(responseJson);
-                        } catch(JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
+//        HashMap<String, String> body = new HashMap<>();
+//        body.put("body", "{\n" +
+//                "  \"eventFilters\": [ \n" +
+//                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
+//                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
+//                "  ], \n" +
+//                "  \"deliveryMode\": { \n" +
+//                "    \"transportType\": \"PubNub\", \n" +
+//                "    \"encryption\": \"false\" \n" +
+//                "  } \n" +
+//                "}");
+//        HashMap<String, String> headers = new HashMap<>();
+//        headers.put("url", "/restapi/v1.0/subscription");
+//        headers.put("Content-Type", "application/json");
+//        this.post(body, headers,
+//                new Callback() {
+//                    @Override
+//                    public void onFailure(Request request, IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    @Override
+//                    public void onResponse(Response response) throws IOException {
+//                        if (!response.isSuccessful())
+//                            throw new IOException("Unexpected code " + response);
+//                        RCResponse rcResponse = new RCResponse(response);
+//                        try {
+//                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+//                            subscription = new Subscription(responseJson);
+//                        } catch(JSONException e){
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
     }
 
     public void renewSubscription(){
-        HashMap<String, String> body = new HashMap<>();
-        body.put("body", "{\n" +
-                "  \"eventFilters\": [ \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
-                "  ], \n" +
-                "}");
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/subscription" + subscription.subscriptionId);
-        headers.put("Content-Type", "application/json");
-        this.put(body, headers,
-                new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        if (!response.isSuccessful())
-                            throw new IOException("Unexpected code " + response);
-                        RCResponse rcResponse = new RCResponse(response);
-                        try {
-                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
-                            subscription.updateSubscription(responseJson);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+//        HashMap<String, String> body = new HashMap<>();
+//        body.put("body", "{\n" +
+//                "  \"eventFilters\": [ \n" +
+//                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
+//                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
+//                "  ], \n" +
+//                "}");
+//        HashMap<String, String> headers = new HashMap<>();
+//        headers.put("url", "/restapi/v1.0/subscription" + subscription.subscriptionId);
+//        headers.put("Content-Type", "application/json");
+//        this.put(body, headers,
+//                new Callback() {
+//                    @Override
+//                    public void onFailure(Request request, IOException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Response response) throws IOException {
+//                        if (!response.isSuccessful())
+//                            throw new IOException("Unexpected code " + response);
+//                        RCResponse rcResponse = new RCResponse(response);
+//                        try {
+//                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+//                            subscription.updateSubscription(responseJson);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
     }
 
     public void subscribe(){

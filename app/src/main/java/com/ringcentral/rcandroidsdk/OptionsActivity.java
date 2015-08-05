@@ -199,43 +199,43 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 break;
 
             case R.id.button7:
-                HashMap<String, String> body = new HashMap<>();
-                body.put("body", "--Boundary_1_14413901_1361871080888\n" +
-                        "Content-Type: application/json\n" +
-                        "\n" +
-                        "{\n" +
-                        "  \"to\":[{\"phoneNumber\":\"16502823614\"}],\n" +
-                        "  \"faxResolution\":\"High\",\n" +
-                        "  \"sendTime\":\"2013-02-26T09:31:20.882Z\"\n" +
-                        "}\n" +
-                        "\n" +
-                        "--Boundary_1_14413901_1361871080888\n" +
-                        "Content-Type: text/plain\n" +
-                        "\n" +
-                        "Hello, World!\n" +
-                        "\n" +
-                        "--Boundary_1_14413901_1361871080888--");
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("url", "/restapi/v1.0/account/~/extension/~/fax");
-                headers.put("Content-Type", "multipart/mixed");
-                platform.post(body, headers,
-                        new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-
-                            }
-
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                RCResponse messageStoreResponse = new RCResponse(response);
-                                String body = messageStoreResponse.getBody();
-                                Message msg = handler.obtainMessage();
-                                msg.what = 1;
-                                msg.obj = body;
-                                handler.sendMessage(msg);
-                            }
-                        }
-                );
+//                HashMap<String, String> body = new HashMap<>();
+//                body.put("body", "--Boundary_1_14413901_1361871080888\n" +
+//                        "Content-Type: application/json\n" +
+//                        "\n" +
+//                        "{\n" +
+//                        "  \"to\":[{\"phoneNumber\":\"16502823614\"}],\n" +
+//                        "  \"faxResolution\":\"High\",\n" +
+//                        "  \"sendTime\":\"2013-02-26T09:31:20.882Z\"\n" +
+//                        "}\n" +
+//                        "\n" +
+//                        "--Boundary_1_14413901_1361871080888\n" +
+//                        "Content-Type: text/plain\n" +
+//                        "\n" +
+//                        "Hello, World!\n" +
+//                        "\n" +
+//                        "--Boundary_1_14413901_1361871080888--");
+//                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("url", "/restapi/v1.0/account/~/extension/~/fax");
+//                headers.put("Content-Type", "multipart/mixed");
+//                platform.post(body, headers,
+//                        new Callback() {
+//                            @Override
+//                            public void onFailure(Request request, IOException e) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onResponse(Response response) throws IOException {
+//                                RCResponse messageStoreResponse = new RCResponse(response);
+//                                String body = messageStoreResponse.getBody();
+//                                Message msg = handler.obtainMessage();
+//                                msg.what = 1;
+//                                msg.obj = body;
+//                                handler.sendMessage(msg);
+//                            }
+//                        }
+//                );
         }
     }
 
