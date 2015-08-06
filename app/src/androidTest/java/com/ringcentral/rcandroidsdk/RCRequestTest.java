@@ -5,6 +5,7 @@ import android.test.InstrumentationTestCase;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Created by andrew.pang on 7/7/15.
@@ -12,14 +13,14 @@ import java.util.HashMap;
 public class RCRequestTest extends InstrumentationTestCase {
 
     public void testGetBodyString() throws Exception{
-        HashMap<String, String> body = new HashMap<>();
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
         HashMap<String, String> header = new HashMap<>();
         body.put("body", "foo foo foo bar bar bar");
         RCRequest request = new RCRequest(body, header);
         String reality = request.getBodyString();
         String expected = "foo foo foo bar bar bar";
 
-        HashMap<String, String> body2 = new HashMap<>();
+        LinkedHashMap<String, String> body2 = new LinkedHashMap<>();
         body2.put("grant_type", "foo");
         body2.put("password", "foobar");
         body2.put("username", "foofoo");
@@ -32,7 +33,7 @@ public class RCRequestTest extends InstrumentationTestCase {
     }
 
     public void testIsMethods() throws Exception{
-        HashMap<String, String> body = new HashMap<>();
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
         HashMap<String, String> header = new HashMap<>();
         header.put("method", "GET");
         RCRequest request = new RCRequest(body, header);
@@ -46,10 +47,10 @@ public class RCRequestTest extends InstrumentationTestCase {
     }
 
     public void testGetSetBody() throws Exception{
-        HashMap<String, String> body = new HashMap<>();
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
         HashMap<String, String> header = new HashMap<>();
         RCRequest request = new RCRequest(body, header);
-        HashMap<String, String> newBody = new HashMap<>();
+        LinkedHashMap<String, String> newBody = new LinkedHashMap<>();
         newBody.put("test", "foo");
         request.setBody(newBody);
         assertEquals(newBody, request.getBody());
