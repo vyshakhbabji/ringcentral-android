@@ -87,7 +87,7 @@ platform.isAuthorized();
 ##Performing API calls
 To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the platform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body", 
 ```java
-HashMap<String, String> body = new HashMap();
+LinkedHashMap<String, String> body = new LinkedHashMap();
 body.put("body", "BodyStringGoesHere")
 ```
 For all API calls, create a HashMap for headers and add header-type 
