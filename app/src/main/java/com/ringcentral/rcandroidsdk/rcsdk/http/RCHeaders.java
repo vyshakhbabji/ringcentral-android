@@ -31,7 +31,6 @@ public class RCHeaders {
     /**
      * Sets multiple headers with a hashmap of keys and values.
      *
-     * @param headers
      */
     public void setHeaders(HashMap<String, String> headers){
         for(Map.Entry<String, String> entry: headers.entrySet()){
@@ -39,14 +38,26 @@ public class RCHeaders {
         }
     }
 
+    /**
+     * Returns the header value for a certain header key
+     * @return
+     */
     public String getHeader(String key){
         return this.map.get(key);
     }
 
+    /**
+     * Checks if the map of headers contains a certain header
+     * @return
+     */
     public boolean hasHeader(String key){
         return this.map.containsKey(key);
     }
 
+    /**
+     * Returns a HashMap of all the headers
+     * @return
+     */
     public HashMap<String, String> getHeaders() {
         return map;
     }
@@ -64,10 +75,18 @@ public class RCHeaders {
     }
     */
 
+    /**
+     * Returns the content-type header's value
+     * @return
+     */
     public String getContentType(){
         return hasHeader(CONTENT_TYPE) ? getHeader(CONTENT_TYPE):"";
     }
 
+    /**
+     * Sets the header's content-type
+     * @param contentType
+     */
     public void setContentType(String contentType){
         this.map.put(CONTENT_TYPE, contentType);
     }
@@ -75,7 +94,6 @@ public class RCHeaders {
     /**
      * Returns true if the content-type matches the passed in parameter content-type
      *
-     * @param contentType
      * @return
      */
     public boolean isContentType(String contentType){

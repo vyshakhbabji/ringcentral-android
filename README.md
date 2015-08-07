@@ -33,8 +33,20 @@ Add these to your app's Gradle dependencies
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
+    /*
+    This dependency is for the Gson library. For more information visit:
+    https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html
+     */
     compile 'com.google.code.gson:gson:2.3.1'
+    /*
+    This dependency is for the OkHttp library. For more information visit:
+    http://square.github.io/okhttp/
+     */
     compile 'com.squareup.okhttp:okhttp:2.4.0'
+    /*
+    This dependency is for the PubNub library. For more information visit:
+    https://www.pubnub.com/docs/android-java/api-reference
+     */
     compile 'com.pubnub:pubnub-android:3.7.4'
 }
 ```

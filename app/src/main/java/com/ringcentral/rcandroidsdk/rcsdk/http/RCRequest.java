@@ -67,18 +67,34 @@ public class RCRequest extends RCHeaders {
         }
     }
 
+    /**
+     * Sets the request method (e.g. "PUT", "POST", "GET", "DELETE")
+     *
+     */
     public void setMethod(String method){
         this.method = method;
     }
 
+    /**
+     * Gets the request method (e.g. "PUT", "POST", "GET", "DELETE")
+     * @return
+     */
     public String getMethod(){
         return this.method;
     }
 
+    /**
+     * Sets the request URL
+     *
+     */
     public void setURL(String url){
         this.url = url;
     }
 
+    /**
+     * Gets the request URL
+     * @return
+     */
     public String getUrl(){
         return this.url;
     }
@@ -91,10 +107,17 @@ public class RCRequest extends RCHeaders {
         return this.query;
     }
 
+    /**
+     * Sets request body
+     */
     public void setBody(LinkedHashMap<String, String> body){
         this.body = body;
     }
 
+    /**
+     * Gets request body
+     * @return
+     */
     public LinkedHashMap<String, String> getBody(){
         return this.body;
     }
@@ -116,7 +139,7 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Encodes data in UTF-8 format to be passed in the request as form data.
+     * Takes the body and prepares it to be passed in the HTTP request as a string
      *
      * @return
      */
@@ -208,7 +231,7 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Makes an apiCall with the GET method
+     * Calls the method "apiCall()" with the GET method
      *
      * @param c
      * @throws IOException
@@ -218,7 +241,7 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Makes an apiCall with the POST method
+     * Calls the method "apiCall()" with the POST method
      *
      * @param c
      * @throws IOException
@@ -228,7 +251,7 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Makes an apiCall with the PUT method
+     * Calls the method "apiCall()" with the PUT method
      *
      * @param c
      * @throws IOException
@@ -238,7 +261,7 @@ public class RCRequest extends RCHeaders {
     }
 
     /**
-     * Makes an apiCall with the GET method
+     * Calls the method "apiCall()" with the DELETE method
      *
      * @param c
      * @throws IOException
