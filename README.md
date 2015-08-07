@@ -1,4 +1,8 @@
-#Table of contents
+#RingCentral Android SDK
+
+[![Build Status](https://travis-ci.org/andrewpang/ringcentral-android.svg?branch=master)](https://travis-ci.org/andrewpang/ringcentral-android)
+
+##Table of contents
 
 1. [Overview](#overview)
 2. [Installation](#installation)
