@@ -251,9 +251,6 @@ public class Platform implements Serializable{
         body.put("username", username);
         body.put("extension", extension);
         body.put("password", password);
-
-        //TEST
-        body.put("access_token_ttl", "600");
         //Header
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
