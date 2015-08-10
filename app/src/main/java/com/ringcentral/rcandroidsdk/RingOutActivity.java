@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -31,6 +32,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
 
     SDK SDK;
     Platform platform;
+    Helpers helpers;
     EditText fromText, toText, callerIDText;
     CheckBox checkPrompt;
     String hasPrompt = "false";
@@ -43,7 +45,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
         platform = SDK.getPlatform();
-
+        helpers = SDK.getHelpers();
         addListenerOnCheckBox();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
@@ -73,7 +75,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
                 String to = toText.getText().toString();
                 String from = fromText.getText().toString();
                 String callerId = callerIDText.getText().toString();
-                platform.ringOut("12314", from, callerId, hasPrompt,
+                helpers.ringOut("12314", from, callerId, hasPrompt,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {

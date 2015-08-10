@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -33,6 +34,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
 
     Platform platform;
+    Helpers helpers;
     SDK SDK;
 
     @Override
@@ -57,6 +59,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         SDK = new SDK(appKey, appSecret, "SANDBOX");
         platform = SDK.getPlatform();
+        helpers = SDK.getHelpers();
 //        Properties properties = new Properties();
 //        InputStream input = null;
 //        try{
@@ -89,7 +92,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 //Hardcoded for ease of testing
                 username = "15856234166";
                 password = "P@ssw0rd";
-                platform.authorize(username, extension, password,
+                helpers.authorize(username, extension, password,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
@@ -104,7 +107,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                     throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
                                 }
                                 // Create RCResponse and parse the JSON response to set Auth data
-                                platform.setAuthData(responseMap);
+                                helpers.setAuthData(responseMap);
                                 // Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
                                 optionsIntent.putExtra("MyRcsdk", SDK);

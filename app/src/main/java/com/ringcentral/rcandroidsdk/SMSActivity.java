@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -29,6 +30,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
 
     SDK SDK;
     Platform platform;
+    Helpers helpers;
     EditText fromText, toText, smsText;
     Button button1;
 
@@ -39,7 +41,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
         platform = SDK.getPlatform();
-
+        helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
         fromText = (EditText) findViewById(R.id.fromMessage);
@@ -56,7 +58,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
                 String to = toText.getText().toString();
                 String from = fromText.getText().toString();
                 String message = smsText.getText().toString().replace("\n", "");
-                platform.sendSMS(to, from, message,
+                helpers.sendSMS(to, from, message,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {

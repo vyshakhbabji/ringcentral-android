@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -32,6 +33,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 
     SDK SDK;
     Platform platform;
+    Helpers helpers;
     Button button1, button2, button3, button4, button5, button6, button7;
     TextView textView1;
     @Override
@@ -41,6 +43,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
         platform = SDK.getPlatform();
+        helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
         button2 = (Button) findViewById(R.id.button2);
@@ -64,48 +67,54 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-                platform.accountInfo(
-                        new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                if (!response.isSuccessful())
-                                    throw new IOException("Unexpected code " + response);
-                                RCResponse versionResponse = new RCResponse(response);
-                                String responseString = "";
-                                String body = versionResponse.getBody();
-                                try {
-                                    JSONObject jsonObject = new JSONObject(body);
-                                    JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
-                                    JSONObject servicePlan = serviceInfo.getJSONObject("servicePlan");
-                                    responseString += "Service Plan: "  + "\n" + servicePlan.getString("name") + "\n\n";
-                                    JSONObject billingPlan = serviceInfo.getJSONObject("billingPlan");
-                                    responseString += "Billing Plan: " + "\n" + billingPlan.getString("name") + "\n\n";
-                                    responseString += "Main Number: " + "\n" + jsonObject.getString("mainNumber") + "\n\n";
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                Message msg = handler.obtainMessage();
-                                msg.what = 1;
-                                msg.obj = responseString;
-                                handler.sendMessage(msg);
-
-                            }
-                        });
+//                helpers.accountInfo(
+//                        new Callback() {
+//                            @Override
+//                            public void onFailure(Request request, IOException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                            @Override
+//                            public void onResponse(Response response) throws IOException {
+//                                if (!response.isSuccessful())
+//                                    throw new IOException("Unexpected code " + response);
+//                                RCResponse versionResponse = new RCResponse(response);
+//                                String responseString = "";
+//                                String body = versionResponse.getBody();
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject(body);
+//                                    JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
+//                                    JSONObject servicePlan = serviceInfo.getJSONObject("servicePlan");
+//                                    responseString += "Service Plan: " + "\n" + servicePlan.getString("name") + "\n\n";
+//                                    JSONObject billingPlan = serviceInfo.getJSONObject("billingPlan");
+//                                    responseString += "Billing Plan: " + "\n" + billingPlan.getString("name") + "\n\n";
+//                                    responseString += "Main Number: " + "\n" + jsonObject.getString("mainNumber") + "\n\n";
+//
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                Message msg = handler.obtainMessage();
+//                                msg.what = 1;
+//                                msg.obj = responseString;
+//                                handler.sendMessage(msg);
+//
+//                            }
+//                        });
+                try {
+                    helpers.refresh();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
 
             case R.id.button2:
-                platform.callLog(
+                helpers.callLog(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
                                 e.printStackTrace();
                             }
+
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
@@ -118,15 +127,15 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                     JSONArray records = jsonObject.getJSONArray("records");
                                     for (int i = 0; i < records.length(); i++) {
                                         JSONObject record = records.getJSONObject(i);
-                                        JSONObject to =  record.getJSONObject("to");
+                                        JSONObject to = record.getJSONObject("to");
                                         responseString += "To: " + to.getString("phoneNumber") + "                                       ";
                                         responseString += "Duration: " + record.getString("duration");
                                         responseString += "\n";
-                                        JSONObject from =  record.getJSONObject("from");
+                                        JSONObject from = record.getJSONObject("from");
                                         responseString += "From: " + from.getString("phoneNumber") + " ";
                                         responseString += "\n\n";
                                     }
-                                } catch (JSONException e){
+                                } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                                 Message msg = handler.obtainMessage();
@@ -139,12 +148,13 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                 break;
 
             case R.id.button3:
-                platform.messageStore(
+                helpers.messageStore(
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
                                 e.printStackTrace();
                             }
+
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
@@ -157,7 +167,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
                                     JSONArray records = jsonObject.getJSONArray("records");
                                     for (int i = 0; i < records.length(); i++) {
                                         JSONObject record = records.getJSONObject(i);
-                                        JSONArray to =  record.getJSONArray("to");
+                                        JSONArray to = record.getJSONArray("to");
                                         JSONObject phoneNumber = to.getJSONObject(0);
                                         responseString += "To: " + phoneNumber.getString("phoneNumber") + "                                    ";
                                         responseString += "Status: " + record.getString("readStatus");
@@ -166,7 +176,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 //                                        responseString += "From: " + from.getString("phoneNumber") + " ";
                                         responseString += "\n\n";
                                     }
-                                } catch (JSONException e){
+                                } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                                 Message msg = handler.obtainMessage();
