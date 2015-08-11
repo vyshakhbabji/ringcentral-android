@@ -67,44 +67,39 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         switch (v.getId()) {
 
             case R.id.button1:
-//                helpers.accountInfo(
-//                        new Callback() {
-//                            @Override
-//                            public void onFailure(Request request, IOException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                            @Override
-//                            public void onResponse(Response response) throws IOException {
-//                                if (!response.isSuccessful())
-//                                    throw new IOException("Unexpected code " + response);
-//                                RCResponse versionResponse = new RCResponse(response);
-//                                String responseString = "";
-//                                String body = versionResponse.getBody();
-//                                try {
-//                                    JSONObject jsonObject = new JSONObject(body);
-//                                    JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
-//                                    JSONObject servicePlan = serviceInfo.getJSONObject("servicePlan");
-//                                    responseString += "Service Plan: " + "\n" + servicePlan.getString("name") + "\n\n";
-//                                    JSONObject billingPlan = serviceInfo.getJSONObject("billingPlan");
-//                                    responseString += "Billing Plan: " + "\n" + billingPlan.getString("name") + "\n\n";
-//                                    responseString += "Main Number: " + "\n" + jsonObject.getString("mainNumber") + "\n\n";
-//
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                }
-//                                Message msg = handler.obtainMessage();
-//                                msg.what = 1;
-//                                msg.obj = responseString;
-//                                handler.sendMessage(msg);
-//
-//                            }
-//                        });
-                try {
-                    helpers.refresh();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                helpers.accountInfo(
+                        new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if (!response.isSuccessful())
+                                    throw new IOException("Unexpected code " + response);
+                                RCResponse versionResponse = new RCResponse(response);
+                                String responseString = "";
+                                String body = versionResponse.getBody();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(body);
+                                    JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
+                                    JSONObject servicePlan = serviceInfo.getJSONObject("servicePlan");
+                                    responseString += "Service Plan: " + "\n" + servicePlan.getString("name") + "\n\n";
+                                    JSONObject billingPlan = serviceInfo.getJSONObject("billingPlan");
+                                    responseString += "Billing Plan: " + "\n" + billingPlan.getString("name") + "\n\n";
+                                    responseString += "Main Number: " + "\n" + jsonObject.getString("mainNumber") + "\n\n";
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Message msg = handler.obtainMessage();
+                                msg.what = 1;
+                                msg.obj = responseString;
+                                handler.sendMessage(msg);
+
+                            }
+                        });
                 break;
 
             case R.id.button2:
