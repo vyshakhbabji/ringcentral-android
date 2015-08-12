@@ -79,7 +79,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
                                         e.printStackTrace();
                                     }
                                 }
-                                System.out.print(responseString);
+                                //System.out.print(responseString);
                             }
                         });
                 break;

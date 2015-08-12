@@ -2,6 +2,8 @@ package com.ringcentral.rcandroidsdk.rcsdk.subscription;
 import android.util.Base64;
 
 import com.pubnub.api.*;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+
 import org.json.*;
 
 import java.util.ArrayList;
@@ -14,51 +16,55 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Created by andrew.pang on 7/15/15.
  */
-public class Subscription {
+public class Subscription{
 
+    Platform platform;
     public Pubnub pubnub;
-    public String encryptionKey = "";
     ArrayList<String> eventFilters = new ArrayList<>();
-    HashMap<String, String> deliveryMode = new HashMap<>();
-    public String responseMessage = "";
-    public String address;
-    public String subscriptionId;
-    String subscriberKey;
-    String secretKey;
+    String expirationTime = "";
+    int expiresIn = 0;
+    public IDeliveryMode deliveryMode = new IDeliveryMode();
+    String id = "";
+    String creationTime = "";
+    String status = "";
+    String uri = "";
 
-    public Subscription(JSONObject subscriptionResponse){
-        try{
-            updateSubscription(subscriptionResponse);
-            pubnub = new Pubnub("", subscriberKey, secretKey);
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
+    public class IDeliveryMode {
+        public String transportType = "Pubnub";
+        public boolean encryption = false;
+        public String address = "";
+        public String subscriberKey = "";
+        public String secretKey = "";
+        public String encryptionKey = "";
+    }
+
+    public Subscription(){
+        //this.platform = platform;
     }
 
     public void updateSubscription(JSONObject responseJson) throws JSONException{
-            this.subscriptionId = responseJson.getString("id");
-            JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
-            this.subscriberKey = deliveryMode.getString("subscriberKey");
-            this.secretKey = deliveryMode.getString("secretKey");
-            this.encryptionKey = deliveryMode.getString("encryptionKey");
-            this.address = deliveryMode.getString("address");
+        id = responseJson.getString("id");
+        JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
+        this.deliveryMode.encryptionKey = deliveryMode.getString("encryptionKey");
+        this.deliveryMode.address = deliveryMode.getString("address");
+        this.deliveryMode.subscriberKey = deliveryMode.getString("subscriberKey");
+        this.deliveryMode.secretKey = deliveryMode.getString("secretKey");
     }
 
     public void setEncryptionKey(String encryptionKey) {
-        this.encryptionKey = encryptionKey;
+        this.deliveryMode.encryptionKey = encryptionKey;
     }
 
     public Pubnub getPubnub() {
         return pubnub;
     }
 
-    public void subscribe(HashMap<String, String> options, Callback c) {
+    public void subscribe(JSONObject subscriptionResponse, Callback c) {
         try {
-            if(options.containsKey("address")) {
-                String address = options.get("address");
-                pubnub.subscribe(address, c);
-            }
-        } catch (PubnubException e) {
+            updateSubscription(subscriptionResponse);
+            pubnub = new Pubnub("", deliveryMode.subscriberKey, deliveryMode.secretKey);
+            pubnub.subscribe(this.deliveryMode.address, c);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -77,17 +83,17 @@ public class Subscription {
         this.eventFilters = new ArrayList<String>(Arrays.asList(events));
     }
 
-    boolean isSubscribed(){
-        return this.deliveryMode.containsKey("subscriberKey") && this.deliveryMode.containsKey("address");
+    private ArrayList getFullEventFilters(){
+        return this.eventFilters;
     }
 
-    public void unsubscribe(HashMap<String, String> options) {
-        if (pubnub != null && this.isSubscribed()) {
-            if (options.containsKey("address")) {
-                String address = options.get("address");
-                this.pubnub.unsubscribe(address);
-            }
-        }
+    boolean isSubscribed(){
+        return !(this.deliveryMode.subscriberKey.equals("") && this.deliveryMode.address.equals(""));
+    }
+
+    public void unsubscribe() {
+        if((this.pubnub != null) && this.isSubscribed())
+            this.pubnub.unsubscribe(deliveryMode.address);
     }
 
     public String notify(String message, String encryptionKey){

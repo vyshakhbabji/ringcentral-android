@@ -97,7 +97,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
                                         e.printStackTrace();
                                     }
                                 }
-                                System.out.print(responseString);
+                                //System.out.print(responseString);
                             }
                         });
                 break;

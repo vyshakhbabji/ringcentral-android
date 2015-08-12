@@ -3,26 +3,14 @@ package com.ringcentral.rcandroidsdk;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONObject;
-
-import java.io.IOException;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 
 
 public class SubscriptionActivity extends ActionBarActivity implements View.OnClickListener {
@@ -30,7 +18,7 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
     SDK SDK;
     Platform platform;
     Helpers helpers;
-    Button button1, button2;
+    Button button1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +30,6 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
-
-        button2 = (Button) findViewById(R.id.button2);
-        button2.setOnClickListener(this);
 //        byte[] a = new byte[0];
 //        byte[] b = new byte[0];
 //        String decryptedString = "";
@@ -71,12 +56,9 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
         switch (v.getId()) {
 
             case R.id.button1:
-                helpers.postSubscription();
-                break;
-
-            case R.id.button2:
                 helpers.subscribe();
                 break;
+
         }
     }
 

@@ -279,6 +279,73 @@ public class Platform implements Serializable{
         }
     }
 
+    public void subscribe(){
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
+        body.put("\"eventFilters\"", "[ \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
+                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
+                "  ]");
+        body.put("\"deliveryMode\"", "{\"transportType\": \"PubNub\",\"encryption\": \"false\"}");
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/subscription");
+        headers.put("Content-Type", "application/json");
+        this.post(body, headers,
+                new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (!response.isSuccessful())
+                            throw new IOException("Unexpected code " + response);
+                        RCResponse rcResponse = new RCResponse(response);
+                        try {
+                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+                            subscription = new Subscription();
+                            subscription.subscribe(responseJson,
+                                    new com.pubnub.api.Callback() {
+
+                                        @Override
+                                        public void connectCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
+                                                    + " : " + message.getClass() + " : "
+                                                    + message.toString());
+                                        }
+
+                                        @Override
+                                        public void disconnectCallback(String channel, Object message) {
+                                            String decryptedString = subscription.notify(message.toString(), subscription.deliveryMode.encryptionKey);
+                                            System.out.print(decryptedString);
+                                        }
+
+                                        @Override
+                                        public void reconnectCallback(String channel, Object message) {
+                                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
+                                                    + " : " + message.getClass() + " : " + message.toString());
+                                        }
+
+                                        @Override
+                                        public void successCallback(String channel, Object message) {
+                                            String decryptedString = subscription.notify(message.toString(), subscription.deliveryMode.encryptionKey);
+                                            System.out.println(decryptedString);
+                                        }
+
+                                        @Override
+                                        public void errorCallback(String channel, PubnubError error) {
+                                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
+                                                    + " : " + error.toString());
+                                        }
+
+                                    });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     /**
      * Sets the header and body to make a GET request
      *
