@@ -42,6 +42,11 @@ public class Subscription{
         //this.platform = platform;
     }
 
+    public Subscription(Platform platform) {
+        this.platform = platform;
+    }
+
+
     public void updateSubscription(JSONObject responseJson) throws JSONException{
         id = responseJson.getString("id");
         JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");

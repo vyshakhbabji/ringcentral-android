@@ -184,6 +184,7 @@ public class Platform implements Serializable{
                             RCResponse refreshResponse = new RCResponse(response);
                             HashMap<String, String> responseMap = refreshResponse.getJson();
                             setAuthData(responseMap);
+                            System.out.println("refresh");
                         }
                     });
         }
