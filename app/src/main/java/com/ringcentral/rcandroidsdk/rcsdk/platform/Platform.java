@@ -280,6 +280,9 @@ public class Platform implements Serializable{
         }
     }
 
+    /**
+     * Makes a call to the POST Subscription api, and with the response, creates a Pubnub subscription
+     */
     public void subscribe(){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
         body.put("\"eventFilters\"", "[ \n" +
@@ -347,6 +350,28 @@ public class Platform implements Serializable{
                 });
     }
 
+    /**
+     * Makes a DELETE API call for the current subscription, and unsubscribes with Pubnub
+     */
+    public void removeSubscription() {
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("url", "/restapi/v1.0/subscription" + subscription.id);
+        this.delete(headers, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                if (!response.isSuccessful())
+                    throw new IOException("Unexpected code " + response);
+                RCResponse rcResponse = new RCResponse(response);
+                subscription.unsubscribe();
+            }
+        });
+    }
     /**
      * Sets the header and body to make a GET request
      *

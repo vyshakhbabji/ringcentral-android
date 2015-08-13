@@ -24,7 +24,7 @@ public class Subscription{
     String expirationTime = "";
     int expiresIn = 0;
     public IDeliveryMode deliveryMode = new IDeliveryMode();
-    String id = "";
+    public String id = "";
     String creationTime = "";
     String status = "";
     String uri = "";
