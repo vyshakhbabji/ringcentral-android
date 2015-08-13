@@ -32,8 +32,6 @@ public class Platform implements Serializable{
 
     /**
      *
-     * @param appKey
-     * @param appSecret
      * @param server Pass in either "SANDBOX" or "PRODUCTION"
      */
     public Platform(String appKey, String appSecret, String server){
@@ -99,8 +97,6 @@ public class Platform implements Serializable{
     /**
      * Takes in part of a URL along with options to return the endpoint for the API call
      *
-     * @param url
-     * @param options
      * @return
      */
     public String apiURL(String url, HashMap<String, String> options){
@@ -193,28 +189,23 @@ public class Platform implements Serializable{
     /**
      * Revokes access for current access token
      *
-     * @param c
      */
-    public void logout(Callback c){
+    public void logout(Callback callback){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
         body.put("token", this.getAccessToken());
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", "/restapi/oauth/revoke");
         headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(body, headerMap, c);
+        this.authCall(body, headerMap, callback);
         this.auth.reset();
     }
 
     /**
      * Method used for API calls, with the request type, body, headers, and callback as parameters.
      *
-     * @param method
-     * @param body
-     * @param headerMap
-     * @param c
      */
-    public void apiCall(String method, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+    public void apiCall(String method, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback){
         try{
             this.isAuthorized();
             RCRequest RCRequest = new RCRequest(body, headerMap);
@@ -224,13 +215,13 @@ public class Platform implements Serializable{
             RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
             RCRequest.setMethod(method);
             if(method.toUpperCase().equals("DELETE")){
-                RCRequest.delete(c);
+                RCRequest.delete(callback);
             } else if(method.toUpperCase().equals("POST")){
-                RCRequest.post(c);
+                RCRequest.post(callback);
             } else if(method.toUpperCase().equals("PUT")){
-                RCRequest.put(c);
+                RCRequest.put(callback);
             } else {
-                RCRequest.get(c);
+                RCRequest.get(callback);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -240,12 +231,8 @@ public class Platform implements Serializable{
     /**
      * Takes in parameters used for authorization and makes an auth call
      *
-     * @param username
-     * @param extension
-     * @param password
-     * @param c
      */
-    public void authorize(String username, String extension, String password, Callback c){
+    public void authorize(String username, String extension, String password, Callback callback){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
         //Body
         body.put("grant_type", "password");
@@ -256,17 +243,14 @@ public class Platform implements Serializable{
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("method", "POST");
         headerMap.put("url", "/restapi/oauth/token");
-        this.authCall(body, headerMap, c);
+        this.authCall(body, headerMap, callback);
     }
 
     /**
      * POST request set up for making authorization calls
-     *
-     * @param body
-     * @param headerMap
-     * @param c
+     *callback
      */
-    public void authCall(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c){
+    public void authCall(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback){
         RCRequest RCRequest = new RCRequest(body, headerMap);
         RCRequest.RCHeaders.setHeader("authorization", "Basic " + this.getApiKey());
         RCRequest.RCHeaders.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -274,7 +258,7 @@ public class Platform implements Serializable{
         options.put("addServer", "true");
         RCRequest.setURL(this.apiURL(RCRequest.getUrl(), options));
         try {
-            RCRequest.post(c);
+            RCRequest.post(callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -375,44 +359,34 @@ public class Platform implements Serializable{
     /**
      * Sets the header and body to make a GET request
      *
-     * @param headerMap
-     * @param c
      */
-    public void get(HashMap<String, String> headerMap, Callback c) {
+    public void get(HashMap<String, String> headerMap, Callback callback) {
         LinkedHashMap<String, String> body = null;
-        this.apiCall("GET", body, headerMap, c);
+        this.apiCall("GET", body, headerMap, callback);
     }
 
     /**
      * Sets the header and body to make a POST request
      *
-     * @param body
-     * @param headerMap
-     * @param c
      */
-    public void post(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        this.apiCall("POST", body, headerMap, c);
+    public void post(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
+        this.apiCall("POST", body, headerMap, callback);
     }
 
     /**
      * Sets up body and header for a PUT request
      *
-     * @param body
-     * @param headerMap
-     * @param c
      */
-    public void put(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback c) {
-        this.apiCall("PUT", body, headerMap, c);
+    public void put(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
+        this.apiCall("PUT", body, headerMap, callback);
     }
 
     /**
      * Sets up body and headers for a DELETE request
      *
-     * @param headerMap
-     * @param c
      */
-    public void delete(HashMap<String, String> headerMap, Callback c) {
+    public void delete(HashMap<String, String> headerMap, Callback callback) {
         LinkedHashMap<String, String> body = null;
-        this.apiCall("DELETE", body, headerMap, c);
+        this.apiCall("DELETE", body, headerMap, callback);
     }
 }

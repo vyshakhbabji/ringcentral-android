@@ -35,6 +35,10 @@
             android:name=".SubscriptionActivity"
             android:label="@string/title_activity_subscription" >
         </activity>
+        <activity
+            android:name=".InfoActivity"
+            android:label="@string/title_activity_info" >
+        </activity>
     </application>
 
 </manifest>
