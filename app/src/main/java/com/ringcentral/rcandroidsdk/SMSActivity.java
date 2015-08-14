@@ -40,7 +40,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
         setContentView(R.layout.activity_sms);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        platform = SDK.getPlatform();
+        //platform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);

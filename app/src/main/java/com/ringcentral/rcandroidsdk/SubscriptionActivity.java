@@ -26,7 +26,7 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
         setContentView(R.layout.activity_subscription);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        platform = SDK.getPlatform();
+        //platform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);

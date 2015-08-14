@@ -44,7 +44,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
         setContentView(R.layout.activity_ring_out);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        platform = SDK.getPlatform();
+        //platform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         addListenerOnCheckBox();
         button1 = (Button) findViewById(R.id.button1);

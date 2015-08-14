@@ -14,8 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform2;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -34,6 +36,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
 
     Platform platform;
+    Platform2 platform2;
     Helpers helpers;
     SDK SDK;
 
@@ -58,7 +61,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        button5.setOnClickListener(this);
 
         SDK = new SDK(appKey, appSecret, "SANDBOX");
-        platform = SDK.getPlatform();
+        //platform = SDK.getPlatform();
+        platform2 = SDK.getPlatform2();
         helpers = SDK.getHelpers();
 //        Properties properties = new Properties();
 //        InputStream input = null;
@@ -92,7 +96,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 //Hardcoded for ease of testing
                 username = "15856234166";
                 password = "P@ssw0rd";
-                helpers.authorize(username, extension, password,
+                platform2.authorize(username, extension, password,
+//                        new Callback() {
+//                            @Override
+//                            public void onFailure(Request request, IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                            @Override
+//                            public void onResponse(Response response) throws IOException {
+//                                RCResponse authResponse = new RCResponse(response);
+//                                HashMap<String, String> responseMap = authResponse.getJson();
+//                                // If HTTP response is not successful, throw exception
+//                                if (!response.isSuccessful()) {
+//                                    throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
+//                                }
+//                                // Create RCResponse and parse the JSON response to set Auth data
+//                                helpers.setAuthData(responseMap);
+//                                // Display options Activity
+//                                Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
+//                                optionsIntent.putExtra("MyRcsdk", SDK);
+//                                startActivity(optionsIntent);
+//                            }
+//                        });
+                        //TEST Platform 2
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
@@ -100,14 +126,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             }
                             @Override
                             public void onResponse(Response response) throws IOException {
-                                RCResponse authResponse = new RCResponse(response);
-                                HashMap<String, String> responseMap = authResponse.getJson();
+                                Transaction transaction = new Transaction(response);
                                 // If HTTP response is not successful, throw exception
-                                if (!response.isSuccessful()) {
-                                    throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
-                                }
+                                //if (!response.isSuccessful())
+
                                 // Create RCResponse and parse the JSON response to set Auth data
-                                helpers.setAuthData(responseMap);
+                                platform2.setAuthData(transaction.getAuthJson());
                                 // Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
                                 optionsIntent.putExtra("MyRcsdk", SDK);
