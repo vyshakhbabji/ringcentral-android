@@ -9,7 +9,7 @@
 3. [Basic Usage](#basic-usage)
 	1. [Initialization](##initialization)
 	2. [Authentication](##authentication)
-4. [Examples](#examples)
+4. [Helper Examples](#helper-examples)
 	1. [RingOut](##performing-a-ringout)
 	2. [SMS](##sending-an-sms)
 	3. [Call Log](##getting-the-call-log)
@@ -66,6 +66,7 @@ SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
 platform = SDK.getPlatform();
 ```
 With the platform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
+
 ##Authentication
 Authentication is done by calling the `platform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
 ```java
@@ -133,6 +134,7 @@ To use the Helpers class which extends the Platform class, initialize it like yo
 ```java
 Helpers helpers = SDK.getHelpers();
 ```
+
 ##Performing a RingOut
 The RingOut POST API call has a helper function written so you can just input the "To", "From", and "Caller ID" phone numbers.
 ```java
@@ -165,6 +167,7 @@ helpers.ringOut(
                 }
 });	
 ```
+
 ##Sending an SMS
 The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
 ```java
@@ -196,10 +199,11 @@ platform.sendSMS(
                 }
 });
 ```
+
 ##Getting the call log
 The call log GET API call has a helper function written that returns the response in the Callback.
 ```java
-platform.callLog(
+helpers.callLog(
 	new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
