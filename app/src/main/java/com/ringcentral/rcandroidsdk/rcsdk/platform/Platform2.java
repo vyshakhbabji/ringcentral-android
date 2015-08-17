@@ -138,11 +138,11 @@ public class Platform2 implements Serializable {
         if(options.containsKey("addServer") && !has_http){
             builtUrl += this.server;
         }
-        if(url.contains("/restapi") == false && !has_http){
+        if(!(url.contains("/restapi")) && !has_http){
             builtUrl += "/restapi" + "/" + "v1.0";
         }
 
-        if(url.contains("/account/") == true){
+        if(url.contains("/account/")){
             builtUrl = builtUrl.replace("/account/" + "~", "/account/" + this.account);
         }
 
@@ -498,5 +498,5 @@ public class Platform2 implements Serializable {
         LinkedHashMap<String, String> body = null;
         this.apiCall("DELETE", url, body, headerMap, callback);
     }
-    
+
 }
