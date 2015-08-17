@@ -13,8 +13,10 @@ import android.widget.TextView;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform2;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -30,6 +32,7 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
 
     SDK SDK;
     Platform platform;
+    Platform2 platform2;
     Helpers helpers;
     Button button1, button2, button3;
     TextView textView1;
@@ -40,7 +43,7 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
         setContentView(R.layout.activity_info);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        //platform = SDK.getPlatform();
+        platform2 = SDK.getPlatform2();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
@@ -68,9 +71,9 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                RCResponse versionResponse = new RCResponse(response);
+                                Transaction transaction = new Transaction(response);
                                 String responseString = "";
-                                String body = versionResponse.getBody();
+                                String body = transaction.getBodyString();
                                 try {
                                     JSONObject jsonObject = new JSONObject(body);
                                     JSONObject serviceInfo = jsonObject.getJSONObject("serviceInfo");
@@ -104,9 +107,9 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                RCResponse callLogResponse = new RCResponse(response);
+                                Transaction transaction = new Transaction(response);
                                 String responseString = "";
-                                String body = callLogResponse.getBody();
+                                String body = transaction.getBodyString();
                                 try {
                                     JSONObject jsonObject = new JSONObject(body);
                                     JSONArray records = jsonObject.getJSONArray("records");
@@ -144,9 +147,9 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
                             public void onResponse(Response response) throws IOException {
                                 if (!response.isSuccessful())
                                     throw new IOException("Unexpected code " + response);
-                                RCResponse messageStoreResponse = new RCResponse(response);
+                                Transaction transaction = new Transaction(response);
                                 String responseString = "";
-                                String body = messageStoreResponse.getBody();
+                                String body = transaction.getBodyString();
                                 try {
                                     JSONObject jsonObject = new JSONObject(body);
                                     JSONArray records = jsonObject.getJSONArray("records");

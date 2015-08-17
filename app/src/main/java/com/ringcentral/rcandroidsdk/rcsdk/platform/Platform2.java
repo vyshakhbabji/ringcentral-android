@@ -5,6 +5,7 @@ import android.util.Base64;
 import com.pubnub.api.PubnubError;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCRequest;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.subscription.Subscription;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -69,6 +70,26 @@ public class Platform2 implements Serializable {
 
     public Auth getAuthData(){
         return auth.getData();
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public void setAppCredentials(String appKey, String appSecret){
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+    }
+
+    public HashMap<String, String> getAppCredentials(){
+        HashMap<String, String> appCredentials = new HashMap<String, String>();
+        appCredentials.put("appKey", this.appKey);
+        appCredentials.put("appSecret", this.appSecret);
+        return appCredentials;
     }
 
     /**
@@ -204,57 +225,6 @@ public class Platform2 implements Serializable {
     }
 
     /**
-     * Uses the refresh token to refresh authentication
-     *
-     * @throws Exception
-     */
-    public void refresh() throws Exception{
-        if(!this.auth.isRefreshTokenValid()){
-            throw new Exception("Refresh token is expired");
-        } else {
-            LinkedHashMap<String, String> body = new LinkedHashMap<>();
-            //Body
-            body.put("grant_type", "refresh_token");
-            body.put("refresh_token", this.auth.getRefreshToken());
-            //Header
-            HashMap<String, String> headerMap = new HashMap<>();
-            headerMap.put("method", "POST");
-            headerMap.put("url", "/restapi/oauth/token");
-            this.authCall(body, headerMap,
-                    new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-                            e.printStackTrace();
-                        }
-                        @Override
-                        public void onResponse(Response response) throws IOException {
-                            if (!response.isSuccessful())
-                                throw new IOException("Unexpected code " + response);
-                            RCResponse refreshResponse = new RCResponse(response);
-                            HashMap<String, String> responseMap = refreshResponse.getJson();
-                            setAuthData(responseMap);
-                            System.out.println("refresh");
-                        }
-                    });
-        }
-    }
-
-    /**
-     * Revokes access for current access token
-     *
-     */
-    public void logout(Callback callback){
-        LinkedHashMap<String, String> body = new LinkedHashMap<>();
-        body.put("token", this.getAccessToken());
-        HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("method", "POST");
-        headerMap.put("url", "/restapi/oauth/revoke");
-        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(body, headerMap, callback);
-        this.auth.reset();
-    }
-
-    /**
      * Method used for API calls, with the request type, body, headers, and callback as parameters.
      *
      */
@@ -315,6 +285,7 @@ public class Platform2 implements Serializable {
      */
     public void authorize(String username, String extension, String password, Callback callback){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
+        String url = "/restapi/oauth/token";
         //Body
         body.put("grant_type", "password");
         body.put("username", username);
@@ -324,14 +295,14 @@ public class Platform2 implements Serializable {
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put("authorization", "Basic " + this.getApiKey());
         headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(body, headerMap, callback);
+        this.authCall(url,body, headerMap, callback);
     }
 
     /**
      * POST request set up for making authorization calls
      */
 
-    public void authCall(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback){
+    public void authCall(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback){
         OkHttpClient client = new OkHttpClient();
         Request.Builder requestBuilder = new Request.Builder();
         for(Map.Entry<String, String> entry: headerMap.entrySet()) {
@@ -342,12 +313,64 @@ public class Platform2 implements Serializable {
         String bodyString = getBodyString(body, mediaType);
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
-        String apiUrl = apiURL("/restapi/oauth/token", options);
+        String apiUrl = apiURL(url, options);
         request = requestBuilder
                         .url(apiUrl)
                         .post(RequestBody.create(mediaType, bodyString))
                         .build();
         client.newCall(request).enqueue(callback);
+    }
+
+
+    /**
+     * Uses the refresh token to refresh authentication
+     *
+     * @throws Exception
+     */
+    public void refresh() throws Exception{
+        if(!this.auth.isRefreshTokenValid()){
+            throw new Exception("Refresh token is expired");
+        } else {
+            LinkedHashMap<String, String> body = new LinkedHashMap<>();
+            String url = "/restapi/oauth/token";
+            //Body
+            body.put("grant_type", "refresh_token");
+            body.put("refresh_token", this.auth.getRefreshToken());
+            //Header
+            HashMap<String, String> headerMap = new HashMap<>();
+            headerMap.put("method", "POST");
+            this.authCall(url, body, headerMap,
+                    new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            if (!response.isSuccessful())
+                                throw new IOException("Unexpected code " + response);
+                            RCResponse refreshResponse = new RCResponse(response);
+                            HashMap<String, String> responseMap = refreshResponse.getJson();
+                            setAuthData(responseMap);
+                            System.out.println("refresh");
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Revokes access for current access token
+     *
+     */
+    public void logout(Callback callback){
+        LinkedHashMap<String, String> body = new LinkedHashMap<>();
+        body.put("token", this.getAccessToken());
+        HashMap<String, String> headerMap = new HashMap<>();
+        String url = "/restapi/oauth/revoke";
+        headerMap.put("method", "POST");
+        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
+        this.authCall(url, body, headerMap, callback);
+        this.auth.reset();
     }
 
     /**
@@ -361,9 +384,9 @@ public class Platform2 implements Serializable {
                 "  ]");
         body.put("\"deliveryMode\"", "{\"transportType\": \"PubNub\",\"encryption\": \"false\"}");
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/subscription");
+        String url = "/restapi/v1.0/subscription";
         headers.put("Content-Type", "application/json");
-        this.post(body, headers,
+        this.post(url, body, headers,
                 new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -374,9 +397,9 @@ public class Platform2 implements Serializable {
                     public void onResponse(Response response) throws IOException {
                         if (!response.isSuccessful())
                             throw new IOException("Unexpected code " + response);
-                        RCResponse rcResponse = new RCResponse(response);
+                        Transaction transaction = new Transaction(response);
                         try {
-                            JSONObject responseJson = new JSONObject(rcResponse.getBody());
+                            JSONObject responseJson = new JSONObject(transaction.getBodyString());
                             subscription = new Subscription();
                             subscription.subscribe(responseJson,
                                     new com.pubnub.api.Callback() {
@@ -426,8 +449,8 @@ public class Platform2 implements Serializable {
     public void removeSubscription() {
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/subscription" + subscription.id);
-        this.delete(headers, new Callback() {
+        String url =  "/restapi/v1.0/subscription" + subscription.id;
+        this.delete(url, headers, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
                 e.printStackTrace();
@@ -437,7 +460,7 @@ public class Platform2 implements Serializable {
             public void onResponse(Response response) throws IOException {
                 if (!response.isSuccessful())
                     throw new IOException("Unexpected code " + response);
-                RCResponse rcResponse = new RCResponse(response);
+                Transaction transaction = new Transaction(response);
                 subscription.unsubscribe();
             }
         });
@@ -446,33 +469,34 @@ public class Platform2 implements Serializable {
      * Sets the header and body to make a GET request
      *
      */
-    public void get(HashMap<String, String> headerMap, Callback callback) {
+    public void get(String url, HashMap<String, String> headerMap, Callback callback) {
         LinkedHashMap<String, String> body = null;
-        this.apiCall("GET", body, headerMap, callback);
+        this.apiCall("GET", url, body, headerMap, callback);
     }
 
     /**
      * Sets the header and body to make a POST request
      *
      */
-    public void post(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
-        this.apiCall("POST", body, headerMap, callback);
+    public void post(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
+        this.apiCall("POST", url, body, headerMap, callback);
     }
 
     /**
      * Sets up body and header for a PUT request
      *
      */
-    public void put(LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
-        this.apiCall("PUT", body, headerMap, callback);
+    public void put(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
+        this.apiCall("PUT", url, body, headerMap, callback);
     }
 
     /**
      * Sets up body and headers for a DELETE request
      *
      */
-    public void delete(HashMap<String, String> headerMap, Callback callback) {
+    public void delete(String url, HashMap<String, String> headerMap, Callback callback) {
         LinkedHashMap<String, String> body = null;
-        this.apiCall("DELETE", body, headerMap, callback);
+        this.apiCall("DELETE", url, body, headerMap, callback);
     }
+    
 }

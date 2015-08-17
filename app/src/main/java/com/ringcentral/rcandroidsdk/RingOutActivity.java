@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
@@ -75,7 +76,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
                 String to = toText.getText().toString();
                 String from = fromText.getText().toString();
                 String callerId = callerIDText.getText().toString();
-                helpers.ringOut("12314", from, callerId, hasPrompt,
+                helpers.ringOut(to, from, callerId, hasPrompt,
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
@@ -84,15 +85,15 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
 
                             @Override
                             public void onResponse(Response response) throws IOException {
-                                RCResponse ringoutResponse = new RCResponse(response);
-                                String responseString = ringoutResponse.getBody();
+                                Transaction transaction = new Transaction(response);
+                                String responseString = transaction.getBodyString();
                                 // If HTTP response is not successful, throw exception
                                 if (!response.isSuccessful()) {
                                     try {
                                         JSONObject jsonObject = new JSONObject(responseString);
                                         String errorCode = jsonObject.getString("errorCode");
                                         String message = jsonObject.getString("message");
-                                        throw new IOException("Error code: "+ ringoutResponse.getStatus() + ". Error: " + errorCode + ": " + message);
+                                        throw new IOException("Error code: "+ transaction.response.code() + ". Error: " + errorCode + ": " + message);
                                     } catch (JSONException e){
                                         e.printStackTrace();
                                     }

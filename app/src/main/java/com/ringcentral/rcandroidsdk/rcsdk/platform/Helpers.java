@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 /**
  * Created by andrew.pang on 8/10/15.
  */
-public class Helpers extends Platform {
+public class Helpers extends Platform2 {
     /**
      * @param appKey
      * @param appSecret
@@ -36,8 +36,9 @@ public class Helpers extends Platform {
         try {
             this.isAuthorized();
             HashMap<String, String> headers = new HashMap<>();
-            headers.put("url", "/restapi/v1.0/account/~");
-            this.get(headers, c);
+            //headers.put("url", "/restapi/v1.0/account/~");
+            String url = "/restapi/v1.0/account/~";
+            this.get(url, headers, c);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,8 +53,9 @@ public class Helpers extends Platform {
         try {
             this.isAuthorized();
             HashMap<String, String> callLogHeaders = new HashMap<>();
-            callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
-            this.get(callLogHeaders, c);
+            //callLogHeaders.put("url", "/restapi/v1.0/account/~/call-log");
+            String url = "/restapi/v1.0/account/~/call-log";
+            this.get(url, callLogHeaders, c);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,7 +71,8 @@ public class Helpers extends Platform {
             this.isAuthorized();
             HashMap<String, String> messageStoreHeaders = new HashMap<>();
             messageStoreHeaders.put("url", "/restapi/v1.0/account/~/extension/~/message-store");
-            this.get(messageStoreHeaders, c);
+            String url = "/restapi/v1.0/account/~/extension/~/message-store";
+            this.get(url, messageStoreHeaders, c);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -100,9 +103,10 @@ public class Helpers extends Platform {
         body.put("\"callerId\"", "{\"phoneNumber\": \"" + callerId + "\"}");
         body.put("\"playPrompt\"", hasPrompt);
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+        //headers.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
+        String url = "/restapi/v1.0/account/~/extension/~/ringout";
         headers.put("Content-Type", "application/json");
-        this.post(body, headers, c);
+        this.post(url, body, headers, c);
     }
 
     /**
@@ -124,9 +128,10 @@ public class Helpers extends Platform {
         body.put("\"from\"", "{\"phoneNumber\": \"" + from + "\"}");
         body.put("\"text\"", "\"" + message + "\"");
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+        //headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+        String url = "/restapi/v1.0/account/~/extension/~/sms";
         headers.put("Content-Type", "application/json");
-        this.post(body, headers, c);
+        this.post(url, body, headers, c);
     }
 
 }

@@ -15,8 +15,13 @@ import java.util.Map;
  */
 public class Transaction {
 
-    Request request;
-    Response response;
+    public Request request;
+    public Response response;
+
+    public String getBodyString() {
+        return bodyString;
+    }
+
     String bodyString;
 
     public Transaction(Response response){

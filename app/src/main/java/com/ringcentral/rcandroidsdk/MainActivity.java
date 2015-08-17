@@ -96,7 +96,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 //Hardcoded for ease of testing
                 username = "15856234166";
                 password = "P@ssw0rd";
-                platform2.authorize(username, extension, password,
+                helpers.authorize(username, extension, password,
 //                        new Callback() {
 //                            @Override
 //                            public void onFailure(Request request, IOException e) {
@@ -131,7 +131,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 //if (!response.isSuccessful())
 
                                 // Create RCResponse and parse the JSON response to set Auth data
-                                platform2.setAuthData(transaction.getAuthJson());
+                                helpers.setAuthData(transaction.getAuthJson());
                                 // Display options Activity
                                 Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
                                 optionsIntent.putExtra("MyRcsdk", SDK);
