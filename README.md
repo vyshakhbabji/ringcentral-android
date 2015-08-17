@@ -80,18 +80,14 @@ SDK.platform.authorize(
 		} 
 		@Override
 		public void onResponse(Response response) throws IOException {
-			RCResponse authResponse = new RCResponse(response);
-            Map<String, String> responseMap = authResponse.getJson();
+			Transaction transaction = new Transaction(response);
+            HashMap<String, String> responseMap = transaction.getAuthJson();
             // If HTTP response is not successful, throw exception
             if (!response.isSuccessful()){
-                throw new IOException("Error code: " + authResponse.getStatus() + ". Error: " + responseMap.get("error") + ": " + responseMap.get("error_description"));
+                throw new IOException(transaction.getError());
             }
             // Create RCResponse and parse the JSON response to set Auth data
             platform.setAuthData(responseMap);
-            // Display options Activity
-            Intent optionsIntent = new Intent(MainActivity.this, OptionsActivity.class);
-            optionsIntent.putExtra("MyRcsdk", SDK);
-            startActivity(optionsIntent);
 		}
 });
 ``` 
@@ -112,11 +108,11 @@ as the key, and header values as the value.
 HashMap<String, String> headers = new HashMap();
 // Add headers (e.g. "Content-Type", "url") 
 headers.put("Content-Type", "application/json");
-headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
+String url = "/restapi/v1.0/account/~/extension/~/sms";
 ```
 Example post request, passing in the body, headers, and Callback: 
 ```java
-platform.post(body, headers,
+platform.post(url, body, headers,
 	new Callback() {
 		@Override
 		public void onFailure(Request request, IOException e) {
@@ -124,18 +120,23 @@ platform.post(body, headers,
 		}
 		@Override
 		public void onResponse(Response response) throws IOException {
+		Transaction transaction = new Transaction(response);
 		if(!response.isSuccessful())
-			throw new IOException("Unexpected code " + response);
-		RCResponse rcResponse = new RCResponse(response);
+			throw new IOException(transaction.getError());
 			// Your code goes here
 		}
 });
 ```
-#Examples
+#Helper Examples
+###Get Helper Singleton
+To use the Helpers class which extends the Platform class, initialize it like you would for Platform and call the helper methods from this Helpers object.
+```java
+Helpers helpers = SDK.getHelpers();
+```
 ##Performing a RingOut
 The RingOut POST API call has a helper function written so you can just input the "To", "From", and "Caller ID" phone numbers.
 ```java
-platform.ringOut(
+helpers.ringOut(
 	"15101234567", // Phone number calling "To"
 	"18881234567", // Phone number calling "From"
 	"12223334444", // Caller ID number
@@ -147,8 +148,8 @@ platform.ringOut(
                 }
                 @Override
                 public void onResponse(Response response) throws IOException {
-                	RCResponse authResponse = new RCResponse(response);
-                    String responseString = authResponse.getBody();
+                	Transaction transaction = new Transaction(response);
+                    String responseString = transaction.getBodyString();
                     // If HTTP response is not successful, throw exception
                     if (!response.isSuccessful()) {
                         try {
@@ -178,8 +179,8 @@ platform.sendSMS(
                 }
                 @Override
                 public void onResponse(Response response) throws IOException {
-                	RCResponse smsResponse = new RCResponse(response);
-                    String responseString = smsResponse.getBody();
+                	Transaction transaction = new Transaction(response);
+                    String responseString = transaction.getBodyString();
                     // If HTTP response is not successful, throw exception
                     if (!response.isSuccessful()) {
                         try {
@@ -208,7 +209,7 @@ platform.callLog(
                 public void onResponse(Response response) throws IOException {
                 if(!response.isSuccessful())
                         throw new IOException("Unexpected code " + response);
-                RCResponse rcResponse = new RCResponse(response);                       
+                Transaction transaction = new Transaction(response);
                 	// Your code goes here
                 }
 });	

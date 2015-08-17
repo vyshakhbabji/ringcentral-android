@@ -4,6 +4,8 @@ import android.test.InstrumentationTestCase;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
+import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -22,8 +24,8 @@ public class APITest extends InstrumentationTestCase {
 
     public void testApi() throws Exception{
         SDK sdk = new SDK("xhK3uzISTEaEYhFAtadVug", "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA", "SANDBOX");
-        final Platform platform = sdk.getPlatform();
-        platform.authorize("15856234166", "", "P@ssw0rd",
+        final Helpers helpers= sdk.getHelpers();
+        helpers.authorize("15856234166", "", "P@ssw0rd",
                 new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
@@ -31,35 +33,37 @@ public class APITest extends InstrumentationTestCase {
                     }
                     @Override
                     public void onResponse(Response response) throws IOException {
-                        RCResponse authResponse = new RCResponse(response);
-                        HashMap<String, String> responseMap = authResponse.getJson();
-                        platform.setAuthData(responseMap);
+                        Transaction transaction = new Transaction(response);
+                        HashMap<String, String> responseMap = transaction.getAuthJson();
+                        helpers.setAuthData(responseMap);
                         //Test Authorization
-                        assertTrue(authResponse.checkStatus());
+                        assertTrue(transaction.isOK());
 
                         //Test Send SMS
-                        platform.sendSMS("16502823614", "15856234166", "Test Message",
+                        helpers.sendSMS("16502823614", "15856234166", "Test Message",
                                 new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
                                     }
+
                                     @Override
                                     public void onResponse(Response response) throws IOException {
-                                        RCResponse smsResponse = new RCResponse(response);
-                                        assertTrue(smsResponse.checkStatus());
+                                        Transaction transaction = new Transaction(response);
+                                        assertTrue(transaction.isOK());
                                         try {
-                                            JSONObject json = new JSONObject(smsResponse.getBody());
+                                            JSONObject json = new JSONObject(transaction.getBodyString());
                                             String messageId = json.getString("id");
                                             //Test Delete Message
                                             HashMap<String, String> deleteHeader = new HashMap<>();
                                             deleteHeader.put("method", "DELETE");
-                                            deleteHeader.put("url", "/restapi/v1.0/account/~/extension/~/message-store/" + messageId);
-                                            platform.delete(deleteHeader,
+                                            String url= "/restapi/v1.0/account/~/extension/~/message-store/" + messageId;
+                                            helpers.delete(url, deleteHeader,
                                                     new Callback() {
                                                         @Override
                                                         public void onFailure(Request request, IOException e) {
 
                                                         }
+
                                                         @Override
                                                         public void onResponse(Response response) throws IOException {
                                                             RCResponse deleteResponse = new RCResponse(response);
@@ -74,7 +78,7 @@ public class APITest extends InstrumentationTestCase {
                         );
 
                         //Test GET Account Info
-                        platform.accountInfo(
+                        helpers.accountInfo(
                                 new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
@@ -89,7 +93,7 @@ public class APITest extends InstrumentationTestCase {
                         );
 
                         //Test GET Call Log
-                        platform.callLog(
+                        helpers.callLog(
                                 new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {
@@ -104,7 +108,7 @@ public class APITest extends InstrumentationTestCase {
                         );
 
                         //Test GET Message Store
-                        platform.messageStore(
+                        helpers.messageStore(
                                 new Callback() {
                                     @Override
                                     public void onFailure(Request request, IOException e) {

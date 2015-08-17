@@ -5,6 +5,9 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -40,6 +43,18 @@ public class Transaction {
             e.printStackTrace();
         }
         return bodyString;
+    }
+
+    public JSONObject getJsonObject(){
+        JSONObject object = null;
+        try {
+            object = new JSONObject(response.body().string());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
     public boolean isOK(){
