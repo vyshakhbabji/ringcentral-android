@@ -12,27 +12,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 
 
 public class OptionsActivity extends ActionBarActivity implements View.OnClickListener {
 
     SDK SDK;
-    Platform platform;
+    OldPlatform oldPlatform;
     Helpers helpers;
     Button button1, button2, button3, button4, button5;
     TextView textView1;
@@ -42,7 +29,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
         setContentView(R.layout.activity_options);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        //platform = SDK.getPlatform();
+        //oldPlatform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
@@ -95,7 +82,7 @@ public class OptionsActivity extends ActionBarActivity implements View.OnClickLi
 //                HashMap<String, String> headers = new HashMap<>();
 //                headers.put("url", "/restapi/v1.0/account/~/extension/~/fax");
 //                headers.put("Content-Type", "multipart/mixed");
-//                platform.post(body, headers,
+//                oldPlatform.post(body, headers,
 //                        new Callback() {
 //                            @Override
 //                            public void onFailure(Request request, IOException e) {

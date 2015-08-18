@@ -1,11 +1,9 @@
-package com.ringcentral.rcandroidsdk;
+package com.ringcentral.rcandroidsdk.oldsdk;
 
 import android.test.InstrumentationTestCase;
 
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.oldsdk.RCHeaders;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**

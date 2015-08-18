@@ -1,11 +1,10 @@
-package com.ringcentral.rcandroidsdk;
+package com.ringcentral.rcandroidsdk.oldsdk;
 
 import android.test.InstrumentationTestCase;
 
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.oldsdk.RCResponse;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 //import static org.mockito.Mockito.*;

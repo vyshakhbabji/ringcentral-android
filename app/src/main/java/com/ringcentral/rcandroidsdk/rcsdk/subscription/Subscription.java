@@ -2,13 +2,12 @@ package com.ringcentral.rcandroidsdk.rcsdk.subscription;
 import android.util.Base64;
 
 import com.pubnub.api.*;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 
 import org.json.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -18,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Subscription{
 
-    Platform platform;
+    OldPlatform oldPlatform;
     public Pubnub pubnub;
     ArrayList<String> eventFilters = new ArrayList<>();
     String expirationTime = "";
@@ -39,11 +38,11 @@ public class Subscription{
     }
 
     public Subscription(){
-        //this.platform = platform;
+        //this.oldPlatform = oldPlatform;
     }
 
-    public Subscription(Platform platform) {
-        this.platform = platform;
+    public Subscription(OldPlatform oldPlatform) {
+        this.oldPlatform = oldPlatform;
     }
 
 

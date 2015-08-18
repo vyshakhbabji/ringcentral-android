@@ -2,7 +2,6 @@ package com.ringcentral.rcandroidsdk.rcsdk;
 
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform2;
 
 import java.io.Serializable;
 
@@ -11,17 +10,17 @@ import java.io.Serializable;
  */
 public class SDK implements Serializable{
 
-    //Platform platform;
-    Platform2 platform2;
+    //OldPlatform platform;
+    Platform platform;
     Helpers helpers;
 
     public SDK(String appKey, String appSecret, String server){
-        //platform = new Platform(appKey, appSecret, server);
+        //platform = new OldPlatform(appKey, appSecret, server);
         helpers = new Helpers(appKey, appSecret, server);
-        platform2 = new Platform2(appKey, appSecret, server);
+        platform = new Platform(appKey, appSecret, server);
     }
 //
-//    public Platform getPlatform(){
+//    public OldPlatform getPlatform(){
 //        return this.platform;
 //    }
 
@@ -29,8 +28,8 @@ public class SDK implements Serializable{
         return this.helpers;
     }
 
-    public Platform2 getPlatform2() {
-        return platform2;
+    public Platform getPlatform() {
+        return platform;
     }
 
 }

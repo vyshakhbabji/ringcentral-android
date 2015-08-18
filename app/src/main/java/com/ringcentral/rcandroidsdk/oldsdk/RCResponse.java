@@ -1,26 +1,13 @@
-package com.ringcentral.rcandroidsdk.rcsdk.http;
-
-import android.preference.PreferenceActivity;
-import android.util.Log;
+package com.ringcentral.rcandroidsdk.oldsdk;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Response;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by andrew.pang on 6/26/15.

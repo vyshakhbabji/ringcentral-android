@@ -11,28 +11,23 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class RingOutActivity extends ActionBarActivity implements View.OnClickListener{
 
     SDK SDK;
-    Platform platform;
+    OldPlatform oldPlatform;
     Helpers helpers;
     EditText fromText, toText, callerIDText;
     CheckBox checkPrompt;
@@ -45,7 +40,7 @@ public class RingOutActivity extends ActionBarActivity implements View.OnClickLi
         setContentView(R.layout.activity_ring_out);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        //platform = SDK.getPlatform();
+        //oldPlatform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         addListenerOnCheckBox();
         button1 = (Button) findViewById(R.id.button1);

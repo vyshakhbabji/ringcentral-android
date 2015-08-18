@@ -12,11 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform2;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -31,8 +30,8 @@ import java.io.IOException;
 public class InfoActivity extends ActionBarActivity implements View.OnClickListener{
 
     SDK SDK;
+    OldPlatform oldPlatform;
     Platform platform;
-    Platform2 platform2;
     Helpers helpers;
     Button button1, button2, button3;
     TextView textView1;
@@ -43,7 +42,7 @@ public class InfoActivity extends ActionBarActivity implements View.OnClickListe
         setContentView(R.layout.activity_info);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        platform2 = SDK.getPlatform2();
+        platform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);

@@ -3,10 +3,9 @@ package com.ringcentral.rcandroidsdk;
 import android.test.InstrumentationTestCase;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
+import com.ringcentral.rcandroidsdk.oldsdk.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;

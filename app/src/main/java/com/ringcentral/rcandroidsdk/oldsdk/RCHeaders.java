@@ -1,4 +1,4 @@
-package com.ringcentral.rcandroidsdk.rcsdk.http;
+package com.ringcentral.rcandroidsdk.oldsdk;
 
 import java.util.HashMap;
 import java.util.List;

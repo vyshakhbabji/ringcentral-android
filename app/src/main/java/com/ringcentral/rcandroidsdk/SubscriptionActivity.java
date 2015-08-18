@@ -10,13 +10,13 @@ import android.widget.Button;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 
 
 public class SubscriptionActivity extends ActionBarActivity implements View.OnClickListener {
 
     SDK SDK;
-    Platform platform;
+    OldPlatform oldPlatform;
     Helpers helpers;
     Button button1;
 
@@ -26,7 +26,7 @@ public class SubscriptionActivity extends ActionBarActivity implements View.OnCl
         setContentView(R.layout.activity_subscription);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        //platform = SDK.getPlatform();
+        //oldPlatform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);

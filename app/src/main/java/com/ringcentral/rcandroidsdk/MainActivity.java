@@ -1,7 +1,6 @@
 package com.ringcentral.rcandroidsdk;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,21 +9,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform2;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
 
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -35,8 +29,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     String appKey = "xhK3uzISTEaEYhFAtadVug";
     String appSecret = "1YRoPu64TeCOe_ZJy3ggLwGg-QDQd6QaWpSyIT8AxmjA";
 
+    OldPlatform oldPlatform;
     Platform platform;
-    Platform2 platform2;
     Helpers helpers;
     SDK SDK;
 
@@ -61,8 +55,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //        button5.setOnClickListener(this);
 
         SDK = new SDK(appKey, appSecret, "SANDBOX");
-        //platform = SDK.getPlatform();
-        platform2 = SDK.getPlatform2();
+        //oldPlatform = SDK.getPlatform();
+        platform = SDK.getPlatform();
         helpers = SDK.getHelpers();
 //        Properties properties = new Properties();
 //        InputStream input = null;
@@ -118,7 +112,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //                                startActivity(optionsIntent);
 //                            }
 //                        });
-                        //TEST Platform 2
+                        //TEST OldPlatform 2
                         new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {

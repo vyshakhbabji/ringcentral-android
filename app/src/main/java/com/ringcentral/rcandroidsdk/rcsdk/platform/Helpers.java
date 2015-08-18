@@ -1,23 +1,14 @@
 package com.ringcentral.rcandroidsdk.rcsdk.platform;
 
-import com.pubnub.api.PubnubError;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
-import com.ringcentral.rcandroidsdk.rcsdk.subscription.Subscription;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
  * Created by andrew.pang on 8/10/15.
  */
-public class Helpers extends Platform2 {
+public class Helpers extends Platform {
     /**
      * @param appKey
      * @param appSecret

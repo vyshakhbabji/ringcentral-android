@@ -63,14 +63,14 @@ SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
 ```
 ####Get Platform Singleton
 ```java
-platform = SDK.getPlatform();
+oldPlatform = SDK.getPlatform();
 ```
-With the platform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
+With the oldPlatform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
 
 ##Authentication
-Authentication is done by calling the `platform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
+Authentication is done by calling the `oldPlatform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
 ```java
-SDK.platform.authorize(
+SDK.oldPlatform.authorize(
 	"username", // Phone number in full format
  	"extension", // Input "" if direct number is used
 	"password",
@@ -88,17 +88,17 @@ SDK.platform.authorize(
                 throw new IOException(transaction.getError());
             }
             // Create RCResponse and parse the JSON response to set Auth data
-            platform.setAuthData(responseMap);
+            oldPlatform.setAuthData(responseMap);
 		}
 });
 ``` 
 ####Checking Authentication State
-To check in your Application if the user is authenticated, you can call the platform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
+To check in your Application if the user is authenticated, you can call the oldPlatform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
 ```java
-platform.isAuthorized();
+oldPlatform.isAuthorized();
 ```
 ##Performing API calls
-To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the platform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body", 
+To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the oldPlatform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body",
 ```java
 LinkedHashMap<String, String> body = new LinkedHashMap();
 body.put("body", "BodyStringGoesHere")
@@ -113,7 +113,7 @@ String url = "/restapi/v1.0/account/~/extension/~/sms";
 ```
 Example post request, passing in the body, headers, and Callback: 
 ```java
-platform.post(url, body, headers,
+oldPlatform.post(url, body, headers,
 	new Callback() {
 		@Override
 		public void onFailure(Request request, IOException e) {
@@ -171,7 +171,7 @@ helpers.ringOut(
 ##Sending an SMS
 The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
 ```java
-platform.sendSMS(
+oldPlatform.sendSMS(
 	"15101234567", // Phone number calling "To"
 	"18881234567", // Phone number calling "From"
 	"This is a sample text message",

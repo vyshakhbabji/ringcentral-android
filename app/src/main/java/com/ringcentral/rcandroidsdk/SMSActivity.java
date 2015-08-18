@@ -7,15 +7,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCHeaders;
-import com.ringcentral.rcandroidsdk.rcsdk.http.RCResponse;
 import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
 import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Platform;
+import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -24,13 +21,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 
 public class SMSActivity extends ActionBarActivity implements View.OnClickListener{
 
     SDK SDK;
-    Platform platform;
+    OldPlatform oldPlatform;
     Helpers helpers;
     EditText fromText, toText, smsText;
     Button button1;
@@ -41,7 +37,7 @@ public class SMSActivity extends ActionBarActivity implements View.OnClickListen
         setContentView(R.layout.activity_sms);
         Intent intent = getIntent();
         SDK = (SDK) intent.getSerializableExtra("MyRcsdk");
-        //platform = SDK.getPlatform();
+        //oldPlatform = SDK.getPlatform();
         helpers = SDK.getHelpers();
         button1 = (Button) findViewById(R.id.button1);
         button1.setOnClickListener(this);
