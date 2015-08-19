@@ -1,0 +1,67 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "23.0.0 rc3"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    /*
+    This dependency is for the Gson library. For more information visit:
+    https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html
+     */
+    compile 'com.google.code.gson:gson:2.3.1'
+    /*
+    This dependency is for the OkHttp library. For more information visit:
+    http://square.github.io/okhttp/
+     */
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    /*
+    This dependency is for the PubNub library. For more information visit:
+    https://www.pubnub.com/docs/android-java/api-reference
+     */
+    compile 'com.pubnub:pubnub-android:3.7.4'
+}
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'rc-android-sdk'
+
+    publishedGroupId = 'com.ringcentral.rcandroidsdk'
+    libraryName = 'RCAndroidSDK'
+    artifact = 'rc-android-sdk'
+
+    libraryDescription = 'An Android SDK for RingCentral platform API\'s'
+
+    siteUrl = 'https://github.com/ringcentral/ringcentral-android'
+    gitUrl = 'https://github.com/ringcentral/ringcentral-android.git'
+
+    libraryVersion = '0.0.3'
+
+    developerId = 'andrewpang'
+    developerName = 'Andrew Pang'
+    developerEmail = 'andrewpang94@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
