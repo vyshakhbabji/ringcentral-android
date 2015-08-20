@@ -2,7 +2,7 @@ package com.ringcentral.rc_android_sdk;
 
 import android.test.InstrumentationTestCase;
 
-import com.ringcentral.rcandroidsdk.oldsdk.OldPlatform;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
 import java.util.HashMap;
 
@@ -19,17 +19,17 @@ public class PlatformTest extends InstrumentationTestCase {
     String extension = "";
 
 
-    OldPlatform p;
+    Platform p;
 
     public void testGetApiKey() throws Exception {
-        p = new OldPlatform(appKey, appSecret, "SANDBOX");
+        p = new Platform(appKey, appSecret, "SANDBOX");
         String actual = p.getApiKey();
         String expected = "YWJjZDEyM2VmZzpoaWoxMjNrbG0=";
         assertEquals(expected, actual);
     }
 
     public void testApiUrl() throws Exception {
-        p = new OldPlatform(appKey, appSecret, "SANDBOX");
+        p = new Platform(appKey, appSecret, "SANDBOX");
         HashMap<String, String> options = new HashMap<>();
         options.put("addServer", "true");
         String actualUrl1 = p.apiURL("/restapi/v1.0/account/~/call-log", options);

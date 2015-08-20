@@ -2,10 +2,9 @@ package com.ringcentral.rc_android_sdk;
 
 import android.test.InstrumentationTestCase;
 
-import com.ringcentral.rcandroidsdk.oldsdk.RCResponse;
-import com.ringcentral.rcandroidsdk.rcsdk.SDK;
-import com.ringcentral.rcandroidsdk.rcsdk.http.Transaction;
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Helpers;
+import com.ringcentral.rc_android_sdk.rcsdk.SDK;
+import com.ringcentral.rc_android_sdk.rcsdk.http.Transaction;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Helpers;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -65,8 +64,8 @@ public class APITest extends InstrumentationTestCase {
 
                                                         @Override
                                                         public void onResponse(Response response) throws IOException {
-                                                            RCResponse deleteResponse = new RCResponse(response);
-                                                            assertTrue(deleteResponse.checkStatus());
+                                                            Transaction deleteResponse = new Transaction(response);
+                                                            assertTrue(deleteResponse.isOK());
                                                         }
                                                     });
                                         } catch (JSONException e) {
@@ -85,8 +84,8 @@ public class APITest extends InstrumentationTestCase {
 
                                     @Override
                                     public void onResponse(Response response) throws IOException {
-                                        RCResponse callLogResponse = new RCResponse(response);
-                                        assertTrue(callLogResponse.checkStatus());
+                                        Transaction callLogResponse = new Transaction(response);
+                                        assertTrue(callLogResponse.isOK());
                                     }
                                 }
                         );
@@ -100,8 +99,8 @@ public class APITest extends InstrumentationTestCase {
 
                                     @Override
                                     public void onResponse(Response response) throws IOException {
-                                        RCResponse callLogResponse = new RCResponse(response);
-                                        assertTrue(callLogResponse.checkStatus());
+                                        Transaction callLogResponse = new Transaction(response);
+                                        assertTrue(callLogResponse.isOK());
                                     }
                                 }
                         );
@@ -115,8 +114,8 @@ public class APITest extends InstrumentationTestCase {
 
                                     @Override
                                     public void onResponse(Response response) throws IOException {
-                                        RCResponse messageStoreResponse = new RCResponse(response);
-                                        assertTrue(messageStoreResponse.checkStatus());
+                                        Transaction messageStoreResponse = new Transaction(response);
+                                        assertTrue(messageStoreResponse.isOK());
                                     }
                                 }
                         );

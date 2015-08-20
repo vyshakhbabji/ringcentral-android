@@ -2,7 +2,7 @@ package com.ringcentral.rc_android_sdk;
 
 import android.test.InstrumentationTestCase;
 
-import com.ringcentral.rcandroidsdk.rcsdk.platform.Auth;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Auth;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
