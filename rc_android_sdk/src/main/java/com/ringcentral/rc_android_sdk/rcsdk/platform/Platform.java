@@ -78,13 +78,20 @@ public class Platform implements Serializable {
         return server;
     }
 
+    /**
+     * Sets the app credentials which are the appKey and appSecret
+     */
     public void setAppCredentials(String appKey, String appSecret){
         this.appKey = appKey;
         this.appSecret = appSecret;
     }
 
+    /**
+     * Gets a hashmap that contains the keys, "appKey" and "appSecret"
+     *
+     */
     public HashMap<String, String> getAppCredentials(){
-        HashMap<String, String> appCredentials = new HashMap<String, String>();
+        HashMap<String, String> appCredentials = new HashMap<>();
         appCredentials.put("appKey", this.appKey);
         appCredentials.put("appSecret", this.appSecret);
         return appCredentials;
@@ -113,6 +120,7 @@ public class Platform implements Serializable {
             e.printStackTrace();
         }
         String encoded = Base64.encodeToString(message, Base64.DEFAULT);
+        //When encoding with Android's Base64 API,  '\n' is automatically added, so it needs to be removed
         String apiKey = (encoded).replace("\n", "");
         return apiKey;
     }
@@ -131,8 +139,6 @@ public class Platform implements Serializable {
      * @return
      */
     public String apiURL(String url, HashMap<String, String> options){
-
-
         String builtUrl = "";
         boolean has_http = url.contains("http://") || url.contains("https://");
         if(options.containsKey("addServer") && !has_http){
@@ -170,7 +176,7 @@ public class Platform implements Serializable {
     }
 
     /**
-     * Takes the body and prepares it to be passed in the HTTP request as a string
+     * Takes the body and prepares it to be passed in the HTTP request as a string, based on the MediaType of the body
      *
      * @return
      */
@@ -182,7 +188,9 @@ public class Platform implements Serializable {
             if(!(mediaType == MEDIA_TYPE_MARKDOWN)){
                 data.append("{ ");
             }
+            //Iterate through the HashMap
             for(Map.Entry<String, String> entry: body.entrySet()){
+                //If the MediaType is 'x-www-form-urlencoded', then encode the body
                 if(mediaType == MEDIA_TYPE_MARKDOWN) {
                     if (count != 0) {
                         data.append("&");
@@ -219,6 +227,7 @@ public class Platform implements Serializable {
         if(!this.auth.isAccessTokenValid()){
             this.refresh();
         }
+        //If after calling a refresh, the accessToken is still not valid, throw exception
         if(!this.auth.isAccessTokenValid()){
             throw new Exception("Access token is expired");
         }
@@ -231,13 +240,16 @@ public class Platform implements Serializable {
     public void apiCall(String method, String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
         try {
             OkHttpClient client = new OkHttpClient();
+            //Check if the Platform is authorized, and add the authorization header
             this.isAuthorized();
             headerMap.put("authorization", this.getAuthHeader());
-
+            //Generate the proper url to be passed into the request
             HashMap<String, String> options = new HashMap<>();
             options.put("addServer", "true");
             String apiUrl = apiURL(url, options);
+
             Request.Builder requestBuilder = new Request.Builder();
+            //Add all the headers to the Request.Builder from the headerMap
             for (Map.Entry<String, String> entry : headerMap.entrySet()) {
                 requestBuilder.addHeader(entry.getKey(), entry.getValue());
             }
@@ -252,6 +264,7 @@ public class Platform implements Serializable {
                         .delete()
                         .build();
             } else {
+                //For POST and PUT requests, find and set what MediaType the body is
                 MediaType mediaType;
                 if (headerMap.containsValue("application/json")) {
                     mediaType = JSON_TYPE_MARKDOWN;
@@ -273,6 +286,7 @@ public class Platform implements Serializable {
                             .build();
                 }
             }
+            //Make OKHttp request call, that returns response to the callback
             client.newCall(request).enqueue(callback);
         } catch (Exception e) {
             e.printStackTrace();
@@ -339,6 +353,7 @@ public class Platform implements Serializable {
             //Header
             HashMap<String, String> headerMap = new HashMap<>();
             headerMap.put("method", "POST");
+            //Makes an auth call with the refresh token and sets the Auth data with the new response
             this.authCall(url, body, headerMap,
                     new Callback() {
                         @Override
@@ -386,6 +401,7 @@ public class Platform implements Serializable {
         HashMap<String, String> headers = new HashMap<>();
         String url = "/restapi/v1.0/subscription";
         headers.put("Content-Type", "application/json");
+        //Makes a POST request to the RingCentral API to receive PubNub info
         this.post(url, body, headers,
                 new Callback() {
                     @Override
@@ -401,6 +417,7 @@ public class Platform implements Serializable {
                         try {
                             JSONObject responseJson = new JSONObject(transaction.getBodyString());
                             subscription = new Subscription();
+                            //With the response from the RingCentral API, make a subscription call to PubNub
                             subscription.subscribe(responseJson,
                                     new com.pubnub.api.Callback() {
 
@@ -425,6 +442,7 @@ public class Platform implements Serializable {
 
                                         @Override
                                         public void successCallback(String channel, Object message) {
+                                            //Decrypt the PubNub message
                                             String decryptedString = subscription.notify(message.toString(), subscription.deliveryMode.encryptionKey);
                                             System.out.println(decryptedString);
                                         }
