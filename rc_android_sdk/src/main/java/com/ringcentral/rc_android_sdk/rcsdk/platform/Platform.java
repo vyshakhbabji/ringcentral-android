@@ -391,7 +391,7 @@ public class Platform implements Serializable {
     /**
      * Makes a call to the POST Subscription api, and with the response, creates a Pubnub subscription
      */
-    public void subscribe(){
+    public void subscribe(Callback callback){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
         body.put("\"eventFilters\"", "[ \n" +
                 "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
@@ -402,63 +402,7 @@ public class Platform implements Serializable {
         String url = "/restapi/v1.0/subscription";
         headers.put("Content-Type", "application/json");
         //Makes a POST request to the RingCentral API to receive PubNub info
-        this.post(url, body, headers,
-                new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        if (!response.isSuccessful())
-                            throw new IOException("Unexpected code " + response);
-                        Transaction transaction = new Transaction(response);
-                        try {
-                            JSONObject responseJson = new JSONObject(transaction.getBodyString());
-                            subscription = new Subscription();
-                            //With the response from the RingCentral API, make a subscription call to PubNub
-                            subscription.subscribe(responseJson,
-                                    new com.pubnub.api.Callback() {
-
-                                        @Override
-                                        public void connectCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
-                                                    + " : " + message.getClass() + " : "
-                                                    + message.toString());
-                                        }
-
-                                        @Override
-                                        public void disconnectCallback(String channel, Object message) {
-                                            String decryptedString = subscription.notify(message.toString(), subscription.deliveryMode.encryptionKey);
-                                            System.out.print(decryptedString);
-                                        }
-
-                                        @Override
-                                        public void reconnectCallback(String channel, Object message) {
-                                            System.out.println("SUBSCRIBE : RECONNECT on channel:" + channel
-                                                    + " : " + message.getClass() + " : " + message.toString());
-                                        }
-
-                                        @Override
-                                        public void successCallback(String channel, Object message) {
-                                            //Decrypt the PubNub message
-                                            String decryptedString = subscription.notify(message.toString(), subscription.deliveryMode.encryptionKey);
-                                            System.out.println(decryptedString);
-                                        }
-
-                                        @Override
-                                        public void errorCallback(String channel, PubnubError error) {
-                                            System.out.println("SUBSCRIBE : ERROR on channel " + channel
-                                                    + " : " + error.toString());
-                                        }
-
-                                    });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+        this.post(url, body, headers, callback);
     }
 
     /**

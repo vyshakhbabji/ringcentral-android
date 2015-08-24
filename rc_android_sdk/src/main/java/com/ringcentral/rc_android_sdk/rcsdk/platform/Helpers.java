@@ -27,7 +27,6 @@ public class Helpers extends Platform {
         try {
             this.isAuthorized();
             HashMap<String, String> headers = new HashMap<>();
-            //headers.put("url", "/restapi/v1.0/account/~");
             String url = "/restapi/v1.0/account/~";
             this.get(url, headers, c);
         } catch (Exception e) {
@@ -84,7 +83,6 @@ public class Helpers extends Platform {
         body.put("\"callerId\"", "{\"phoneNumber\": \"" + callerId + "\"}");
         body.put("\"playPrompt\"", hasPrompt);
         HashMap<String, String> headers = new HashMap<>();
-        //headers.put("url", "/restapi/v1.0/account/~/extension/~/ringout");
         String url = "/restapi/v1.0/account/~/extension/~/ringout";
         headers.put("Content-Type", "application/json");
         this.post(url, body, headers, c);
@@ -104,7 +102,6 @@ public class Helpers extends Platform {
         body.put("\"from\"", "{\"phoneNumber\": \"" + from + "\"}");
         body.put("\"text\"", "\"" + message + "\"");
         HashMap<String, String> headers = new HashMap<>();
-        //headers.put("url", "/restapi/v1.0/account/~/extension/~/sms");
         String url = "/restapi/v1.0/account/~/extension/~/sms";
         headers.put("Content-Type", "application/json");
         this.post(url, body, headers, c);

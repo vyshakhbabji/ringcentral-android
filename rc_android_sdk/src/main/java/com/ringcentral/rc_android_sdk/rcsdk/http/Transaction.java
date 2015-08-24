@@ -25,6 +25,9 @@ public class Transaction {
         this.response = response;
     }
 
+    /**
+     * Parses authentication Json to return a HashMap used for setting Auth data
+     */
     public HashMap getAuthJson(){
         Gson gson = new Gson();
         Type mapType = new TypeToken<HashMap<String, String>>() {}.getType();
@@ -34,6 +37,10 @@ public class Transaction {
         return jsonMap;
     }
 
+    /**
+     * Returns the response body as a string
+     * @return
+     */
     public String getBodyString() {
         String bodyString ="";
         try {
@@ -44,6 +51,9 @@ public class Transaction {
         return bodyString;
     }
 
+    /**
+     * Returns the response body as a JSONObject
+     */
     public JSONObject getJsonObject(){
         JSONObject object = null;
         try {
@@ -56,11 +66,17 @@ public class Transaction {
         return object;
     }
 
+    /**
+     * Checks if the HTTP status code of the response is successful
+     */
     public boolean isOK(){
         int status = this.response.code();
         return (status >= 200 && status < 300);
     }
 
+    /**
+     * Returns an error message with the response code and error message
+     */
     public String getError(){
         if(this.getResponse() == null){
             return null;
