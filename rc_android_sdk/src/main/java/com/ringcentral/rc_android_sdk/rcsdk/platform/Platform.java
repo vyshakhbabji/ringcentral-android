@@ -55,6 +55,13 @@ public class Platform implements Serializable {
         else if(server.toUpperCase().equals("PRODUCTION")){
             this.server = "https://platform.ringcentral.com";
         }
+        else{
+            this.server = server;
+        }
+    }
+
+    public Subscription getSubscription() {
+        return subscription;
     }
 
     /**
@@ -182,6 +189,9 @@ public class Platform implements Serializable {
      */
     public String getBodyString(HashMap<String, String> body, MediaType mediaType){
         String bodyString = "";
+
+        //Pass in "body" key
+
         try {
             StringBuilder data = new StringBuilder();
             int count = 0;
@@ -242,7 +252,7 @@ public class Platform implements Serializable {
             OkHttpClient client = new OkHttpClient();
             //Check if the Platform is authorized, and add the authorization header
             this.isAuthorized();
-            headerMap.put("authorization", this.getAuthHeader());
+            headerMap.put("Authorization", this.getAuthHeader());
             //Generate the proper url to be passed into the request
             HashMap<String, String> options = new HashMap<>();
             options.put("addServer", "true");
@@ -307,7 +317,7 @@ public class Platform implements Serializable {
         body.put("password", password);
         //Header
         HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("authorization", "Basic " + this.getApiKey());
+        headerMap.put("Authorization", "Basic " + this.getApiKey());
         headerMap.put("Content-Type", "application/x-www-form-urlencoded");
         this.authCall(url,body, headerMap, callback);
     }
@@ -393,6 +403,9 @@ public class Platform implements Serializable {
      */
     public void subscribe(Callback callback){
         LinkedHashMap<String, String> body = new LinkedHashMap<>();
+
+        //Pass in customized body hashmap
+
         body.put("\"eventFilters\"", "[ \n" +
                 "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
                 "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +

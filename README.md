@@ -19,6 +19,13 @@
 This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the token lifecycle, makes API requests, and parses API responses. This documentation will help you get set up and going with some example API calls.
 #Installation
 ##Android Studio Environment
+###Downloading AAR file
+To get this SDK as a packaged AAR, download it from: https://bintray.com/ringcentral/maven/rc-android-sdk/view. Then in your Android Studio project, create a new module, and import the .aar file. Add this module to your app's gradle dependencies
+```java
+dependencies{
+    compile project(':rc_android_sdk-0.0.4')
+}
+```
 ###Android Manifest
 Add these permissions to your AndroidManifest.xml
 ```java
@@ -63,14 +70,14 @@ SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
 ```
 ####Get Platform Singleton
 ```java
-oldPlatform = SDK.getPlatform();
+platform = SDK.getPlatform();
 ```
 With the oldPlatform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
 
 ##Authentication
 Authentication is done by calling the `oldPlatform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
 ```java
-SDK.oldPlatform.authorize(
+SDK.platform.authorize(
 	"username", // Phone number in full format
  	"extension", // Input "" if direct number is used
 	"password",
@@ -88,14 +95,14 @@ SDK.oldPlatform.authorize(
                 throw new IOException(transaction.getError());
             }
             // Create RCResponse and parse the JSON response to set Auth data
-            oldPlatform.setAuthData(responseMap);
+            platform.setAuthData(responseMap);
 		}
 });
 ``` 
 ####Checking Authentication State
 To check in your Application if the user is authenticated, you can call the oldPlatform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
 ```java
-oldPlatform.isAuthorized();
+platform.isAuthorized();
 ```
 ##Performing API calls
 To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the oldPlatform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body",
@@ -113,7 +120,7 @@ String url = "/restapi/v1.0/account/~/extension/~/sms";
 ```
 Example post request, passing in the body, headers, and Callback: 
 ```java
-oldPlatform.post(url, body, headers,
+platform.post(url, body, headers,
 	new Callback() {
 		@Override
 		public void onFailure(Request request, IOException e) {
