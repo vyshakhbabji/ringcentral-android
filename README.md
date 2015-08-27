@@ -20,14 +20,14 @@ This RingCentral Android SDK has been made to make Android development easier fo
 #Installation
 ##Android Studio Environment
 ###Downloading AAR file
-To get this SDK as a packaged AAR, download it from: https://bintray.com/ringcentral/maven/rc-android-sdk/view. Then in your Android Studio project, create a new module, and import the .aar file. Add this module to your app's gradle dependencies
+To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view.
 ```java
 dependencies{
-    compile project(':rc_android_sdk-0.0.4')
+    compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.0.4'
 }
 ```
 ###Android Manifest
-Add these permissions to your AndroidManifest.xml
+Add these permissions to your AndroidManifest.xml:
 ```java
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -35,7 +35,7 @@ Add these permissions to your AndroidManifest.xml
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 ```
 ###Gradle
-Add these to your app's Gradle dependencies
+Add these to your app's Gradle dependencies:
 ```java
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
