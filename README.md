@@ -36,6 +36,11 @@ Add these permissions to your AndroidManifest.xml:
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 ```
+###Import library
+To import the SDK to your file, add this line:
+```java
+import com.ringcentral.rc_android_sdk.rcsdk.*;
+```
 #Basic Usage
 ##Initialization
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
