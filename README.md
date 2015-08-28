@@ -28,8 +28,6 @@ dependencies {
     compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.0.4'
 }
 ```
-
-```
 ###Android Manifest
 Add these permissions to your AndroidManifest.xml:
 ```java
