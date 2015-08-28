@@ -19,12 +19,15 @@
 This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the token lifecycle, makes API requests, and parses API responses. This documentation will help you get set up and going with some example API calls.
 #Installation
 ##Android Studio Environment
-###Downloading AAR file
-To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view.
+###Gradle
+To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
+Add these to your app's Gradle dependencies:
 ```java
-dependencies{
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.0.4'
 }
+```
 ```
 ###Android Manifest
 Add these permissions to your AndroidManifest.xml:
@@ -33,29 +36,6 @@ Add these permissions to your AndroidManifest.xml:
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-```
-###Gradle
-Add these to your app's Gradle dependencies:
-```java
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    /*
-    This dependency is for the Gson library. For more information visit:
-    https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html
-     */
-    compile 'com.google.code.gson:gson:2.3.1'
-    /*
-    This dependency is for the OkHttp library. For more information visit:
-    http://square.github.io/okhttp/
-     */
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    /*
-    This dependency is for the PubNub library. For more information visit:
-    https://www.pubnub.com/docs/android-java/api-reference
-     */
-    compile 'com.pubnub:pubnub-android:3.7.4'
-}
 ```
 #Basic Usage
 ##Initialization
@@ -178,7 +158,7 @@ helpers.ringOut(
 ##Sending an SMS
 The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
 ```java
-oldPlatform.sendSMS(
+helpers.sendSMS(
 	"15101234567", // Phone number calling "To"
 	"18881234567", // Phone number calling "From"
 	"This is a sample text message",
