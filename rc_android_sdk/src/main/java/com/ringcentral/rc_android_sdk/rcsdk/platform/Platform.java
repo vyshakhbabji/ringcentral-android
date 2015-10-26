@@ -1,214 +1,190 @@
+
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 import android.util.Base64;
 
-import com.pubnub.api.PubnubError;
-import com.ringcentral.rc_android_sdk.rcsdk.http.Transaction;
-import com.ringcentral.rc_android_sdk.rcsdk.subscription.Subscription;
-import com.squareup.okhttp.Callback;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 
-/**
- * Created by andrew.pang on 8/13/15.
- */
-public class Platform implements Serializable {
-    String appKey;
-    String appSecret;
-    String server;
-    String account = "~";
-    public Auth auth;
-    Subscription subscription;
+import okio.Buffer;
 
-    public static final MediaType MEDIA_TYPE_MARKDOWN
-            = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
-    public static final MediaType JSON_TYPE_MARKDOWN
-            = MediaType.parse("application/json; charset=utf-8");
-    public static final MediaType MULTI_TYPE_MARKDOWN
-            = MediaType.parse("multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
+public class Platform {
 
-    /**
-     *
-     * @param server Pass in either "SANDBOX" or "PRODUCTION"
-     */
-    public Platform(String appKey, String appSecret, String server){
+    public enum ContentTypeSelection {
+        FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
+                "application/json"), MULTIPART_TYPE_MARKDOWN(
+                "multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
+        public MediaType value;
+
+        private ContentTypeSelection(String contentType) {
+            this.value = MediaType.parse(contentType);
+        }
+    }
+
+    public enum Server {
+        PRODUCTION("https://platform.ringcentral.com"), SANDBOX(
+                "https://platform.devtest.ringcentral.com");
+        private String value;
+
+        private Server(String url) {
+            this.value = url;
+        }
+    }
+
+    protected final int ACCESS_TOKEN_TTL = 3600;
+    protected final int REFRESH_TOKEN_TTL = 604800;
+
+    protected String accessToken;
+
+    protected String appKey;
+    protected String appSecret;
+    protected Auth auth;
+
+    StackTraceElement l = new Exception().getStackTrace()[0];
+
+    Request request;
+    Response response;
+
+    final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
+    final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
+
+    protected Server server;
+
+    public Platform(String appKey, String appSecret, Server server) {
+        super();
         this.appKey = appKey;
         this.appSecret = appSecret;
-        this.auth = new Auth();
-        if(server.toUpperCase().equals("SANDBOX")){
-            this.server = "https://platform.devtest.ringcentral.com";
-        }
-        else if(server.toUpperCase().equals("PRODUCTION")){
-            this.server = "https://platform.ringcentral.com";
-        }
-        else{
-            this.server = server;
-        }
-    }
-
-    public Subscription getSubscription() {
-        return subscription;
-    }
-
-    /**
-     * Sets authentication data for platform's auth
-     *
-     * @param authData A hashmap of the parsed authentication response
-     */
-    public void setAuthData(HashMap<String, String> authData){
-        this.auth.setData(authData);
-    }
-
-    public Auth getAuthData(){
-        return auth.getData();
-    }
-
-    public void setServer(String server) {
         this.server = server;
+        this.auth = new Auth();
     }
 
-    public String getServer() {
-        return server;
-    }
+    public APIResponse sendRequest(String method, String apiURL, RequestBody body,
+                                   HashMap<String, String> headerMap) throws IOException {
 
-    /**
-     * Sets the app credentials which are the appKey and appSecret
-     */
-    public void setAppCredentials(String appKey, String appSecret){
-        this.appKey = appKey;
-        this.appSecret = appSecret;
-    }
+        ensureAuthentication();
+        String URL = server.value + apiURL;
+        OkHttpClient client = new OkHttpClient();
 
-    /**
-     * Gets a hashmap that contains the keys, "appKey" and "appSecret"
-     *
-     */
-    public HashMap<String, String> getAppCredentials(){
-        HashMap<String, String> appCredentials = new HashMap<>();
-        appCredentials.put("appKey", this.appKey);
-        appCredentials.put("appSecret", this.appSecret);
-        return appCredentials;
-    }
-
-    /**
-     * Returns AccessToken from auth onject
-     *
-     * @return
-     */
-    public String getAccessToken(){
-        return this.auth.getAccessToken();
-    }
-
-    /**
-     * Encodes the app key and app secret in base64 to be used in authentication
-     *
-     * @return
-     */
-    public String getApiKey(){
-        String keySec = appKey + ":" + appSecret;
-        byte[] message = new byte[0];
         try {
-            message = keySec.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String encoded = Base64.encodeToString(message, Base64.DEFAULT);
-        //When encoding with Android's Base64 API,  '\n' is automatically added, so it needs to be removed
-        String apiKey = (encoded).replace("\n", "");
-        return apiKey;
-    }
-
-    /**
-     * Gives the header value needed to pass in as "authorization" for API calls
-     * @return
-     */
-    public String getAuthHeader(){
-        return this.auth.getTokenType() + " " + this.getAccessToken();
-    }
-
-    /**
-     * Takes in part of a URL along with options to return the endpoint for the API call
-     *
-     * @return
-     */
-    public String apiURL(String url, HashMap<String, String> options){
-        String builtUrl = "";
-        boolean has_http = url.contains("http://") || url.contains("https://");
-        if(options.containsKey("addServer") && !has_http){
-            builtUrl += this.server;
-        }
-        if(!(url.contains("/restapi")) && !has_http){
-            builtUrl += "/restapi" + "/" + "v1.0";
-        }
-
-        if(url.contains("/account/")){
-            builtUrl = builtUrl.replace("/account/" + "~", "/account/" + this.account);
-        }
-
-        builtUrl += url;
-
-        if(options.containsKey("addMethod")){
-            if(builtUrl.contains("?")){
-                builtUrl += "&";
+            System.out.println(authHeader());
+            if (method.equalsIgnoreCase("get")) {
+                request = requestBuilder(headerMap).url(URL).build();
+            } else if (method.equalsIgnoreCase("delete")) {
+                request = requestBuilder(headerMap).url(URL).delete().build();
             } else {
-                builtUrl += "?";
+                if (method.equalsIgnoreCase("post")) {
+                    request = requestBuilder(headerMap).url(URL).post(body)
+                            .build();
+                } else if (method.equalsIgnoreCase("put")) {
+                    request = requestBuilder(headerMap).url(URL).put(body)
+                            .build();
+                }
             }
-            builtUrl += "_method=" + options.get("addMethod");
-        }
 
-        if(options.containsKey("addToken")){
-            if(builtUrl.contains("?")){
-                builtUrl += "&";
-            } else {
-                builtUrl += "?";
-            }
-            builtUrl += "access_token=" + this.auth.getAccessToken();
+        } catch (Exception e) {
+            System.err.print("Failed APICall. Exception occured in Class:  "
+                    + this.getClass().getName() + ": " + e.getMessage()
+                    + l.getClassName() + "/" + l.getMethodName() + ":"
+                    + l.getLineNumber());
         }
-
-        return builtUrl;
+        response = client.newCall(request).execute();
+        return new APIResponse(response);
     }
 
-    /**
-     * Takes the body and prepares it to be passed in the HTTP request as a string, based on the MediaType of the body
-     *
-     * @return
-     */
-    public String getBodyString(HashMap<String, String> body, MediaType mediaType){
+    public Response authCall(String endpoint, HashMap<String, String> body) {
+
+        String URL = server.value + endpoint;
+        OkHttpClient client = new OkHttpClient();
+        Builder requestBuilder = new Builder(); // todo move
+        // this to
+        // client
+        request = requestBuilder
+                .url(URL)
+                .addHeader("Authorization",
+                        "Basic " + apiKey())
+                .addHeader(
+                        "Content-Type",
+                        ContentTypeSelection.FORM_TYPE_MARKDOWN.value
+                                .toString())
+                .post(RequestBody.create(
+                        ContentTypeSelection.FORM_TYPE_MARKDOWN.value,
+                        createBodyString(body,
+                                ContentTypeSelection.FORM_TYPE_MARKDOWN)))
+                .build();
+
+        System.out.println("Check Body of Request: " + bodyToString(request));
+
+        try {
+            response = client.newCall(request).execute();
+            if (response.isSuccessful() && endpoint.equals(TOKEN_ENDPOINT_URL))
+                setAuth(auth, response);
+            else
+                System.out.println("Authorization not successful");
+            // throw new IOException();
+        } catch (IOException e) {
+            System.err
+                    .print("Failed Authorization. IOException occured in Class:  "
+                            + this.getClass().getName()
+                            + ": "
+                            + e.getMessage()
+                            + l.getClassName()
+                            + "/"
+                            + l.getMethodName()
+                            + ":"
+                            + l.getLineNumber());
+        }
+        return response;
+    }
+
+    protected String bodyToString(final Request request) {
+        try {
+            final Request copy = request.newBuilder().build();
+            final Buffer buffer = new Buffer();
+            copy.body().writeTo(buffer);
+            System.out.println(copy.header("Authorization"));
+
+            System.out.println(copy.header("Content-Type"));
+            return buffer.readUtf8();
+        } catch (final IOException e) {
+            return "did not work";
+        }
+    }
+
+    protected String createBodyString(HashMap<String, String> body,
+                                      ContentTypeSelection type) {
         String bodyString = "";
-
-        //Pass in "body" key
-
+        MediaType mediaType = type.value;
         try {
             StringBuilder data = new StringBuilder();
             int count = 0;
-            if(!(mediaType == MEDIA_TYPE_MARKDOWN)){
+            if (!(mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value)) {
                 data.append("{ ");
             }
-            //Iterate through the HashMap
-            for(Map.Entry<String, String> entry: body.entrySet()){
-                //If the MediaType is 'x-www-form-urlencoded', then encode the body
-                if(mediaType == MEDIA_TYPE_MARKDOWN) {
+            for (Entry<String, String> entry : body.entrySet()) {
+                if (mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value) {
                     if (count != 0) {
                         data.append("&");
                     }
-                    data.append(entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+                    data.append(entry.getKey() + "="
+                            + URLEncoder.encode(entry.getValue(), "UTF-8"));
                     count++;
-                }
-                else{
+                } else {
                     if (count != 0) {
                         data.append(", ");
                     }
@@ -218,7 +194,7 @@ public class Platform implements Serializable {
                     count++;
                 }
             }
-            if(!(mediaType == MEDIA_TYPE_MARKDOWN)){
+            if (!(mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value)) {
                 data.append(" }");
             }
             bodyString = data.toString();
@@ -228,250 +204,111 @@ public class Platform implements Serializable {
         return bodyString;
     }
 
-    /**
-     * Checks if the access token is valid, and if not refreshes the token
-     *
-     * @throws Exception
-     */
-    public void isAuthorized() throws Exception{
-        if(!this.auth.isAccessTokenValid()){
-            this.refresh();
+    public String apiKey() {
+        String apiCredentials = appKey + ":" + appSecret;
+        byte[] message = apiCredentials.getBytes();
+        String encoded = Base64.encodeToString(message, Base64.DEFAULT);
+        //When encoding with Android's Base64 API,  '\n' is automatically added, so it needs to be removed
+        String apiKey = (encoded).replace("\n", "");
+        return apiKey;
+    }
+
+    public String getAccessToken() {
+        return auth.accessToken();
+    }
+
+    public Auth getAuth() {
+        return auth;
+    }
+
+    protected String authHeader() {
+        return this.auth.tokenType() + " " + this.getAccessToken();
+    }
+
+    public boolean loggedIn() throws Exception {
+
+        try{
+            return this.auth.accessTokenValid()||this.refresh().isSuccessful();
         }
-        //If after calling a refresh, the accessToken is still not valid, throw exception
-        if(!this.auth.isAccessTokenValid()){
-            throw new Exception("Access token is expired");
+        catch(Exception e){
+            throw e;
         }
     }
 
-    /**
-     * Method used for API calls, with the request type, body, headers, and callback as parameters.
-     *
-     */
-    public void apiCall(String method, String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
-        try {
-            OkHttpClient client = new OkHttpClient();
-            //Check if the Platform is authorized, and add the authorization header
-            this.isAuthorized();
-            headerMap.put("Authorization", this.getAuthHeader());
-            //Generate the proper url to be passed into the request
-            HashMap<String, String> options = new HashMap<>();
-            options.put("addServer", "true");
-            String apiUrl = apiURL(url, options);
+    public Response login(String username, String extension, String password) {
 
-            Request.Builder requestBuilder = new Request.Builder();
-            //Add all the headers to the Request.Builder from the headerMap
-            for (Map.Entry<String, String> entry : headerMap.entrySet()) {
-                requestBuilder.addHeader(entry.getKey(), entry.getValue());
-            }
-            Request request = null;
-            if (method.toUpperCase().equals("GET")) {
-                request = requestBuilder
-                        .url(apiUrl)
-                        .build();
-            } else if (method.toUpperCase().equals("DELETE")) {
-                request = requestBuilder
-                        .url(apiUrl)
-                        .delete()
-                        .build();
-            } else {
-                //For POST and PUT requests, find and set what MediaType the body is
-                MediaType mediaType;
-                if (headerMap.containsValue("application/json")) {
-                    mediaType = JSON_TYPE_MARKDOWN;
-                } else if (headerMap.containsValue("multipart/mixed")) {
-                    mediaType = MULTI_TYPE_MARKDOWN;
-                } else {
-                    mediaType = MEDIA_TYPE_MARKDOWN;
-                }
-                String bodyString = getBodyString(body, mediaType);
-                if (method.toUpperCase().equals("POST")) {
-                    request = requestBuilder
-                            .url(apiUrl)
-                            .post(RequestBody.create(mediaType, bodyString))
-                            .build();
-                } else if (method.toUpperCase().equals("PUT")) {
-                    request = requestBuilder
-                            .url(apiUrl)
-                            .put(RequestBody.create(mediaType, bodyString))
-                            .build();
-                }
-            }
-            //Make OKHttp request call, that returns response to the callback
-            client.newCall(request).enqueue(callback);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Takes in parameters used for authorization and makes an auth call
-     *
-     */
-    public void authorize(String username, String extension, String password, Callback callback){
-        LinkedHashMap<String, String> body = new LinkedHashMap<>();
-        String url = "/restapi/oauth/token";
-        //Body
-        body.put("grant_type", "password");
+        HashMap<String, String> body = new HashMap<String, String>();
         body.put("username", username);
-        body.put("extension", extension);
         body.put("password", password);
-        //Header
-        HashMap<String, String> headerMap = new HashMap<>();
-        headerMap.put("Authorization", "Basic " + this.getApiKey());
-        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(url,body, headerMap, callback);
+        body.put("extension", extension);
+        body.put("grant_type", "password");
+        return  authCall(TOKEN_ENDPOINT_URL, body);
     }
 
-    /**
-     * POST request set up for making authorization calls
-     */
-
-    public void authCall(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback){
-        OkHttpClient client = new OkHttpClient();
-        Request.Builder requestBuilder = new Request.Builder();
-        for(Map.Entry<String, String> entry: headerMap.entrySet()) {
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        Request request = null;
-        MediaType mediaType = MEDIA_TYPE_MARKDOWN;
-        String bodyString = getBodyString(body, mediaType);
-        HashMap<String, String> options = new HashMap<>();
-        options.put("addServer", "true");
-        String apiUrl = apiURL(url, options);
-        request = requestBuilder
-                        .url(apiUrl)
-                        .post(RequestBody.create(mediaType, bodyString))
-                        .build();
-        client.newCall(request).enqueue(callback);
-    }
-
-
-    /**
-     * Uses the refresh token to refresh authentication
-     *
-     * @throws Exception
-     */
-    public void refresh() throws Exception{
-        if(!this.auth.isRefreshTokenValid()){
-            throw new Exception("Refresh token is expired");
-        } else {
-            LinkedHashMap<String, String> body = new LinkedHashMap<>();
-            String url = "/restapi/oauth/token";
-            //Body
-            body.put("grant_type", "refresh_token");
-            body.put("refresh_token", this.auth.getRefreshToken());
-            //Header
-            HashMap<String, String> headerMap = new HashMap<>();
-            headerMap.put("method", "POST");
-            //Makes an auth call with the refresh token and sets the Auth data with the new response
-            this.authCall(url, body, headerMap,
-                    new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-                            e.printStackTrace();
-                        }
-                        @Override
-                        public void onResponse(Response response) throws IOException {
-                            if (!response.isSuccessful())
-                                throw new IOException("Unexpected code " + response);
-                            Transaction transaction = new Transaction(response);
-                            HashMap<String, String> responseMap = transaction.getAuthJson();
-                            setAuthData(responseMap);
-                            System.out.println("refresh");
-                        }
-                    });
-        }
-    }
-
-    /**
-     * Revokes access for current access token
-     *
-     */
-    public void logout(Callback callback){
-        LinkedHashMap<String, String> body = new LinkedHashMap<>();
-        body.put("token", this.getAccessToken());
-        HashMap<String, String> headerMap = new HashMap<>();
-        String url = "/restapi/oauth/revoke";
-        headerMap.put("method", "POST");
-        headerMap.put("Content-Type", "application/x-www-form-urlencoded");
-        this.authCall(url, body, headerMap, callback);
+    public void logout() {
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("access_token", this.getAccessToken());
+        this.authCall(REVOKE_ENDPOINT_URL, body);
         this.auth.reset();
     }
 
-    /**
-     * Makes a call to the POST Subscription api, and with the response, creates a Pubnub subscription
-     */
-    public void subscribe(Callback callback){
-        LinkedHashMap<String, String> body = new LinkedHashMap<>();
+    public Response refresh() throws IOException {
+        if (!this.auth.refreshTokenValid()) {
+            throw new IOException("Refresh Token Expired");
+        }
 
-        //Pass in customized body hashmap
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("grant_type", "refresh_token");
+        body.put("refresh_token", this.auth.getRefreshToken());
+        return authCall(TOKEN_ENDPOINT_URL, body);
 
-        body.put("\"eventFilters\"", "[ \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/presence\", \n" +
-                "    \"/restapi/v1.0/account/~/extension/~/message-store\" \n" +
-                "  ]");
-        body.put("\"deliveryMode\"", "{\"transportType\": \"PubNub\",\"encryption\": \"false\"}");
-        HashMap<String, String> headers = new HashMap<>();
-        String url = "/restapi/v1.0/subscription";
-        headers.put("Content-Type", "application/json");
-        //Makes a POST request to the RingCentral API to receive PubNub info
-        this.post(url, body, headers, callback);
     }
 
-    /**
-     * Makes a DELETE API call for the current subscription, and unsubscribes with Pubnub
-     */
-    public void removeSubscription() {
-        LinkedHashMap<String, String> body = new LinkedHashMap<>();
-        HashMap<String, String> headers = new HashMap<>();
-        String url =  "/restapi/v1.0/subscription" + subscription.id;
-        this.delete(url, headers, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                e.printStackTrace();
+    protected Builder requestBuilder(HashMap<String, String> hm) {
+
+        if (hm == null) {
+            hm = new HashMap<String, String>();
+        }
+        hm.put("Authorization", authHeader());
+
+        Builder requestBuilder = new Builder();
+        for (Entry<String, String> entry : hm.entrySet()) {
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        }
+        return requestBuilder;
+    }
+
+    protected void setAuth(Auth auth, Response response) throws IOException {
+
+        BufferedReader rd;
+        HashMap<String, String> data = new HashMap<String, String>();
+        try {
+            rd = new BufferedReader(new InputStreamReader(response.body()
+                    .byteStream()));
+            StringBuffer result = new StringBuffer();
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
             }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (!response.isSuccessful())
-                    throw new IOException("Unexpected code " + response);
-                Transaction transaction = new Transaction(response);
-                subscription.unsubscribe();
-            }
-        });
-    }
-    /**
-     * Sets the header and body to make a GET request
-     *
-     */
-    public void get(String url, HashMap<String, String> headerMap, Callback callback) {
-        LinkedHashMap<String, String> body = null;
-        this.apiCall("GET", url, body, headerMap, callback);
+            // System.out.println(result.toString());
+            Gson gson = new Gson();
+            Type HashMapType = new TypeToken<HashMap<String, String>>() {
+            }.getType();
+            data = gson.fromJson(result.toString(), HashMapType);
+        } catch (IOException e) {
+            throw new IOException(
+                    "Failed Authorization. IOException occured in Class:  "
+                            + this.getClass().getName() + ": " + e.getMessage()
+                            + l.getClassName() + "/" + l.getMethodName() + ":"
+                            + l.getLineNumber());
+        }
+        this.auth.setData(data);
     }
 
-    /**
-     * Sets the header and body to make a POST request
-     *
-     */
-    public void post(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
-        this.apiCall("POST", url, body, headerMap, callback);
-    }
-
-    /**
-     * Sets up body and header for a PUT request
-     *
-     */
-    public void put(String url, LinkedHashMap<String, String> body, HashMap<String, String> headerMap, Callback callback) {
-        this.apiCall("PUT", url, body, headerMap, callback);
-    }
-
-    /**
-     * Sets up body and headers for a DELETE request
-     *
-     */
-    public void delete(String url, HashMap<String, String> headerMap, Callback callback) {
-        LinkedHashMap<String, String> body = null;
-        this.apiCall("DELETE", url, body, headerMap, callback);
+    protected void ensureAuthentication() throws IOException{
+        if(!this.auth.accessTokenValid()){
+            this.refresh();
+        }
     }
 
 }
