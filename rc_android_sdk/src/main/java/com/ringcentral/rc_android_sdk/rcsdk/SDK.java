@@ -1,29 +1,23 @@
 package com.ringcentral.rc_android_sdk.rcsdk;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Helpers;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
-import java.io.Serializable;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
 /**
  * Created by andrew.pang on 6/26/15.
  */
-public class SDK implements Serializable{
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+
+public class SDK {
 
     Platform platform;
-    Helpers helpers;
 
-    public SDK(String appKey, String appSecret, String server){
-        helpers = new Helpers(appKey, appSecret, server);
+    public SDK(String appKey, String appSecret, Platform.Server server) {
         platform = new Platform(appKey, appSecret, server);
     }
 
-    public Helpers getHelpers() {
-        return this.helpers;
+    public Platform platform() {
+        return this.platform;
     }
-
-    public Platform getPlatform() {
-        return platform;
-    }
-
 }
+
