@@ -1,7 +1,8 @@
 # RingCentral Android SDK
 
 [![Build Status](https://travis-ci.org/andrewpang/ringcentral-android.svg?branch=master)](https://travis-ci.org/andrewpang/ringcentral-android)
-[![bintray](https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg)](https://bintray.com/ringcentral/maven/rc_android_sdk/view)
+[![Bintray][bintray-svg]][bintray-link]
+[![License][license-svg]][license-link]
 
 ## Table of contents
 
@@ -14,7 +15,6 @@
 	1. [RingOut](##performing-a-ringout)
 	2. [SMS](##sending-an-sms)
 	3. [Call Log](##getting-the-call-log)
-
 
 # Overview
 
@@ -251,4 +251,7 @@ helpers.callLog(
 ### Android Demo app link: 
 https://github.com/andrewpang/RCAndroidSDKDemoApp
 
-
+ [bintray-svg]: https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg
+ [bintray-link]: https://bintray.com/ringcentral/maven/rc_android_sdk/view
+ [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
+ [license-link]: https://github.com/ringcentral/ringcentral-android/blob/master/LICENSE.md
