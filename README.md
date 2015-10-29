@@ -1,6 +1,6 @@
 # RingCentral Android SDK
 
-[![Build Status](https://travis-ci.org/andrewpang/ringcentral-android.svg?branch=master)](https://travis-ci.org/andrewpang/ringcentral-android)
+[![Build Status][build-status-svg]][build-status-link]
 [![Bintray][bintray-version-svg]][bintray-version-link]
 [![License][license-svg]][license-link]
 
@@ -251,6 +251,8 @@ helpers.callLog(
 ### Android Demo app link: 
 https://github.com/andrewpang/RCAndroidSDKDemoApp
 
+ [build-status-svg]: https://travis-ci.org/ringcentral/ringcentral-android.svg?branch=master
+ [build-status-link]: https://travis-ci.org/ringcentral/ringcentral-android
  [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg
  [bintray-version-link]: https://bintray.com/ringcentral/maven/rc_android_sdk/view
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
