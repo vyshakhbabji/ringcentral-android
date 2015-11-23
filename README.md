@@ -251,6 +251,14 @@ helpers.callLog(
 ### Android Demo app link: 
 https://github.com/andrewpang/RCAndroidSDKDemoApp
 
+## License
+
+RINGCENTRAL call log record generator is available under an MIT-style license. See [LICENSE.md](LICENSE.md) for details.
+
+RINGCENTRAL ringcentral-android &copy; RingCentral &author; Vyshakh Babji, Andrew Pang
+
+
+
  [build-status-svg]: https://travis-ci.org/ringcentral/ringcentral-android.svg?branch=master
  [build-status-link]: https://travis-ci.org/ringcentral/ringcentral-android
  [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg
