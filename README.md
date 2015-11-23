@@ -255,7 +255,7 @@ https://github.com/andrewpang/RCAndroidSDKDemoApp
 
 RINGCENTRAL call log record generator is available under an MIT-style license. See [LICENSE.md](LICENSE.md) for details.
 
-RINGCENTRAL ringcentral-android &copy; RingCentral 
+RINGCENTRAL ringcentral-android &copy; by Vyshakh Babji, Andrew Pang
 
 
 
