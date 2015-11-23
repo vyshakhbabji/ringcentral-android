@@ -1,4 +1,5 @@
 language: android
+jdk:oraclejdk8
 
 script: "./gradlew build"
 android:
@@ -25,7 +26,24 @@ android:
     - sys-img-armeabi-v7a-android-19
     - sys-img-x86-android-17
 
+  cache:
+    directories:
+    - "$HOME/.gradle/caches/"
+  script:
+  - "./gradlew build jacocoTestReport"
+
+  after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+  deploy:
+    provider: script
+    script: "./gradlew bintrayUpload"
+    on:
+      tags: true
+
+
 
 env:
   global:
     - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
+
