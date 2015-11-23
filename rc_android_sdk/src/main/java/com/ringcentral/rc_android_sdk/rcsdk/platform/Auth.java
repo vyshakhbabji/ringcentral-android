@@ -1,10 +1,13 @@
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 
+
+import android.util.Log;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Map;
+import java.util.HashMap;
 
 public class Auth {
 
@@ -29,15 +32,18 @@ public class Auth {
 
     public boolean accessTokenValid() {
         GregorianCalendar cal = new GregorianCalendar();
+        Log.v("isTokenValid", this.expire_time.toString());
         cal.setTime(this.expire_time);
         return isTokenDateValid(cal);
     }
 
-    public String getRefreshToken() {
-        return this.refresh_token;
-    }
 
     protected boolean isTokenDateValid(GregorianCalendar token_date) {
+
+
+        boolean value = token_date.compareTo(new GregorianCalendar()) > 0;
+        Log.v("isTokenValid", String.valueOf(value));
+
         return (token_date.compareTo(new GregorianCalendar()) > 0);
     }
 
@@ -45,13 +51,12 @@ public class Auth {
         return this.refresh_token;
     }
 
-    public boolean refreshTokenValid(){
+    public boolean refreshTokenValid() {
         GregorianCalendar cal = new GregorianCalendar();
         if (this.refresh_token_expire_time != null)
             cal.setTime(this.refresh_token_expire_time);
         return this.isTokenDateValid(cal);
     }
-
 
     public void reset() {
         this.token_type = "";
@@ -59,19 +64,19 @@ public class Auth {
 
         this.access_token = "";
         this.expires_in = "";
-        this.expire_time = null;
+        this.expire_time = new Date(01 / 12 / 2006);
 
         this.refresh_token = "";
         this.refresh_token_expires_in = "";
-        this.refresh_token_expire_time = null;
+        this.refresh_token_expire_time = new Date(01 / 12 / 2006);
 
         this.scope = "";
         this.owner_id = "";
     }
 
-    public Auth setData(Map<String, String> authData) {
+    public Auth setData(HashMap<String, String> authData) {
 
-        if(authData==null)
+        if (authData == null || authData.isEmpty())
             return this;
 
         if (authData.containsKey("remember"))
@@ -101,7 +106,7 @@ public class Auth {
 
         }
 
-        //refresh token
+        // refresh token
 
         if (authData.containsKey("refresh_token")) {
             this.refresh_token = authData.get("refresh_token");
@@ -125,3 +130,4 @@ public class Auth {
         return this.token_type;
     }
 }
+

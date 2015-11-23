@@ -1,36 +1,226 @@
 
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
-import android.util.Base64;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import okio.Buffer;
+import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
+
+/**
+ * Created by vyshakh.babji on 11/5/15.
+ */
 
 public class Platform {
 
+    protected final int ACCESS_TOKEN_TTL = 3600;
+    protected final int REFRESH_TOKEN_TTL = 604800;
+    final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
+    final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
+    protected String appKey;
+    protected String appSecret;
+    protected Server server;
+    protected Auth auth;
+    protected Request request;
+    protected Client client;
+
+    public Platform(Client client, String appKey, String appSecret, Server server) {
+        super();
+        this.appKey = appKey;
+        this.appSecret = appSecret;
+        this.server = server;
+        this.auth = new Auth();
+        this.client = client;
+    }
+
+    public String apiKey() {
+        return Credentials.basic(appKey, appSecret);
+    }
+
+    protected String authHeader() {
+        return this.auth.tokenType() + " " + this.auth.access_token;
+    }
+
+    protected boolean ensureAuthentication() {
+        if (!this.auth.accessTokenValid()) {
+            try {
+                this.refresh(new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        if (response.isSuccessful())
+                            return;
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        } else
+            return true;
+    }
+
+    protected RequestBody formBody(HashMap<String, String> body) {
+        FormEncodingBuilder formBody = new FormEncodingBuilder();
+        for (HashMap.Entry<String, String> entry : body.entrySet())
+            formBody.add(entry.getKey(), entry.getValue());
+        return formBody.build();
+    }
+
+    public Auth auth() {
+        return auth;
+    }
+
+    public boolean loggedIn() throws Exception {
+        try {
+            return this.auth.accessTokenValid();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public void login(String userName, String extension, String password, Callback callback) {
+
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("username", userName);
+        body.put("password", password);
+        body.put("extension", extension);
+        body.put("grant_type", "password");
+        requestToken(TOKEN_ENDPOINT_URL, body, callback);
+    }
+
+    public Builder inflateRequest(HashMap<String, String> hm) throws IOException {
+        //add user-agent
+        if (hm == null) {
+            hm = new HashMap<String, String>();
+            if (ensureAuthentication())
+                hm.put("Authorization", authHeader());
+        }
+        Builder requestBuilder = new Request.Builder();
+        for (Entry<String, String> entry : hm.entrySet())
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        return requestBuilder;
+    }
+
+    public void setAuth(Response response) {
+        try {
+            this.auth.setData(jsonToHashMap(response));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) {
+        try {
+            final String URL = server.value + endpoint;
+            HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put("Authorization", apiKey());
+            headers.put("Content-Type", ContentTypeSelection.FORM_TYPE_MARKDOWN.value.toString());
+            request = inflateRequest(headers).url(URL).post(formBody(body)).build();
+            final Callback c = new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    setAuth(response);
+                    callback.onResponse(response);
+                }
+            };
+            client.loadResponse(request, c);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refresh(Callback callback) throws Exception {
+        try {
+            if (!this.auth.refreshTokenValid()) {
+                throw new IOException("Refresh Token has Expired");
+            } else {
+                HashMap<String, String> body = new HashMap<String, String>();
+                body.put("grant_type", "refresh_token");
+                body.put("refresh_token", this.auth.refreshToken());
+                requestToken(TOKEN_ENDPOINT_URL, body, callback);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public void logout(Callback callback) {
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("access_token", this.auth.access_token);
+        this.requestToken(REVOKE_ENDPOINT_URL, body, callback);
+        this.auth.reset();
+    }
+
+
+    public void sendRequest(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, Callback callback) {
+
+        final String URL = server.value + apiURL;
+        try {
+            ensureAuthentication();
+            request = client.createRequest(method, URL, body, inflateRequest(headerMap));
+            client.loadResponse(request, callback);
+        } catch (Exception e) {
+            System.err.print("Failed APICall. Exception occured in Class:"
+                    + this.getClass().getName() + "\n");
+            e.printStackTrace();
+        }
+
+    }
+
+    // TODO: 11/23/15 remove here and replace in helper class
+    public void callLog(final Callback callback) {
+        try {
+            this.ensureAuthentication();
+            final String url = "/restapi/v1.0/account/~/call-log";
+            sendRequest("get", url, null, null, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public HashMap<String, String> jsonToHashMap(Response response) throws IOException {
+        if (response.isSuccessful()) {
+            Gson gson = new Gson();
+            Type HashMapType = new TypeToken<HashMap<String, String>>() {
+            }.getType();
+            String responseString = response.body().string();
+            Log.v("OAuth Response :", responseString);
+            return gson.fromJson(responseString, HashMapType);
+        } else {
+            Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
+            return new HashMap<>();
+        }
+    }
+
     public enum ContentTypeSelection {
         FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
-                "application/json"), MULTIPART_TYPE_MARKDOWN(
-                "multipart/mixed; boundary=Boundary_1_14413901_1361871080888");
-        public MediaType value;
+                "application/json"), MULTIPART_TYPE_MARKDOWN("multipart/mixed;");
+        protected MediaType value;
 
         private ContentTypeSelection(String contentType) {
             this.value = MediaType.parse(contentType);
@@ -42,272 +232,8 @@ public class Platform {
                 "https://platform.devtest.ringcentral.com");
         private String value;
 
-        private Server(String url) {
+        Server(String url) {
             this.value = url;
-        }
-    }
-
-    protected final int ACCESS_TOKEN_TTL = 3600;
-    protected final int REFRESH_TOKEN_TTL = 604800;
-
-    protected String accessToken;
-
-    protected String appKey;
-    protected String appSecret;
-    protected Auth auth;
-
-    StackTraceElement l = new Exception().getStackTrace()[0];
-
-    Request request;
-    Response response;
-
-    final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
-    final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
-
-    protected Server server;
-
-    public Platform(String appKey, String appSecret, Server server) {
-        super();
-        this.appKey = appKey;
-        this.appSecret = appSecret;
-        this.server = server;
-        this.auth = new Auth();
-    }
-
-    public APIResponse sendRequest(String method, String apiURL, RequestBody body,
-                                   HashMap<String, String> headerMap) throws IOException {
-
-        ensureAuthentication();
-        String URL = server.value + apiURL;
-        OkHttpClient client = new OkHttpClient();
-
-        try {
-            System.out.println(authHeader());
-            if (method.equalsIgnoreCase("get")) {
-                request = requestBuilder(headerMap).url(URL).build();
-            } else if (method.equalsIgnoreCase("delete")) {
-                request = requestBuilder(headerMap).url(URL).delete().build();
-            } else {
-                if (method.equalsIgnoreCase("post")) {
-                    request = requestBuilder(headerMap).url(URL).post(body)
-                            .build();
-                } else if (method.equalsIgnoreCase("put")) {
-                    request = requestBuilder(headerMap).url(URL).put(body)
-                            .build();
-                }
-            }
-
-        } catch (Exception e) {
-            System.err.print("Failed APICall. Exception occured in Class:  "
-                    + this.getClass().getName() + ": " + e.getMessage()
-                    + l.getClassName() + "/" + l.getMethodName() + ":"
-                    + l.getLineNumber());
-        }
-        response = client.newCall(request).execute();
-        return new APIResponse(response);
-    }
-
-    public Response authCall(String endpoint, HashMap<String, String> body) {
-
-        String URL = server.value + endpoint;
-        OkHttpClient client = new OkHttpClient();
-        Builder requestBuilder = new Builder(); // todo move
-        // this to
-        // client
-        request = requestBuilder
-                .url(URL)
-                .addHeader("Authorization",
-                        "Basic " + apiKey())
-                .addHeader(
-                        "Content-Type",
-                        ContentTypeSelection.FORM_TYPE_MARKDOWN.value
-                                .toString())
-                .post(RequestBody.create(
-                        ContentTypeSelection.FORM_TYPE_MARKDOWN.value,
-                        createBodyString(body,
-                                ContentTypeSelection.FORM_TYPE_MARKDOWN)))
-                .build();
-
-        System.out.println("Check Body of Request: " + bodyToString(request));
-
-        try {
-            response = client.newCall(request).execute();
-            if (response.isSuccessful() && endpoint.equals(TOKEN_ENDPOINT_URL))
-                setAuth(auth, response);
-            else
-                System.out.println("Authorization not successful");
-            // throw new IOException();
-        } catch (IOException e) {
-            System.err
-                    .print("Failed Authorization. IOException occured in Class:  "
-                            + this.getClass().getName()
-                            + ": "
-                            + e.getMessage()
-                            + l.getClassName()
-                            + "/"
-                            + l.getMethodName()
-                            + ":"
-                            + l.getLineNumber());
-        }
-        return response;
-    }
-
-    protected String bodyToString(final Request request) {
-        try {
-            final Request copy = request.newBuilder().build();
-            final Buffer buffer = new Buffer();
-            copy.body().writeTo(buffer);
-            System.out.println(copy.header("Authorization"));
-
-            System.out.println(copy.header("Content-Type"));
-            return buffer.readUtf8();
-        } catch (final IOException e) {
-            return "did not work";
-        }
-    }
-
-    protected String createBodyString(HashMap<String, String> body,
-                                      ContentTypeSelection type) {
-        String bodyString = "";
-        MediaType mediaType = type.value;
-        try {
-            StringBuilder data = new StringBuilder();
-            int count = 0;
-            if (!(mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value)) {
-                data.append("{ ");
-            }
-            for (Entry<String, String> entry : body.entrySet()) {
-                if (mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value) {
-                    if (count != 0) {
-                        data.append("&");
-                    }
-                    data.append(entry.getKey() + "="
-                            + URLEncoder.encode(entry.getValue(), "UTF-8"));
-                    count++;
-                } else {
-                    if (count != 0) {
-                        data.append(", ");
-                    }
-                    data.append(entry.getKey());
-                    data.append(": ");
-                    data.append(entry.getValue());
-                    count++;
-                }
-            }
-            if (!(mediaType == ContentTypeSelection.FORM_TYPE_MARKDOWN.value)) {
-                data.append(" }");
-            }
-            bodyString = data.toString();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return bodyString;
-    }
-
-    public String apiKey() {
-        String apiCredentials = appKey + ":" + appSecret;
-        byte[] message = apiCredentials.getBytes();
-        String encoded = Base64.encodeToString(message, Base64.DEFAULT);
-        //When encoding with Android's Base64 API,  '\n' is automatically added, so it needs to be removed
-        String apiKey = (encoded).replace("\n", "");
-        return apiKey;
-    }
-
-    public String getAccessToken() {
-        return auth.accessToken();
-    }
-
-    public Auth getAuth() {
-        return auth;
-    }
-
-    protected String authHeader() {
-        return this.auth.tokenType() + " " + this.getAccessToken();
-    }
-
-    public boolean loggedIn() throws Exception {
-
-        try{
-            return this.auth.accessTokenValid()||this.refresh().isSuccessful();
-        }
-        catch(Exception e){
-            throw e;
-        }
-    }
-
-    public Response login(String username, String extension, String password) {
-
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("username", username);
-        body.put("password", password);
-        body.put("extension", extension);
-        body.put("grant_type", "password");
-        return  authCall(TOKEN_ENDPOINT_URL, body);
-    }
-
-    public void logout() {
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("access_token", this.getAccessToken());
-        this.authCall(REVOKE_ENDPOINT_URL, body);
-        this.auth.reset();
-    }
-
-    public Response refresh() throws IOException {
-        if (!this.auth.refreshTokenValid()) {
-            throw new IOException("Refresh Token Expired");
-        }
-
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("grant_type", "refresh_token");
-        body.put("refresh_token", this.auth.getRefreshToken());
-        return authCall(TOKEN_ENDPOINT_URL, body);
-
-    }
-
-    protected Builder requestBuilder(HashMap<String, String> hm) {
-
-        if (hm == null) {
-            hm = new HashMap<String, String>();
-        }
-        hm.put("Authorization", authHeader());
-
-        Builder requestBuilder = new Builder();
-        for (Entry<String, String> entry : hm.entrySet()) {
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        }
-        return requestBuilder;
-    }
-
-    protected void setAuth(Auth auth, Response response) throws IOException {
-
-        BufferedReader rd;
-        HashMap<String, String> data = new HashMap<String, String>();
-        try {
-            rd = new BufferedReader(new InputStreamReader(response.body()
-                    .byteStream()));
-            StringBuffer result = new StringBuffer();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-            // System.out.println(result.toString());
-            Gson gson = new Gson();
-            Type HashMapType = new TypeToken<HashMap<String, String>>() {
-            }.getType();
-            data = gson.fromJson(result.toString(), HashMapType);
-        } catch (IOException e) {
-            throw new IOException(
-                    "Failed Authorization. IOException occured in Class:  "
-                            + this.getClass().getName() + ": " + e.getMessage()
-                            + l.getClassName() + "/" + l.getMethodName() + ":"
-                            + l.getLineNumber());
-        }
-        this.auth.setData(data);
-    }
-
-    protected void ensureAuthentication() throws IOException{
-        if(!this.auth.accessTokenValid()){
-            this.refresh();
         }
     }
 

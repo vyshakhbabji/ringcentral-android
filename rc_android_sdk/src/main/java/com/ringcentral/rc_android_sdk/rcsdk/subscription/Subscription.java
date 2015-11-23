@@ -1,11 +1,14 @@
 package com.ringcentral.rc_android_sdk.rcsdk.subscription;
 
 import android.util.Base64;
+import android.util.Log;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,9 +94,20 @@ public class Subscription {
 
         System.out.println("Subscription ID: " + subscription.id);
         String url = SUBSCRIPTION_END_POINT + subscription.id;
-        APIResponse r = platform.sendRequest("delete", url, null, null);
-        System.out.println(r.body().string());
+        platform.sendRequest("delete", url, null, null, new com.squareup.okhttp.Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                    Log.v("Unsubscribe", String.valueOf(response.code()));
+
+            }
+        });
         this.unsubscribe();
+
     }
 
     public void setEvents(String[] events) {
