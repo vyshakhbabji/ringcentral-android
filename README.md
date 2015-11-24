@@ -1,13 +1,11 @@
 # RingCentral Android SDK
 
-<<<<<<< HEAD
 [![Build Status](https://travis-ci.org/andrewpang/ringcentral-android.svg?branch=master)](https://travis-ci.org/andrewpang/ringcentral-android)
 [![codecov.io](http://codecov.io/github/arturdm/jacoco-android-gradle-plugin/coverage.svg?branch=master)](http://codecov.io/github/arturdm/jacoco-android-gradle-plugin?branch=master)
-=======
 [![Build Status][build-status-svg]][build-status-link]
 [![Bintray][bintray-version-svg]][bintray-version-link]
 [![License][license-svg]][license-link]
->>>>>>> upstream/master
+
 
 ## Table of contents
 
