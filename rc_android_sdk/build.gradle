@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'jacoco-android'
+
 
 android {
     compileSdkVersion 22
@@ -24,6 +26,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.1'
+
+
     /*
     This dependency is for the Gson library. For more information visit:
     https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html
@@ -39,9 +43,21 @@ dependencies {
     https://www.pubnub.com/docs/android-java/api-reference
      */
     compile 'com.pubnub:pubnub-android:3.7.4'
+    /*
+        This dependency is for Coverall-Gradle using Cobertura reporter from the repository
+        https://github.com/kt3k/coveralls-gradle-plugin
+     */
+
+
 }
 
 
+jacocoAndroidUnitTestReport {
+    excludes = ['**/R.class',
+                '**/R$*.class',
+                '**/BuildConfig.*',
+                '**/Manifest*.*']
+}
 //Uncomment code below for uploading new versions to Bintray and JCenter
 
 //ext {
