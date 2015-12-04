@@ -29,14 +29,39 @@ public class Platform {
 
     protected final int ACCESS_TOKEN_TTL = 3600;
     protected final int REFRESH_TOKEN_TTL = 604800;
+
+
+   /*
+   Revoke Session Endpoint
+    */
     final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
+
+   /*
+   Authentication  and Refresh Token Endpoint
+    */
+
     final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
+
+
     protected String appKey;
     protected String appSecret;
     protected Server server;
+
+
     protected Auth auth;
+
     protected Request request;
+
     protected Client client;
+
+
+    /**
+     * Creates Platform object
+     * @param client
+     * @param appKey
+     * @param appSecret
+     * @param server
+     */
 
     public Platform(Client client, String appKey, String appSecret, Server server) {
         super();
@@ -47,15 +72,30 @@ public class Platform {
         this.client = client;
     }
 
-    public String apiKey() {
+    /**
+     *
+     * @return Base 64 encoded app credentials
+     */
+
+    protected String apiKey() {
         return Credentials.basic(appKey, appSecret);
     }
+
+    /**
+     *
+     * @return Authorization Header
+     */
 
     protected String authHeader() {
         return this.auth.tokenType() + " " + this.auth.access_token;
     }
 
-    protected boolean ensureAuthentication() {
+    /**
+     *Checks if the current access token is valid. If the access token is expired, it does token refresh.
+     */
+
+
+    public boolean ensureAuthentication() {
         if (!this.auth.accessTokenValid()) {
             try {
                 this.refresh(new Callback() {
@@ -78,6 +118,12 @@ public class Platform {
             return true;
     }
 
+
+    /**
+     * Sets Request body for content type FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded")
+     * @param body
+     * @return
+     */
     protected RequestBody formBody(HashMap<String, String> body) {
         FormEncodingBuilder formBody = new FormEncodingBuilder();
         for (HashMap.Entry<String, String> entry : body.entrySet())
@@ -85,10 +131,19 @@ public class Platform {
         return formBody.build();
     }
 
+    /**
+     * Get Auth object
+     * @return
+     */
     public Auth auth() {
         return auth;
     }
 
+    /**
+     * Checks if the login is valid
+     * @return
+     * @throws Exception
+     */
     public boolean loggedIn() throws Exception {
         try {
             return this.auth.accessTokenValid();
@@ -97,6 +152,13 @@ public class Platform {
         }
     }
 
+    /**
+     * Sets Login Credentials for authentication
+     * @param userName
+     * @param extension
+     * @param password
+     * @param callback
+     */
     public void login(String userName, String extension, String password, Callback callback) {
 
         HashMap<String, String> body = new HashMap<String, String>();
@@ -107,6 +169,12 @@ public class Platform {
         requestToken(TOKEN_ENDPOINT_URL, body, callback);
     }
 
+    /**
+     * Sets Request Header
+     * @param hm
+     * @return
+     * @throws IOException
+     */
     public Builder inflateRequest(HashMap<String, String> hm) throws IOException {
         //add user-agent
         if (hm == null) {
@@ -120,7 +188,12 @@ public class Platform {
         return requestBuilder;
     }
 
-    public void setAuth(Response response) {
+    /**
+     * Sets authentication values after successful authentication
+     * @param response
+     */
+
+    protected void setAuth(Response response) {
         try {
             this.auth.setData(jsonToHashMap(response));
         } catch (Exception e) {
@@ -128,6 +201,13 @@ public class Platform {
         }
 
     }
+
+    /**
+     * Creates request object
+     * @param endpoint
+     * @param body
+     * @param callback
+     */
 
     protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) {
         try {
@@ -154,6 +234,12 @@ public class Platform {
         }
     }
 
+
+    /**
+     * Sets new access and refresh tokens
+     * @param callback
+     * @throws Exception
+     */
     public void refresh(Callback callback) throws Exception {
         try {
             if (!this.auth.refreshTokenValid()) {
@@ -169,6 +255,10 @@ public class Platform {
         }
     }
 
+    /**
+     * Revoke current session
+     * @param callback
+     */
     public void logout(Callback callback) {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
@@ -177,33 +267,50 @@ public class Platform {
     }
 
 
-    public void sendRequest(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, Callback callback) {
+    /**
+     * Send API Request
+     * @param method
+     * @param apiURL
+     * @param body
+     * @param headerMap
+     * @param callback
+     */
+    public void sendRequest(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) {
 
         final String URL = server.value + apiURL;
-        try {
+         try {
             ensureAuthentication();
             request = client.createRequest(method, URL, body, inflateRequest(headerMap));
-            client.loadResponse(request, callback);
+            client.loadResponse(request,callback);
         } catch (Exception e) {
             System.err.print("Failed APICall. Exception occured in Class:"
                     + this.getClass().getName() + "\n");
             e.printStackTrace();
         }
-
     }
 
     // TODO: 11/23/15 remove here and replace in helper class
     public void callLog(final Callback callback) {
+
         try {
-            this.ensureAuthentication();
             final String url = "/restapi/v1.0/account/~/call-log";
+            this.ensureAuthentication();
             sendRequest("get", url, null, null, callback);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
-    public HashMap<String, String> jsonToHashMap(Response response) throws IOException {
+    /**
+     * Sets auth data
+     * @param response
+     * @return
+     * @throws IOException
+     */
+
+    protected HashMap<String, String> jsonToHashMap(Response response) throws IOException {
         if (response.isSuccessful()) {
             Gson gson = new Gson();
             Type HashMapType = new TypeToken<HashMap<String, String>>() {
@@ -217,6 +324,10 @@ public class Platform {
         }
     }
 
+    /**
+     * Sets content-type
+     */
+
     public enum ContentTypeSelection {
         FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
                 "application/json"), MULTIPART_TYPE_MARKDOWN("multipart/mixed;");
@@ -226,6 +337,11 @@ public class Platform {
             this.value = MediaType.parse(contentType);
         }
     }
+
+    /**
+     * RingCentral API Endpoint Server. See
+     * <a href ="https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html">Server Endpoint</a> for more information.
+     */
 
     public enum Server {
         PRODUCTION("https://platform.ringcentral.com"), SANDBOX(

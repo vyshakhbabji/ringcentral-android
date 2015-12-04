@@ -29,7 +29,7 @@ public class Client {
         return call;
     }
 
-    public Request createRequest(String method, String URL, RequestBody body, Builder header) {
+    public Request createRequest(String method, String URL, RequestBody body, Builder header) throws Exception {
 
         Request.Builder request = new Request.Builder();
         if (method.equalsIgnoreCase("get")) {
@@ -44,7 +44,11 @@ public class Client {
             } else if (method.equalsIgnoreCase("put")) {
                 request = header.url(URL).put(body);
             }
+            else
+                throw new Exception("Method not Allowed. Please Refer API Documentation. See\n" +
+                        "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
+
         return request.build();
     }
 
