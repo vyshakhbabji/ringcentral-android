@@ -48,11 +48,6 @@ import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
  */
 
 public class Platform {
-
-//    protected final int ACCESS_TOKEN_TTL = 3600;
-//    protected final int REFRESH_TOKEN_TTL = 604800;
-
-
    /*
    Revoke Session Endpoint
     */

@@ -52,19 +52,24 @@ public class Subscription {
         public String subscriberKey = "";
         public String transportType = "Pubnub";
     }
-    String creationTime = "";
+
+
+
     public IDeliveryMode deliveryMode = new IDeliveryMode();
+
     ArrayList<String> eventFilters = new ArrayList<>();
-    String expirationTime = "";
-    int expiresIn = 0;
+
     public String id = "";
+
     Platform platform;
     public Pubnub pubnub;
 
-    String status = "";
-    Subscription subscription;
+    public Subscription subscription;
 
-    String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
+    /*
+    Subscription endpoint
+     */
+    final String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
 
     String uri = "";
 
@@ -93,6 +98,12 @@ public class Subscription {
                 .equals(""));
     }
 
+    /**
+     * Decrypt and notify Subscription message
+     * @param message
+     * @param encryptionKey
+     * @return
+     */
     public String notify(String message, String encryptionKey) {
        // Security.addProvider(new BouncyCastleProvider());
         System.out.println(message);
@@ -112,6 +123,10 @@ public class Subscription {
         return decryptedString;
     }
 
+    /**
+     * Remove Subscription
+     * @throws AuthException
+     */
     public void removeSubscription() throws AuthException {
 
         System.out.println("Subscription ID: " + subscription.id);
@@ -137,10 +152,19 @@ public class Subscription {
         });
     }
 
+    /**
+     * Subscribe to pubnub events adding event fiters
+     * @param events
+     */
     public void setEvents(String[] events) {
         this.eventFilters = new ArrayList<String>(Arrays.asList(events));
     }
 
+    /**
+     * Subscribe to pubnub service
+     * @param subscriptionResponse
+     * @param c
+     */
     public void subscribe(JSONObject subscriptionResponse, Callback c) {
         try {
             updateSubscription(subscriptionResponse);
@@ -152,12 +176,20 @@ public class Subscription {
         }
     }
 
+    /**
+     * Unsubscibe pubnub subscription
+     */
     public void unsubscribe() {
         if ((this.pubnub != null) && this.isSubscribed())
             this.pubnub.unsubscribe(deliveryMode.address);
         System.out.println("Unsubscribed!!! ");
     }
 
+    /**
+     * Update the pubnub subscription service
+     * @param responseJson
+     * @throws JSONException
+     */
     public void updateSubscription(JSONObject responseJson)
             throws JSONException {
         id = responseJson.getString("id");

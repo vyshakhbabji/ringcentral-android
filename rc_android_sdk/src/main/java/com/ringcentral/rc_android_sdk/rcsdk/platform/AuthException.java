@@ -23,18 +23,18 @@
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 /**
- * Exception indicating there was an issue with user authentication.
+ * Exception indicating there was an issue with user authentication and other exceptions.
  */
 
 
 public class AuthException extends RuntimeException {
 
     public AuthException(String message, Throwable cause) {
-        super(message, cause);
+        super("RingCentral Exception :"+message, cause);
     }
 
     public AuthException(String message) {
-        super(message);
+        super("RingCentral Exception :"+message);
     }
 }
 
