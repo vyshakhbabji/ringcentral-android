@@ -45,12 +45,26 @@ public class Client {
         client = new OkHttpClient();
     }
 
+    /**
+     * Makes a OKHttp  call
+     * @param request
+     * @return
+     */
     public Call send(final Request request) {
         Call call;
         call = client.newCall(request);
         return call;
     }
 
+    /**
+     * Creates OKHttp Request
+     * @param method
+     * @param URL
+     * @param body
+     * @param header
+     * @return OKHttp Request
+     * @throws AuthException
+     */
     public Request createRequest(String method, String URL, RequestBody body, Builder header) throws AuthException {
 
         Request.Builder request = new Request.Builder();
@@ -70,10 +84,14 @@ public class Client {
                 throw new AuthException("Method not Allowed. Please Refer API Documentation. See\n" +
                         "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
-
         return request.build();
     }
 
+    /**
+     * Loads OKHttp Response synchronizing async api calls
+     * @param request
+     * @param callback
+     */
     public void loadResponse(final Request request, final Callback callback) {
         try {
             new AsyncTask<String, Integer, Void>() {
@@ -93,9 +111,9 @@ public class Client {
 //                }
             }.execute().get();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+           throw new AuthException("Error in Loading Response..",e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            throw new AuthException("Error in Executing Response..",e);
         };
 
     }

@@ -41,7 +41,6 @@ public class Helpers {
             final String url = "/restapi/v1.0/account/~/call-log";
             platform.ensureAuthentication();
             platform.sendRequest("get", url, null, null, callback);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
