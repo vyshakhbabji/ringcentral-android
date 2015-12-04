@@ -42,7 +42,10 @@ android:
     on:
       tags: true
 
-
+before_install:
+  - pip install codecov
+after_success:
+  - codecov
 
 env:
   global:
