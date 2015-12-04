@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2015 RingCentral, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
@@ -27,8 +49,8 @@ import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
 
 public class Platform {
 
-    protected final int ACCESS_TOKEN_TTL = 3600;
-    protected final int REFRESH_TOKEN_TTL = 604800;
+//    protected final int ACCESS_TOKEN_TTL = 3600;
+//    protected final int REFRESH_TOKEN_TTL = 604800;
 
 
    /*
@@ -37,6 +59,7 @@ public class Platform {
     final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
 
    /*
+   *
    Authentication  and Refresh Token Endpoint
     */
 
@@ -97,22 +120,21 @@ public class Platform {
 
     public boolean ensureAuthentication() {
         if (!this.auth.accessTokenValid()) {
-            try {
                 this.refresh(new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
+                        throw new AuthException("Ensure Authentication Failed.");
                     }
 
                     @Override
-                    public void onResponse(Response response) throws IOException {
+                    public void onResponse(Response response) {
                         if (response.isSuccessful())
                             return;
+                        else
+                            throw new AuthException("Ensure Authentication Failed.");
+
                     }
                 });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             return false;
         } else
             return true;
@@ -141,15 +163,9 @@ public class Platform {
 
     /**
      * Checks if the login is valid
-     * @return
-     * @throws Exception
      */
-    public boolean loggedIn() throws Exception {
-        try {
-            return this.auth.accessTokenValid();
-        } catch (Exception e) {
-            throw e;
-        }
+    public boolean loggedIn(){
+        return this.auth.accessTokenValid();
     }
 
     /**
@@ -159,7 +175,8 @@ public class Platform {
      * @param password
      * @param callback
      */
-    public void login(String userName, String extension, String password, Callback callback) {
+    public void login(String userName, String extension, String password, Callback callback) throws AuthException {
+
 
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("username", userName);
@@ -175,7 +192,7 @@ public class Platform {
      * @return
      * @throws IOException
      */
-    public Builder inflateRequest(HashMap<String, String> hm) throws IOException {
+    public Builder inflateRequest(HashMap<String, String> hm){
         //add user-agent
         if (hm == null) {
             hm = new HashMap<String, String>();
@@ -209,8 +226,8 @@ public class Platform {
      * @param callback
      */
 
-    protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) {
-        try {
+    protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) throws AuthException {
+
             final String URL = server.value + endpoint;
             HashMap<String, String> headers = new HashMap<String, String>();
             headers.put("Authorization", apiKey());
@@ -219,7 +236,8 @@ public class Platform {
             final Callback c = new Callback() {
                 @Override
                 public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
+                        throw new AuthException("Unable to request token.", e);
+
                 }
 
                 @Override
@@ -229,9 +247,6 @@ public class Platform {
                 }
             };
             client.loadResponse(request, c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -240,7 +255,7 @@ public class Platform {
      * @param callback
      * @throws Exception
      */
-    public void refresh(Callback callback) throws Exception {
+    public void refresh(Callback callback) throws AuthException{
         try {
             if (!this.auth.refreshTokenValid()) {
                 throw new IOException("Refresh Token has Expired");
@@ -250,8 +265,9 @@ public class Platform {
                 body.put("refresh_token", this.auth.refreshToken());
                 requestToken(TOKEN_ENDPOINT_URL, body, callback);
             }
-        } catch (Exception e) {
-            throw e;
+        }
+        catch (IOException e){
+                throw new AuthException("Unable to refresh.", e);
         }
     }
 
@@ -259,10 +275,10 @@ public class Platform {
      * Revoke current session
      * @param callback
      */
-    public void logout(Callback callback) {
+    public void logout(Callback callback) throws AuthException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
-        this.requestToken(REVOKE_ENDPOINT_URL, body, callback);
+        requestToken(REVOKE_ENDPOINT_URL, body, callback);
         this.auth.reset();
     }
 
@@ -282,25 +298,9 @@ public class Platform {
             ensureAuthentication();
             request = client.createRequest(method, URL, body, inflateRequest(headerMap));
             client.loadResponse(request,callback);
-        } catch (Exception e) {
-            System.err.print("Failed APICall. Exception occured in Class:"
-                    + this.getClass().getName() + "\n");
-            e.printStackTrace();
-        }
-    }
-
-    // TODO: 11/23/15 remove here and replace in helper class
-    public void callLog(final Callback callback) {
-
-        try {
-            final String url = "/restapi/v1.0/account/~/call-log";
-            this.ensureAuthentication();
-            sendRequest("get", url, null, null, callback);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        }  catch (AuthException e){
+             throw new AuthException("Unable to make API Call.", e);
+         }
     }
 
     /**
@@ -310,17 +310,22 @@ public class Platform {
      * @throws IOException
      */
 
-    protected HashMap<String, String> jsonToHashMap(Response response) throws IOException {
-        if (response.isSuccessful()) {
-            Gson gson = new Gson();
-            Type HashMapType = new TypeToken<HashMap<String, String>>() {
-            }.getType();
-            String responseString = response.body().string();
-            Log.v("OAuth Response :", responseString);
-            return gson.fromJson(responseString, HashMapType);
-        } else {
-            Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
-            return new HashMap<>();
+    protected HashMap<String, String> jsonToHashMap(Response response) throws AuthException {
+        try {
+            if (response.isSuccessful()) {
+                Gson gson = new Gson();
+                Type HashMapType = new TypeToken<HashMap<String, String>>() {
+                }.getType();
+                String responseString = response.body().string();
+                Log.v("OAuth Response :", responseString);
+                return gson.fromJson(responseString, HashMapType);
+            } else {
+                Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
+                return new HashMap<>();
+            }
+        }
+        catch (IOException e){
+            throw new AuthException("Unable to request token.", e);
         }
     }
 

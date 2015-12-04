@@ -19,28 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.core;
 
+package com.ringcentral.rc_android_sdk.rcsdk.utils;
 
-import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+import com.squareup.okhttp.Callback;
 
 /**
- * Created by vyshakh.babji on 11/5/15.
+ * Created by vyshakh.babji on 12/4/15.
  */
+public class Helpers {
 
-
-public class SDK {
     Platform platform;
-    Client client;
 
-    public SDK(String appKey, String appSecret, Platform.Server server) {
-
-        this.client = new Client();
-        this.platform = new Platform(client, appKey, appSecret, server);
+    public Helpers(Platform platform) {
+        this.platform = platform;
     }
+    public void callLog(final Callback callback) {
 
-    public Platform platform() {
-        return this.platform;
+        try {
+            final String url = "/restapi/v1.0/account/~/call-log";
+            platform.ensureAuthentication();
+            platform.sendRequest("get", url, null, null, callback);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
