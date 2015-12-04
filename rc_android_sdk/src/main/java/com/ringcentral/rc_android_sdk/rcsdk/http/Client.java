@@ -47,6 +47,7 @@ public class Client {
 
     /**
      * Makes a OKHttp  call
+     *
      * @param request
      * @return
      */
@@ -58,6 +59,7 @@ public class Client {
 
     /**
      * Creates OKHttp Request
+     *
      * @param method
      * @param URL
      * @param body
@@ -79,8 +81,7 @@ public class Client {
 
             } else if (method.equalsIgnoreCase("put")) {
                 request = header.url(URL).put(body);
-            }
-            else
+            } else
                 throw new AuthException("Method not Allowed. Please Refer API Documentation. See\n" +
                         "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
@@ -89,6 +90,7 @@ public class Client {
 
     /**
      * Loads OKHttp Response synchronizing async api calls
+     *
      * @param request
      * @param callback
      */
@@ -111,10 +113,11 @@ public class Client {
 //                }
             }.execute().get();
         } catch (InterruptedException e) {
-           throw new AuthException("Error in Loading Response..",e);
+            throw new AuthException("Error in Loading Response..", e);
         } catch (ExecutionException e) {
-            throw new AuthException("Error in Executing Response..",e);
-        };
+            throw new AuthException("Error in Executing Response..", e);
+        }
+        ;
 
     }
 

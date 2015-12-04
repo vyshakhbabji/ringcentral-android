@@ -28,8 +28,6 @@ import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 /**
  * Created by vyshakh.babji on 11/5/15.
  */
-
-
 public class SDK {
     Platform platform;
     Client client;

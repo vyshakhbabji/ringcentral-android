@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
@@ -41,16 +42,14 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
-
 /**
  * Created by vyshakh.babji on 11/5/15.
  */
 
 public class Platform {
-   /*
-   Revoke Session Endpoint
-    */
+    /*
+    Revoke Session Endpoint
+     */
     final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
 
    /*
@@ -75,6 +74,7 @@ public class Platform {
 
     /**
      * Creates Platform object
+     *
      * @param client
      * @param appKey
      * @param appSecret
@@ -91,7 +91,6 @@ public class Platform {
     }
 
     /**
-     *
      * @return Base 64 encoded app credentials
      */
 
@@ -100,7 +99,6 @@ public class Platform {
     }
 
     /**
-     *
      * @return Authorization Header
      */
 
@@ -109,27 +107,25 @@ public class Platform {
     }
 
     /**
-     *Checks if the current access token is valid. If the access token is expired, it does token refresh.
+     * Checks if the current access token is valid. If the access token is expired, it does token refresh.
      */
-
-
     public boolean ensureAuthentication() {
         if (!this.auth.accessTokenValid()) {
-                this.refresh(new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
+            this.refresh(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    throw new AuthException("Ensure Authentication Failed.");
+                }
+
+                @Override
+                public void onResponse(Response response) {
+                    if (response.isSuccessful())
+                        return;
+                    else
                         throw new AuthException("Ensure Authentication Failed.");
-                    }
 
-                    @Override
-                    public void onResponse(Response response) {
-                        if (response.isSuccessful())
-                            return;
-                        else
-                            throw new AuthException("Ensure Authentication Failed.");
-
-                    }
-                });
+                }
+            });
             return false;
         } else
             return true;
@@ -138,6 +134,7 @@ public class Platform {
 
     /**
      * Sets Request body for content type FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded")
+     *
      * @param body
      * @return
      */
@@ -150,6 +147,7 @@ public class Platform {
 
     /**
      * Get Auth object
+     *
      * @return
      */
     public Auth auth() {
@@ -159,12 +157,13 @@ public class Platform {
     /**
      * Checks if the login is valid
      */
-    public boolean loggedIn(){
+    public boolean loggedIn() {
         return this.auth.accessTokenValid();
     }
 
     /**
      * Sets Login Credentials for authentication
+     *
      * @param userName
      * @param extension
      * @param password
@@ -183,11 +182,12 @@ public class Platform {
 
     /**
      * Sets Request Header
+     *
      * @param hm
      * @return
      * @throws IOException
      */
-    public Builder inflateRequest(HashMap<String, String> hm){
+    public Builder inflateRequest(HashMap<String, String> hm) {
         //add user-agent
         if (hm == null) {
             hm = new HashMap<String, String>();
@@ -202,9 +202,9 @@ public class Platform {
 
     /**
      * Sets authentication values after successful authentication
+     *
      * @param response
      */
-
     protected void setAuth(Response response) {
         try {
             this.auth.setData(jsonToHashMap(response));
@@ -216,41 +216,42 @@ public class Platform {
 
     /**
      * Creates request object
+     *
      * @param endpoint
      * @param body
      * @param callback
      */
-
     protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) throws AuthException {
 
-            final String URL = server.value + endpoint;
-            HashMap<String, String> headers = new HashMap<String, String>();
-            headers.put("Authorization", apiKey());
-            headers.put("Content-Type", ContentTypeSelection.FORM_TYPE_MARKDOWN.value.toString());
-            request = inflateRequest(headers).url(URL).post(formBody(body)).build();
-            final Callback c = new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                        throw new AuthException("Unable to request token.", e);
+        final String URL = server.value + endpoint;
+        HashMap<String, String> headers = new HashMap<String, String>();
+        headers.put("Authorization", apiKey());
+        headers.put("Content-Type", ContentTypeSelection.FORM_TYPE_MARKDOWN.value.toString());
+        request = inflateRequest(headers).url(URL).post(formBody(body)).build();
+        final Callback c = new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                throw new AuthException("Unable to request token.", e);
 
-                }
+            }
 
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    setAuth(response);
-                    callback.onResponse(response);
-                }
-            };
-            client.loadResponse(request, c);
+            @Override
+            public void onResponse(Response response) throws IOException {
+                setAuth(response);
+                callback.onResponse(response);
+            }
+        };
+        client.loadResponse(request, c);
     }
 
 
     /**
      * Sets new access and refresh tokens
+     *
      * @param callback
      * @throws Exception
      */
-    public void refresh(Callback callback) throws AuthException{
+    public void refresh(Callback callback) throws AuthException {
         try {
             if (!this.auth.refreshTokenValid()) {
                 throw new IOException("Refresh Token has Expired");
@@ -260,14 +261,14 @@ public class Platform {
                 body.put("refresh_token", this.auth.refreshToken());
                 requestToken(TOKEN_ENDPOINT_URL, body, callback);
             }
-        }
-        catch (IOException e){
-                throw new AuthException("Unable to refresh.", e);
+        } catch (IOException e) {
+            throw new AuthException("Unable to refresh.", e);
         }
     }
 
     /**
      * Revoke current session
+     *
      * @param callback
      */
     public void logout(Callback callback) throws AuthException {
@@ -280,6 +281,7 @@ public class Platform {
 
     /**
      * Send API Request
+     *
      * @param method
      * @param apiURL
      * @param body
@@ -289,22 +291,22 @@ public class Platform {
     public void sendRequest(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) {
 
         final String URL = server.value + apiURL;
-         try {
+        try {
             ensureAuthentication();
             request = client.createRequest(method, URL, body, inflateRequest(headerMap));
-            client.loadResponse(request,callback);
-        }  catch (AuthException e){
-             throw new AuthException("Unable to make API Call.", e);
-         }
+            client.loadResponse(request, callback);
+        } catch (AuthException e) {
+            throw new AuthException("Unable to make API Call.", e);
+        }
     }
 
     /**
      * Sets auth data
+     *
      * @param response
      * @return
      * @throws IOException
      */
-
     protected HashMap<String, String> jsonToHashMap(Response response) throws AuthException {
         try {
             if (response.isSuccessful()) {
@@ -318,8 +320,7 @@ public class Platform {
                 Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
                 return new HashMap<>();
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             throw new AuthException("Unable to request token.", e);
         }
     }
@@ -327,7 +328,6 @@ public class Platform {
     /**
      * Sets content-type
      */
-
     public enum ContentTypeSelection {
         FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
                 "application/json"), MULTIPART_TYPE_MARKDOWN("multipart/mixed;");
@@ -342,7 +342,6 @@ public class Platform {
      * RingCentral API Endpoint Server. See
      * <a href ="https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html">Server Endpoint</a> for more information.
      */
-
     public enum Server {
         PRODUCTION("https://platform.ringcentral.com"), SANDBOX(
                 "https://platform.devtest.ringcentral.com");

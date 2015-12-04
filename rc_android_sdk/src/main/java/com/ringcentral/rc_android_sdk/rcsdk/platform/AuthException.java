@@ -30,11 +30,11 @@ package com.ringcentral.rc_android_sdk.rcsdk.platform;
 public class AuthException extends RuntimeException {
 
     public AuthException(String message, Throwable cause) {
-        super("RingCentral Exception :"+message, cause);
+        super("RingCentral Exception :" + message, cause);
     }
 
     public AuthException(String message) {
-        super("RingCentral Exception :"+message);
+        super("RingCentral Exception :" + message);
     }
 }
 

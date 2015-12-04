@@ -35,6 +35,7 @@ public class Helpers {
     public Helpers(Platform platform) {
         this.platform = platform;
     }
+
     public void callLog(final Callback callback) {
 
         try {

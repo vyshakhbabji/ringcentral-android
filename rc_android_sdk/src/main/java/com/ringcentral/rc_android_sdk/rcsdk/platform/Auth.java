@@ -24,7 +24,7 @@ package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 /**
  * /*
- OAuth2 for RingCentral Developer Platform APIs
+ * OAuth2 for RingCentral Developer Platform APIs
  */
 
 import android.util.Log;
@@ -53,6 +53,7 @@ public class Auth {
 
     /**
      * Get Access Token
+     *
      * @return access token
      */
     public String accessToken() {
@@ -61,6 +62,7 @@ public class Auth {
 
     /**
      * Check validity of access token
+     *
      * @return boolean value for validity of access token
      */
     public boolean accessTokenValid() {
@@ -79,6 +81,7 @@ public class Auth {
 
     /**
      * Get Refresh Token
+     *
      * @return refresh token
      */
     public String refreshToken() {
@@ -87,6 +90,7 @@ public class Auth {
 
     /**
      * Check validity of refresh token
+     *
      * @return boolean value for validity of refresh token
      */
     public boolean refreshTokenValid() {
@@ -118,6 +122,7 @@ public class Auth {
 
     /**
      * Sets Authorization data
+     *
      * @param authData
      */
     public Auth setData(HashMap<String, String> authData) {
