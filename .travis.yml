@@ -4,6 +4,8 @@ jdk:
 
 env:
   global:
+    - ANDROID_TARGET=android-15
+    - ANDROID_ABI=armeabi-v7a
     - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
     - CODECOV_TOKEN=462eb948-9d37-4302-b2c4-1d4195f30631
 
@@ -36,7 +38,12 @@ android:
     directories:
     - "$HOME/.gradle/caches/"
   script:
-  - "./gradlew build jacocoTestReport"
+    - ./gradlew build jacocoTestReport assembleAndroidTest
+    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+    - emulator -avd test -no-skin -no-audio -no-window &
+    - android-wait-for-emulator
+    - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
+    - ./gradlew connectedCheck
 
   after_success:
   - bash <(curl -s https://codecov.io/bash)
