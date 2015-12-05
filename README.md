@@ -1,10 +1,10 @@
 # RingCentral Android SDK
 
-[![Build Status](https://travis-ci.org/vyshakhbabji/ringcentral-android.svg)](https://travis-ci.org/vyshakhbabji/ringcentral-android.svg)
+[![Build Status](https://travis-ci.org/vyshakhbabji/ringcentral-android.svg)](https://travis-ci.org/vyshakhbabji/ringcentral-android)
 
 
 
-[![codecov.io](http://codecov.io/github/vyshakhbabji/ringcentral-android/coverage.svg?branch=master)](http://codecov.io/github/vyshakhbabji/ringcentral-android?branch=master)
+[![codecov.io](http://codecov.io/vyshakhbabji/ringcentral-android.svg)](http://codecov.io/github/vyshakhbabji/ringcentral-android)
 
 
 
