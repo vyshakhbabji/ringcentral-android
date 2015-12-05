@@ -2,6 +2,11 @@ language: android
 jdk:
   - oraclejdk8
 
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
+    - CODECOV_TOKEN=462eb948-9d37-4302-b2c4-1d4195f30631
+
 script: "./gradlew build"
 android:
   components:
@@ -43,12 +48,9 @@ android:
       tags: true
 
 before_install:
-  - pip install codecov
+  - pip install --user codecov
 
 after_success:
   - codecov
 
-env:
-  global:
-    - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
-    - codecov --token=462eb948-9d37-4302-b2c4-1d4195f30631s
+
