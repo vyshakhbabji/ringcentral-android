@@ -8,7 +8,6 @@
 
 
 
-[![Build Status][build-status-svg]][build-status-link]
 
 
 
