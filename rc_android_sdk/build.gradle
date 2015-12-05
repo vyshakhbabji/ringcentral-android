@@ -182,3 +182,17 @@ jacocoAndroidUnitTestReport {
 //        }
 //    }
 //}
+subprojects {
+    tasks.withType(Test) {
+        beforeTest { desc ->
+            print "[${desc.className}] ${desc.name}: "
+        }
+        afterTest { desc, result ->
+            println "${result.resultType}"
+            if (result.resultType == TestResult.ResultType.FAILURE) {
+                println "${result.exception}"
+            }
+        }
+    }
+
+}

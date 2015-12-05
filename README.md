@@ -4,7 +4,7 @@
 
 
 
-[![codecov.io](https://codecov.io/github/vyshakhbabji/ringcentral-android.svg?branch=master)](https://codecov.io/github/vyshakhbabji/ringcentral-android?branch=master)
+[![codecov.io](https://codecov.io/github/vyshakhbabji/ringcentral-android.svg)](https://codecov.io/github/vyshakhbabji/ringcentral-android?branch=master)
 
 
 
