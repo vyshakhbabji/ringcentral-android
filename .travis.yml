@@ -2,12 +2,19 @@ language: android
 jdk:
   - oraclejdk8
 
+sudo: false
+
 env:
   global:
     - ANDROID_TARGET=android-15
     - ANDROID_ABI=armeabi-v7a
+    - ANDROID_BUILD_TOOLS_VERSION=23.0.2
+    - ADB_INSTALL_TIMEOUT=10
     - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
-    - CODECOV_TOKEN=462eb948-9d37-4302-b2c4-1d4195f30631
+    - CODECOV_TOKEN= 462eb948-9d37-4302-b2c4-1d4195f30631
+
+  matrix:
+    - ANDROID_TARGET=android-23  ANDROID_ABI=armeabi-v7a
 
 script: "./gradlew build"
 android:
@@ -46,6 +53,7 @@ android:
 
   after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - codecov
 
   deploy:
     provider: script
