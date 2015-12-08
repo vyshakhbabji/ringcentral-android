@@ -19,26 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.core;
 
-
-import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 /**
- * Created by vyshakh.babji on 11/5/15.
+ * Exception indicating there was an issue with user authentication and other exceptions.
  */
-public class SDK {
-    Platform platform;
-    Client client;
 
-    public SDK(String appKey, String appSecret, Platform.Server server) {
 
-        this.client = new Client();
-        this.platform = new Platform(client, appKey, appSecret, server);
+public class AuthException extends RuntimeException {
+
+    public AuthException(String message, Throwable cause) {
+        super("RingCentral Exception :" + message, cause);
     }
 
-    public Platform platform() {
-        return this.platform;
+    public AuthException(String message) {
+        super("RingCentral Exception :" + message);
     }
 }
+

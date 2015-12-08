@@ -1,8 +1,6 @@
 # RingCentral Android SDK
 
-[![Build Status](https://travis-ci.org/andrewpang/ringcentral-android.svg?branch=master)](https://travis-ci.org/andrewpang/ringcentral-android)
-[![codecov.io](http://codecov.io/github/arturdm/jacoco-android-gradle-plugin/coverage.svg?branch=master)](http://codecov.io/github/arturdm/jacoco-android-gradle-plugin?branch=master)
-[![Build Status][build-status-svg]][build-status-link]
+[![Build Status](https://travis-ci.org/vyshakhbabji/ringcentral-android.svg)](https://travis-ci.org/vyshakhbabji/ringcentral-android)
 [![Bintray][bintray-version-svg]][bintray-version-link]
 [![License][license-svg]][license-link]
 
@@ -35,7 +33,7 @@ Add these to your app's Gradle dependencies:
 ```java
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.0.4'
+    compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.5'
 }
 ```
 
@@ -67,18 +65,18 @@ Create an instance of the global SDK object in your application, and configure i
 ##### Production:
 
 ```java
-SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_PRODUCTION);
+sdk = new SDK(appKey, appSecret, Platform.Server.PRODUCTION);
 ```
 ##### Sandbox
 
 ```java
-SDK = new SDK(appKey, appSecret, SDK.RC_SERVER_SANDBOX);
+sdk = new SDK(appKey, appSecret, Platform.Server.SANDBOX);
 ```
 
 #### Get Platform Singleton
 
 ```java
-platform = SDK.getPlatform();
+Platform platform = sdk.platform();
 ```
 With the oldPlatform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
 
@@ -87,27 +85,26 @@ With the oldPlatform singleton and the SDK configured with the correct server UR
 Authentication is done by calling the `oldPlatform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
 
 ```java
-SDK.platform.authorize(
-	"username", // Phone number in full format
- 	"extension", // Input "" if direct number is used
-	"password",
-	new Callback() {
-		@Override
-		public void onFailure(Request request, IOException e){
-			e.printStackTrace //Handle exception
-		} 
-		@Override
-		public void onResponse(Response response) throws IOException {
-			Transaction transaction = new Transaction(response);
-            HashMap<String, String> responseMap = transaction.getAuthJson();
-            // If HTTP response is not successful, throw exception
-            if (!response.isSuccessful()){
-                throw new IOException(transaction.getError());
-            }
-            // Create RCResponse and parse the JSON response to set Auth data
-            platform.setAuthData(responseMap);
-		}
-});
+ platform.login("username", "ext", "password", new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        //handle exception
+                    }
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        try {
+                            if (response.isSuccessful() && platform.loggedIn()) {
+                                //set the current authorized platform instance to the singleton instance 
+                                Singleton.getInstance().setPlatform(helpers);
+                                //start activities
+                                Intent optionsIntent = new Intent(ActivityA.this, ActivityB.class);
+                                startActivity(optionsIntent);
+                            }
+                        } catch (Exception e) {
+                            //handle exception
+                        }
+                    }
+                });
 ```
 
 ####Checking Authentication State
@@ -115,9 +112,9 @@ SDK.platform.authorize(
 To check in your Application if the user is authenticated, you can call the oldPlatform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
 
 ```java
-platform.isAuthorized();
+platform.loggedIn(); //returns boolean 
 ```
-
+<!---
 ##Performing API calls
 
 To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the oldPlatform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body",
@@ -153,6 +150,10 @@ platform.post(url, body, headers,
 		}
 });
 ```
+
+
+
+
 # Helper Examples
 
 ### Get Helper Singleton
@@ -250,9 +251,9 @@ helpers.callLog(
                 }
 });	
 ```	
-
+-->
 ### Android Demo app link: 
-https://github.com/andrewpang/RCAndroidSDKDemoApp
+https://github.com/vyshakhbabji/ringcentral-android-sdk-demoapp
 
 ## License
 

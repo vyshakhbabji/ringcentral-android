@@ -1,6 +1,31 @@
+/*
+ * Copyright (c) 2015 RingCentral, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 
+/**
+ * /*
+ * OAuth2 for RingCentral Developer Platform APIs
+ */
 
 import android.util.Log;
 
@@ -26,10 +51,20 @@ public class Auth {
         this.reset();
     }
 
+    /**
+     * Get Access Token
+     *
+     * @return access token
+     */
     public String accessToken() {
         return this.access_token;
     }
 
+    /**
+     * Check validity of access token
+     *
+     * @return boolean value for validity of access token
+     */
     public boolean accessTokenValid() {
         GregorianCalendar cal = new GregorianCalendar();
         Log.v("isTokenValid", this.expire_time.toString());
@@ -39,18 +74,25 @@ public class Auth {
 
 
     protected boolean isTokenDateValid(GregorianCalendar token_date) {
-
-
         boolean value = token_date.compareTo(new GregorianCalendar()) > 0;
         Log.v("isTokenValid", String.valueOf(value));
-
         return (token_date.compareTo(new GregorianCalendar()) > 0);
     }
 
+    /**
+     * Get Refresh Token
+     *
+     * @return refresh token
+     */
     public String refreshToken() {
         return this.refresh_token;
     }
 
+    /**
+     * Check validity of refresh token
+     *
+     * @return boolean value for validity of refresh token
+     */
     public boolean refreshTokenValid() {
         GregorianCalendar cal = new GregorianCalendar();
         if (this.refresh_token_expire_time != null)
@@ -58,22 +100,31 @@ public class Auth {
         return this.isTokenDateValid(cal);
     }
 
+
+    /**
+     * Resets the authorization data
+     */
     public void reset() {
         this.token_type = "";
         this.remember = "";
 
         this.access_token = "";
         this.expires_in = "";
-        this.expire_time = new Date(01 / 12 / 2006);
+        this.expire_time = new Date(00 / 00 / 0000);
 
         this.refresh_token = "";
         this.refresh_token_expires_in = "";
-        this.refresh_token_expire_time = new Date(01 / 12 / 2006);
+        this.refresh_token_expire_time = new Date(00 / 00 / 0000);
 
         this.scope = "";
         this.owner_id = "";
     }
 
+    /**
+     * Sets Authorization data
+     *
+     * @param authData
+     */
     public Auth setData(HashMap<String, String> authData) {
 
         if (authData == null || authData.isEmpty())
@@ -106,7 +157,9 @@ public class Auth {
 
         }
 
-        // refresh token
+        /*
+        Refresh token
+         */
 
         if (authData.containsKey("refresh_token")) {
             this.refresh_token = authData.get("refresh_token");

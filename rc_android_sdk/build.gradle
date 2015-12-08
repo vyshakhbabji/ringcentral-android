@@ -17,6 +17,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            testCoverageEnabled true
+        }
     }
     lintOptions {
         abortOnError false
@@ -26,7 +30,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.1'
-
 
     /*
     This dependency is for the Gson library. For more information visit:
@@ -179,3 +182,17 @@ jacocoAndroidUnitTestReport {
 //        }
 //    }
 //}
+subprojects {
+    tasks.withType(Test) {
+        beforeTest { desc ->
+            print "[${desc.className}] ${desc.name}: "
+        }
+        afterTest { desc, result ->
+            println "${result.resultType}"
+            if (result.resultType == TestResult.ResultType.FAILURE) {
+                println "${result.exception}"
+            }
+        }
+    }
+
+}
