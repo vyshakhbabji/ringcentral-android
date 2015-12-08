@@ -106,7 +106,7 @@ public class Auth {
      */
     public void reset() {
         this.token_type = "";
-        this.remember = "";
+        this.remember = ""; //FIXME Not needed here
 
         this.access_token = "";
         this.expires_in = "";

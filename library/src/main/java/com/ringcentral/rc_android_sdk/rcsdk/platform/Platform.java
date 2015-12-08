@@ -111,6 +111,7 @@ public class Platform {
 
     /**
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
+     * FIXME This is asynchronous method, so it must accept a callback
      */
     public boolean ensureAuthentication() {
 
@@ -221,6 +222,7 @@ public class Platform {
      * @param hm
      * @return
      * @throws IOException
+     * FIXME Async
      */
     public Builder inflateRequest(HashMap<String, String> hm) {
         //add user-agent
@@ -244,7 +246,7 @@ public class Platform {
         try {
             this.auth.setData(jsonToHashMap(response));
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
         }
 
     }
@@ -266,7 +268,7 @@ public class Platform {
         final Callback c = new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                throw new AuthException("Unable to request token.", e);
+                throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
             }
 
             @Override
@@ -311,7 +313,7 @@ public class Platform {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
         requestToken(REVOKE_ENDPOINT_URL, body, callback);
-        this.auth.reset();
+        this.auth.reset(); //FIXME This should go inside the callback
     }
 
 
@@ -328,7 +330,7 @@ public class Platform {
 
         final String URL = server.value + apiURL;
         try {
-            ensureAuthentication();
+            ensureAuthentication(); //FIXME Async
             request = client.createRequest(method, URL, body, inflateRequest(headerMap));
             client.loadResponse(request, callback);
         } catch (AuthException e) {
@@ -363,6 +365,7 @@ public class Platform {
 
     /**
      * Sets content-type
+     * FIXME Change naming
      */
     public enum ContentTypeSelection {
         FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
@@ -387,5 +390,7 @@ public class Platform {
             this.value = url;
         }
     }
+
+    //FIXME get, post, put, delete methods are missing
 
 }

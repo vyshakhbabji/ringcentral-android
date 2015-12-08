@@ -51,6 +51,8 @@ public class Client {
      * @param request
      * @return
      */
+    //FIXME Name should be sendRequest
+    //FIXME Take a look at reference -- this method should do a different thing
     public Call send(final Request request) {
         Call call;
         call = client.newCall(request);
@@ -94,6 +96,8 @@ public class Client {
      * @param request
      * @param callback
      */
+    //FIXME Async
+    //FIXME Take a look at reference -- this method should do a different thing
     public void loadResponse(final Request request, final Callback callback) {
         try {
             new AsyncTask<String, Integer, Void>() {
