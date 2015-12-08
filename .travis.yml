@@ -11,7 +11,7 @@ env:
     - ANDROID_BUILD_TOOLS_VERSION=23.0.2
     - ADB_INSTALL_TIMEOUT=10
     - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
-   
+
 
 
   matrix:
