@@ -49,39 +49,6 @@ public class APIResponse {
         return this.response.body();
     }
 
-    public String error() {
-
-        String message = "";
-        if (!ok()) {
-            message = "HTTP error code: " + statusCode() + "\n";
-
-            try {
-                JSONObject data = new JSONObject(body().string());
-
-                if (data == null) {
-                    message = "Unknown response reason phrase";
-                }
-
-                if (data.getString("message") != null)
-                    message = message + data.getString("message");
-
-                if (data.getString("error_description") != null)
-                    message = message + data.getString("error_description");
-
-                if (data.getString("description") != null)
-                    message = message + data.getString("description");
-
-
-            } catch (JSONException | IOException e) {
-                message = message + " and additional error happened during JSON parse " + e.getMessage();
-            }
-        } else {
-            message = "";
-        }
-
-        return message;
-    }
-
     protected String getContentType() {
         return this.response.headers().get("Content-Type");
     }
@@ -90,7 +57,7 @@ public class APIResponse {
         return getContentType().toString().equalsIgnoreCase(contentType);
     }
 
-    public JsonElement json() {
+    public JsonElement json() throws AuthException {
         JsonElement jObject = new JsonObject();
         try {
             JsonParser parser = new JsonParser();
@@ -124,6 +91,4 @@ public class APIResponse {
         return body().string();
 
     }
-
-    //multipart
 }

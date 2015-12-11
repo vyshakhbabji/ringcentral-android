@@ -29,6 +29,12 @@ package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -183,6 +189,28 @@ public class Auth {
         }
         return this;
     }
+
+    protected HashMap<String, String> jsonToHashMap(Response response) throws IOException {
+        try {
+        if (response.isSuccessful()) {
+            Gson gson = new Gson();
+            Type HashMapType = new TypeToken<HashMap<String, String>>() {
+            }.getType();
+            String responseString = null;
+
+                responseString = response.body().string();
+
+            Log.v("OAuth Response :", responseString);
+            return gson.fromJson(responseString, HashMapType);
+        } else {
+            Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
+        }
+        } catch (IOException e) {
+            throw  new IOException("Illegal Authentication Response. Authentication Failed with response code "+response.code());
+        }
+        return new HashMap<>();
+    }
+
 
     public String tokenType() {
         return this.token_type;

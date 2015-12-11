@@ -1,30 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
 
-
-
-
-//subprojects {
-//    tasks.withType(Test) {
-//        beforeTest { desc ->
-//            print "[${desc.className}] ${desc.name}: "
-//        }
-//        afterTest { desc, result ->
-//            println "${result.resultType}"
-//            if (result.resultType == TestResult.ResultType.FAILURE) {
-//                println "${result.exception}"
-//            }
-//        }
-//    }
-//
-//}
-
-
-
-
-
-
-
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -91,34 +67,53 @@ dependencies {
 
 
 
+//subprojects {
+//    tasks.withType(Test) {
+//        beforeTest { desc ->
+//            print "[${desc.className}] ${desc.name}: "
+//        }
+//        afterTest { desc, result ->
+//            println "${result.resultType}"
+//            if (result.resultType == TestResult.ResultType.FAILURE) {
+//                println "${result.exception}"
+//            }
+//        }
+//    }
 //
-//
-//ext {
-//    bintrayRepo = 'maven'
-//    bintrayName = 'rc_android_sdk'
-//
-//    publishedGroupId = 'com.ringcentral.rcandroidsdk'
-//    libraryName = 'RCAndroidSDK'
-//    artifact = 'rc_android_sdk'
-//
-//    libraryDescription = 'An Android SDK for RingCentral platform API\'s'
-//
-//    siteUrl = 'https://github.com/ringcentral/ringcentral-android'
-//    gitUrl = 'https://github.com/ringcentral/ringcentral-android.git'
-//    //Switch these each time for uploading to Bintray
-//    libraryVersion = '0.6'
-//
-//    developerId = 'vyshakhbabji'
-//    developerName = 'vyshakh babji'
-//    developerEmail = 'vyshakh.babji@gmail.com'
-//
-//    licenseName = 'The Apache Software License, Version 2.0'
-//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//    allLicenses = ["Apache-2.0"]
 //}
+
+
+
+
+
+//
+//
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'rc_android_sdk'
+
+    publishedGroupId = 'com.ringcentral.rcandroidsdk'
+    libraryName = 'RCAndroidSDK'
+    artifact = 'rc_android_sdk'
+
+    libraryDescription = 'An Android SDK for RingCentral platform API\'s'
+
+    siteUrl = 'https://github.com/ringcentral/ringcentral-android'
+    gitUrl = 'https://github.com/ringcentral/ringcentral-android.git'
+    //Switch these each time for uploading to Bintray
+    libraryVersion = '0.6'
+
+    developerId = 'vyshakhbabji'
+    developerName = 'vyshakh babji'
+    developerEmail = 'vyshakh.babji@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 ////
 ////
-//group = publishedGroupId                               // Maven Group ID for the artifact
+group = publishedGroupId                               // Maven Group ID for the artifact
 ////
 //install {
 //    repositories.mavenInstaller {

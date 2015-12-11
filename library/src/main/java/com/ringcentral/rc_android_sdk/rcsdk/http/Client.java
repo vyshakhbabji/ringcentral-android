@@ -24,14 +24,15 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 import android.os.AsyncTask;
 
 import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -53,26 +54,34 @@ public class Client {
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
 
-    public void sendRequest(final Request request, final Callback callback){
+    public void sendRequest(final Request request, final Callback callback) {
 
         try {
             new AsyncTask<String, Integer, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
-                    try {
-                        loadResponse(request,callback);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return null;
+                        Callback c = new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                callback.onFailure(request,e);
+                            }
+
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if(response.isSuccessful())
+                                    callback.onResponse(response);
+                                else
+                                    callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
+                            }
+                        };
+                        loadResponse(request,c);
+                        return null;
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
-
-
         } catch (InterruptedException e) {
-            throw new AuthException("Sending Request Interrupted. ",e);
+            throw new RuntimeException(e);
         } catch (ExecutionException e) {
-            throw new AuthException("Thread Execution Failed. ",e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -86,14 +95,12 @@ public class Client {
      * @return OKHttp Request
      * @throws AuthException
      */
-    public Request createRequest(String method, String URL, RequestBody body, Builder header) throws AuthException {
-
+    public Request createRequest(String method, String URL, RequestBody body, Builder header) {
         Request.Builder request = new Request.Builder();
         if (method.equalsIgnoreCase("get")) {
             request = header.url(URL);
         } else if (method.equalsIgnoreCase("delete")) {
             request = header.url(URL).delete();
-
         } else {
             if (method.equalsIgnoreCase("post")) {
                 request = header.url(URL).post(body);
@@ -101,15 +108,14 @@ public class Client {
             } else if (method.equalsIgnoreCase("put")) {
                 request = header.url(URL).put(body);
             } else
-                throw new AuthException("Method not Allowed. Please Refer API Documentation. See\n" +
-                        "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
+                    throw new RuntimeException(method +" Method not Allowed. Please Refer API Documentation. See\n" +
+                            "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
         return request.build();
     }
 
     /**
      * Loads OKHttp Response synchronizing async api calls
-     *
      * @param request
      * @param callback
      */

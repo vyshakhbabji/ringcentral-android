@@ -22,16 +22,11 @@
 
 package com.ringcentral.rc_android_sdk.rcsdk.utils;
 
-import android.util.Log;
-
+import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
-import java.io.IOException;
 
 /**
  * Created by vyshakh.babji on 12/4/15.
@@ -59,7 +54,11 @@ public class Helpers {
      * @param callback
      */
     public void callLog(final Callback callback) {
-        platform.get(API.CALLLOG.value, null, null, callback);
+        try {
+            platform.get(API.CALLLOG.value, null, null, callback);
+        } catch (AuthException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -77,7 +76,11 @@ public class Helpers {
 
         RequestBody body = RequestBody.create(MediaType.parse("application/json"),payload.getBytes());
 
-        platform.post(API.SMS.value, body, null,callback);
+        try {
+            platform.post(API.SMS.value, body, null,callback);
+        } catch (AuthException e) {
+            e.printStackTrace();
+        }
 
     }
 }

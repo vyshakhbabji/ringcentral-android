@@ -87,7 +87,7 @@ public class Subscription {
      * @param encryptionKey
      * @return
      */
-    public String notify(String message, String encryptionKey) {
+    public String notify(String message, String encryptionKey) throws AuthException {
         // Security.addProvider(new BouncyCastleProvider());
         System.out.println(message);
         byte[] key = Base64.decode(encryptionKey, Base64.NO_WRAP);
@@ -118,7 +118,7 @@ public class Subscription {
         platform.sendRequest("delete", url, null, null, new com.squareup.okhttp.Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                throw new AuthException("Failed to remove subscription");
+              onFailure(request, e);
             }
 
             @Override
@@ -128,7 +128,7 @@ public class Subscription {
                     unsubscribe();
                     Log.v("Unsubscribe", String.valueOf(response.code()));
                 } else
-                    throw new AuthException("Failed to remove subscription and unsubscribe");
+                    onFailure(response.request(),new IOException());
 
 
             }
@@ -150,7 +150,7 @@ public class Subscription {
      * @param subscriptionResponse
      * @param c
      */
-    public void subscribe(JSONObject subscriptionResponse, Callback c) {
+    public void subscribe(JSONObject subscriptionResponse, Callback c) throws AuthException {
         try {
             updateSubscription(subscriptionResponse);
             pubnub = new Pubnub("", deliveryMode.subscriberKey,
