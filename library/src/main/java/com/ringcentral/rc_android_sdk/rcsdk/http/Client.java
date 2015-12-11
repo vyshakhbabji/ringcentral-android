@@ -49,14 +49,31 @@ public class Client {
      * Makes a OKHttp  call
      *
      * @param request
-     * @return
      */
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
-    public Call send(final Request request) {
-        Call call;
-        call = client.newCall(request);
-        return call;
+
+    public void sendRequest(final Request request, final Callback callback){
+
+        try {
+            new AsyncTask<String, Integer, Void>() {
+                @Override
+                protected Void doInBackground(String... params) {
+                    try {
+                        loadResponse(request,callback);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+
+
+        } catch (InterruptedException e) {
+            throw new AuthException("Sending Request Interrupted. ",e);
+        } catch (ExecutionException e) {
+            throw new AuthException("Thread Execution Failed. ",e);
+        }
     }
 
     /**
@@ -98,31 +115,8 @@ public class Client {
      */
     //FIXME Async
     //FIXME Take a look at reference -- this method should do a different thing
-    public void loadResponse(final Request request, final Callback callback) {
-        try {
-            new AsyncTask<String, Integer, Void>() {
-                @Override
-                protected Void doInBackground(String... params) {
-                    try {
-                        send(request).enqueue(callback);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-//                @Override
-//                protected void onPostExecute(Void result) {
-//                    super.onPostExecute(result);
-//                    Log.e("ANSWER", "" + result);
-//                }
-            }.execute().get();
-        } catch (InterruptedException e) {
-            throw new AuthException("Error in Loading Response..", e);
-        } catch (ExecutionException e) {
-            throw new AuthException("Error in Executing Response..", e);
-        }
-        ;
-
+    public  void loadResponse(final Request request, final Callback callback) {
+          client.newCall(request).enqueue(callback);
     }
 
     public Headers getRequestHeader(Request request) {

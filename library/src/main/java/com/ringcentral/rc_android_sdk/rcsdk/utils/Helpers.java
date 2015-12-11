@@ -54,23 +54,30 @@ public class Helpers {
         this.platform = platform;
     }
 
+    /**
+     * Call-log helper
+     * @param callback
+     */
     public void callLog(final Callback callback) {
-
-            platform.ensureAuthentication();
-            platform.sendRequest("get", API.CALLLOG.value, null, null, callback);
+        platform.get(API.CALLLOG.value, null, null, callback);
     }
 
-
+    /**
+     * sendSMS Helper
+     * @param to
+     * @param from
+     * @param message
+     * @param callback
+     */
     public void sendSMS(String to, String from, String message, Callback callback) {
 
         String payload = "{\"to\": [{\"phoneNumber\":\" "+to+"\"}]," +
                 "\"from\": {\"phoneNumber\":\" "+from+"\"}," +
                 "\"text\":\"" +message+"\"}";
 
-        Log.v("payload: ", payload );
-
         RequestBody body = RequestBody.create(MediaType.parse("application/json"),payload.getBytes());
-        platform.sendRequest("post", API.SMS.value, body, null,callback);
+
+        platform.post(API.SMS.value, body, null,callback);
 
     }
 }

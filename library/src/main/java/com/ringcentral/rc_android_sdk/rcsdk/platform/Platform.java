@@ -23,6 +23,7 @@
 
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -41,11 +42,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Objects;
 
-/**
- * Created by vyshakh.babji on 11/5/15.
- */
+import java.util.Queue;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
+
 
 public class Platform {
     /*
@@ -54,7 +56,6 @@ public class Platform {
     final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
 
    /*
-   *
    Authentication  and Refresh Token Endpoint
     */
 
@@ -65,15 +66,17 @@ public class Platform {
     protected String appSecret;
     protected Server server;
 
-
     protected Auth auth;
-
     protected Request request;
-
     protected Client client;
 
     Object lock = new Object();
 
+    boolean refreshInProgress;
+    boolean state;
+
+
+    protected Queue<Callback> queue = new LinkedBlockingQueue<>();
 
     /**
      * Creates Platform object
@@ -83,9 +86,7 @@ public class Platform {
      * @param appSecret
      * @param server
      */
-
     public Platform(Client client, String appKey, String appSecret, Server server) {
-        super();
         this.appKey = appKey;
         this.appSecret = appSecret;
         this.server = server;
@@ -96,82 +97,31 @@ public class Platform {
     /**
      * @return Base 64 encoded app credentials
      */
-
     protected String apiKey() {
         return Credentials.basic(appKey, appSecret);
     }
 
     /**
-     * @return Authorization Header
+     * @return Authorization Header "bearer @accesstoken"
      */
-
     protected String authHeader() {
         return this.auth.tokenType() + " " + this.auth.access_token;
     }
 
     /**
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
-     * FIXME This is asynchronous method, so it must accept a callback
+     * FIXME This is asynchronous method, so it must accept a callback : Fixed
      */
-    public boolean ensureAuthentication() {
-
-
-        if(auth().accessTokenValid()){
-            return true;
+    protected void ensureAuthentication(Callback callback) {
+        if(!loggedIn()){
+                refreshInProgress=true;
+                refresh(callback);
         }
-        else{
-            synchronized (lock){
-
-                refresh(new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        throw new AuthException("Ensure Authentication Failed.");
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        if (response.isSuccessful()){
-                            return;
-                        }
-                    }
-                });
-
-            }
-            return true;
-        }
-
-
-
-
-
-
-
-//        if (!this.auth.accessTokenValid()) {
-//            this.refresh(new Callback() {
-//                @Override
-//                public void onFailure(Request request, IOException e) {
-//
-//                }
-//
-//                @Override
-//                public void onResponse(Response response) {
-//                    if (response.isSuccessful())
-//                        return;
-//                    else
-//                        throw new AuthException("Ensure Authentication Failed.");
-//
-//                }
-//            });
-//            return false;
-//        } else
-//            return true;
     }
 
-
     /**
-     * Sets Request body for content type FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded")
-     *
-     * @param body
+     * Sets Request body for content type FORM_TYPE("application/x-www-form-urlencoded")
+     * @param body Input body as key:value pairs
      * @return
      */
     protected RequestBody formBody(HashMap<String, String> body) {
@@ -183,8 +133,7 @@ public class Platform {
 
     /**
      * Get Auth object
-     *
-     * @return
+     * @return Auth Object
      */
     public Auth auth() {
         return auth;
@@ -194,7 +143,11 @@ public class Platform {
      * Checks if the login is valid
      */
     public boolean loggedIn() {
-        return this.auth.accessTokenValid();
+//
+//        if(auth().accessToken()=="")
+//            return false;
+//        else
+            return this.auth.accessTokenValid();
     }
 
     /**
@@ -220,17 +173,10 @@ public class Platform {
      * Sets Request Header
      *
      * @param hm
-     * @return
-     * @throws IOException
-     * FIXME Async
+     * @return fombody
+     * FIXME Async :  Fixed
      */
-    public Builder inflateRequest(HashMap<String, String> hm) {
-        //add user-agent
-        if (hm == null) {
-            hm = new HashMap<String, String>();
-            if (ensureAuthentication())
-                hm.put("Authorization", authHeader());
-        }
+    protected Builder inflateRequest(HashMap<String, String> hm) {
         Builder requestBuilder = new Request.Builder();
         for (Entry<String, String> entry : hm.entrySet())
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
@@ -241,14 +187,9 @@ public class Platform {
      * Sets authentication values after successful authentication
      *
      * @param response
-     */
+     */ //FIXME : Fixed by calling method
     protected void setAuth(Response response) {
-        try {
-            this.auth.setData(jsonToHashMap(response));
-        } catch (Exception e) {
-            e.printStackTrace(); //FIXME
-        }
-
+        this.auth.setData(jsonToHashMap(response));
     }
 
     /**
@@ -257,7 +198,7 @@ public class Platform {
      * @param endpoint
      * @param body
      * @param callback
-     */
+     */ //FIXME : CHange name
     protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) throws AuthException {
 
         final String URL = server.value + endpoint;
@@ -268,16 +209,22 @@ public class Platform {
         final Callback c = new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
+                callback.onFailure(request,e);
+                //throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
             }
 
             @Override
             public void onResponse(Response response) throws IOException {
+                if(response.isSuccessful()){
                 setAuth(response);
                 callback.onResponse(response);
+                }
+                else{
+                    throw new AuthException("Failed Authorization with Authorization Code "+response.code()+" "+response.message());
+                }
             }
         };
-        client.loadResponse(request, c);
+        client.sendRequest(request, c);
     }
 
 
@@ -285,23 +232,92 @@ public class Platform {
      * Sets new access and refresh tokens
      *
      * @param callback
-     * @throws Exception
+     * @throws AuthException
      */
-    public void refresh(Callback callback) throws AuthException {
+    public synchronized void refresh(final Callback callback) throws AuthException {
 
-        try {
-
-            if (!this.auth.refreshTokenValid()) {
-                throw new IOException("Refresh Token has Expired");
-            } else {
-                HashMap<String, String> body = new HashMap<String, String>();
-                body.put("grant_type", "refresh_token");
-                body.put("refresh_token", this.auth.refreshToken());
-                requestToken(TOKEN_ENDPOINT_URL, body, callback);
-            }
-        } catch (IOException e) {
-            throw new AuthException("Unable to refresh.", e);
+        if (refreshInProgress == false) {
+            refreshInProgress = true;
         }
+
+        synchronized (lock) {
+            queue.add(callback);
+            if (state == refreshInProgress)
+                return;
+            else {
+                state = refreshInProgress;
+            }
+            makeRequest(new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        callback.onFailure(request, e);
+                    }
+
+                    @Override
+                    public void onResponse(Response response) throws IOException {
+                        synchronized (lock) {
+                            state = false;
+                        }
+                        for (Callback c : queue) {
+                            if(response.isSuccessful()){
+                                c.onResponse(response);
+                                queue.remove(c);
+                            }
+                            else
+                            {
+                                throw new AuthException("Failed Refresh with Error Code "+response.code()+" "+response.message());
+                            }
+
+                        }
+                    }
+            });
+
+
+
+        /*
+
+        synchronized(lock) {
+           callbackueue.push(callback)
+           if state == refresh_in_progress:
+             return
+           else:
+             state = refresh_in_progress
+        }
+
+           make_request(refresh_params, new Callback() {
+             onSuccess() {
+               synchronized(lock) {
+                 state = free
+                 for ( c : callbackqueue ):
+                   c.onSuccess()
+                   callbackqueue.remove(c)
+               }
+             }
+           });
+
+
+         */
+        }
+    }
+    protected void makeRequest(Callback callback){
+         {
+            try {
+
+                if (!this.auth.refreshTokenValid()) {
+                    throw new IOException("Refresh Token has Expired");
+                } else {
+                    HashMap<String, String> body = new HashMap<String, String>();
+                    body.put("grant_type", "refresh_token");
+                    body.put("refresh_token", this.auth.refreshToken());
+
+                    requestToken(TOKEN_ENDPOINT_URL, body, callback);
+
+                }
+            } catch (IOException e) {
+                throw new AuthException("Unable to refresh.", e);
+            }
+        }
+
     }
 
     /**
@@ -309,11 +325,23 @@ public class Platform {
      *
      * @param callback
      */
-    public void logout(Callback callback) throws AuthException {
+    public void logout(final Callback callback) throws AuthException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
-        requestToken(REVOKE_ENDPOINT_URL, body, callback);
-        this.auth.reset(); //FIXME This should go inside the callback
+        requestToken(REVOKE_ENDPOINT_URL, body, new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                    callback.onFailure(request,e);
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                if(response.isSuccessful())
+                    auth.reset(); //FIXME This should go inside the callback:fixed
+                callback.onResponse(response);
+            }
+        });
+
     }
 
 
@@ -326,16 +354,34 @@ public class Platform {
      * @param headerMap
      * @param callback
      */
-    public void sendRequest(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) {
+    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) {
 
-        final String URL = server.value + apiURL;
-        try {
-            ensureAuthentication(); //FIXME Async
-            request = client.createRequest(method, URL, body, inflateRequest(headerMap));
-            client.loadResponse(request, callback);
-        } catch (AuthException e) {
-            throw new AuthException("Unable to make API Call.", e);
-        }
+        ensureAuthentication(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                HashMap<String,String> header=null;
+                if(headerMap==null){
+                    header = new HashMap<String,String>();
+                }
+                else
+                    header=headerMap;
+                final String URL = server.value + apiURL;
+                try {
+                    if(!header.containsKey("Authorization")){
+                        header.put("Authorization", authHeader());
+                    }
+                    request = client.createRequest(method, URL, body, inflateRequest(header));
+                    client.sendRequest(request, callback);
+                } catch (AuthException e) {
+                    throw new AuthException("Unable to make API Call.", e);
+                }
+            }
+        });
     }
 
     /**
@@ -343,7 +389,7 @@ public class Platform {
      *
      * @param response
      * @return
-     * @throws IOException
+     * @throws AuthException
      */
     protected HashMap<String, String> jsonToHashMap(Response response) throws AuthException {
         try {
@@ -365,7 +411,7 @@ public class Platform {
 
     /**
      * Sets content-type
-     * FIXME Change naming
+     * FIXME Change naming:Fixed
      */
     public enum ContentTypeSelection {
         FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
@@ -379,7 +425,7 @@ public class Platform {
 
     /**
      * RingCentral API Endpoint Server. See
-     * <a href ="https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html">Server Endpoint</a> for more information.
+     * "https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html" Server Endpoint for more information.
      */
     public enum Server {
         PRODUCTION("https://platform.ringcentral.com"), SANDBOX(
@@ -391,6 +437,31 @@ public class Platform {
         }
     }
 
-    //FIXME get, post, put, delete methods are missing
+    //FIXME get, post, put, delete methods are missing : Fixed
+
+    public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback){
+
+        sendRequest("get",apiURL,body==null?null:body,headerMap,callback);
+    }
+
+    public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback){
+        sendRequest("post",apiURL,body,headerMap,callback);
+    }
+
+    public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback){
+
+        sendRequest("put",apiURL,body,headerMap,callback);
+    }
+
+    public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback){
+
+        sendRequest("delete",apiURL,body==null?null:body,headerMap,callback);
+    }
+
+
+    public void expire_access(){
+        auth().expire_access();
+    }
+
 
 }

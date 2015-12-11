@@ -25,6 +25,7 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
@@ -96,10 +97,9 @@ public class APIResponse {
             jObject = parser.parse(body().string());
             return jObject;
         } catch (Exception e) {
-            System.err
-                    .print("Exception occured while converting the HTTP response to JSON in Class:  " + e.getStackTrace());  //FIXME
+           throw  new AuthException("Exception occured while converting the HTTP response to JSON in Class:  " , e);  //FIXME :Fixed
         }
-        return jObject;
+       // return jObject;
     }
 
     public boolean ok() {

@@ -2,6 +2,29 @@ apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
 
 
+
+
+//subprojects {
+//    tasks.withType(Test) {
+//        beforeTest { desc ->
+//            print "[${desc.className}] ${desc.name}: "
+//        }
+//        afterTest { desc, result ->
+//            println "${result.resultType}"
+//            if (result.resultType == TestResult.ResultType.FAILURE) {
+//                println "${result.exception}"
+//            }
+//        }
+//    }
+//
+//}
+
+
+
+
+
+
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -17,10 +40,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-
-        debug {
-            testCoverageEnabled true
-        }
     }
     lintOptions {
         abortOnError false
@@ -30,7 +49,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.1'
-
+  //  compile 'com.github.dcendents:android-maven-plugin:1.+'
     /*
     This dependency is for the Gson library. For more information visit:
     https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html
@@ -46,23 +65,34 @@ dependencies {
     https://www.pubnub.com/docs/android-java/api-reference
      */
     compile 'com.pubnub:pubnub-android:3.7.4'
-    /*
-        This dependency is for Coverall-Gradle using Cobertura reporter from the repository
-        https://github.com/kt3k/coveralls-gradle-plugin
-     */
 
+    compile 'com.android.support.test:runner:0.4.1'
 
+    compile 'com.squareup.retrofit:retrofit:1.6.1'
+
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2+'
+    compile 'com.squareup.okhttp:mockwebserver:2+'
+    compile 'com.squareup.dagger:dagger:1.2.+'
+    provided 'com.squareup.dagger:dagger-compiler:1.2.+'
+
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.1'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.1'
+    androidTestCompile 'junit:junit:4.+'
+    androidTestCompile 'com.android.support.test:runner:0+'
+    androidTestCompile 'com.android.support.test:rules:0+'
 }
 
 
-jacocoAndroidUnitTestReport {
-    excludes = ['**/R.class',
-                '**/R$*.class',
-                '**/BuildConfig.*',
-                '**/Manifest*.*']
-}
 //Uncomment code below for uploading new versions to Bintray and JCenter
 
+
+
+
+
+
+//
+//
 //ext {
 //    bintrayRepo = 'maven'
 //    bintrayName = 'rc_android_sdk'
@@ -76,21 +106,20 @@ jacocoAndroidUnitTestReport {
 //    siteUrl = 'https://github.com/ringcentral/ringcentral-android'
 //    gitUrl = 'https://github.com/ringcentral/ringcentral-android.git'
 //    //Switch these each time for uploading to Bintray
-//    libraryVersion = '0.0.4'
+//    libraryVersion = '0.6'
 //
-//    developerId = 'andrewpang'
-//    developerName = 'Andrew Pang'
-//    developerEmail = 'andrewpang94@gmail.com'
+//    developerId = 'vyshakhbabji'
+//    developerName = 'vyshakh babji'
+//    developerEmail = 'vyshakh.babji@gmail.com'
 //
 //    licenseName = 'The Apache Software License, Version 2.0'
 //    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 //    allLicenses = ["Apache-2.0"]
 //}
-//
-//apply plugin: 'com.github.dcendents.android-maven'
-//
+////
+////
 //group = publishedGroupId                               // Maven Group ID for the artifact
-//
+////
 //install {
 //    repositories.mavenInstaller {
 //        // This generates POM.xml with proper parameters
@@ -129,7 +158,7 @@ jacocoAndroidUnitTestReport {
 //        }
 //    }
 //}
-//
+////
 //apply plugin: 'com.jfrog.bintray'
 //
 //version = libraryVersion
@@ -152,8 +181,8 @@ jacocoAndroidUnitTestReport {
 //    archives javadocJar
 //    archives sourcesJar
 //}
-//
-//// Bintray
+////
+////// Bintray
 //Properties properties = new Properties()
 //properties.load(project.rootProject.file('local.properties').newDataInputStream())
 //
@@ -182,17 +211,9 @@ jacocoAndroidUnitTestReport {
 //        }
 //    }
 //}
-subprojects {
-    tasks.withType(Test) {
-        beforeTest { desc ->
-            print "[${desc.className}] ${desc.name}: "
-        }
-        afterTest { desc, result ->
-            println "${result.resultType}"
-            if (result.resultType == TestResult.ResultType.FAILURE) {
-                println "${result.exception}"
-            }
-        }
-    }
 
-}
+
+
+
+
+
