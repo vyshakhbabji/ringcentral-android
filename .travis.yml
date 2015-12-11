@@ -2,30 +2,19 @@ language: android
 jdk:
   - oraclejdk8
 
-sudo: false
-
-env:
-  global:
-    - ANDROID_TARGET=android-15
-    - ANDROID_ABI=armeabi-v7a
-    - ANDROID_BUILD_TOOLS_VERSION=23.0.2
-    - ADB_INSTALL_TIMEOUT=10
-    - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
-
-
-
-  matrix:
-    - ANDROID_TARGET=android-23  ANDROID_ABI=armeabi-v7a
-
-##script: "./gradlew build"
+script: "./gradlew build"
 android:
   components:
     # Uncomment the lines below if you want to
     # use the latest revision of Android SDK Tools
-    - tools
-    - platform-tools
-    - build-tools-23.0.2
-    - android-23
+    # - oldPlatform-tools
+    # - tools
+
+    # The BuildTools version used by your project
+    - build-tools-22.0.1
+
+    # The SDK version used to compile your project
+    - android-22
 
     # Additional components
     - extra-google-google_play_services
@@ -37,10 +26,18 @@ android:
     # if you need to run emulator(s) during your tests
     - sys-img-armeabi-v7a-android-19
     - sys-img-x86-android-17
-  before_script:
+
+
+env:
+  global:
+    - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
+
+
+before_script:
   - pip install --user codecov
 
-  script:
+
+script:
     - ./gradlew build
     - ./gradlew build jacocoTestReport assembleAndroidTest
     - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
@@ -49,28 +46,63 @@ android:
     - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
     - TERM=dumb ./gradlew clean lint test jacocoTestReport
 
-  before_install:
+before_install:
   - pip install codecov
   - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
   - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
 
-  after_success:
+after_success:
   - cp app/build/jacoco/jacocoTestReport/*.xml jacoco.xml
   - cp app/build/jacoco/jacocoTestReport/*.xml jacoco2.xml
   - codecov
   - bash <(curl -s https://codecov.io/bash)
 
-  deploy:
+deploy:
     provider: script
-    script: "./gradlew bintrayUpload"
+    script: "./gradlew bintray"
     on:
       tags: true
 
-
-
-  cache:
+cache:
     directories:
     - "$HOME/.gradle/caches/"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
