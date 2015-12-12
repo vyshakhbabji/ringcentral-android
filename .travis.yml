@@ -35,6 +35,7 @@ env:
 sudo: false
 
 before_script:
+  - sudo pip install virtualenv
   - pip install --upgrade pip
   - pip install --user runloop
   - pip install --user codecov
