@@ -51,7 +51,6 @@ script:
     - TERM=dumb ./gradlew clean lint test jacocoTestReport
 
 before_install:
-  - pip install codecov
   - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
   - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
 
