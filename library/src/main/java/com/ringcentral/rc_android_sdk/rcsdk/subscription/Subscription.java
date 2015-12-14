@@ -39,8 +39,7 @@ import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
 
 public class Subscription {
 

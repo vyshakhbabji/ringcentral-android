@@ -32,6 +32,7 @@ import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -40,7 +41,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class Client {
 
-    OkHttpClient client;
+    public OkHttpClient client;
 
     public Client() {
         client = new OkHttpClient();
@@ -70,9 +71,9 @@ public class Client {
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 if(response.isSuccessful())
-                                    callback.onResponse(response);
+                                   callback.onResponse(response);
                                 else
-                                    callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
+                                   callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
                             }
                         };
                         loadResponse(request,c);
@@ -84,17 +85,8 @@ public class Client {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
-    //    loadResponse(request,callback);
+
     }
-
-
-//    public void send(final Request request, final Callback callback) {
-//
-//
-//                    loadResponse(request,callback);
-//
-//    }
-
 
     /**
      * Creates OKHttp Request
@@ -104,7 +96,6 @@ public class Client {
      * @param body
      * @param header
      * @return OKHttp Request
-     * @throws AuthException
      */
     public Request createRequest(String method, String URL, RequestBody body, Builder header) {
         Request.Builder request = new Request.Builder();
@@ -138,6 +129,13 @@ public class Client {
 
     public Headers getRequestHeader(Request request) {
         return request.headers();
+    }
+
+    public void _response(Callback callback){
+        Request request = new Request.Builder()
+                .url("http://www.ringcentral.com")
+                .build();
+        sendRequest(request,callback);
     }
 
 }

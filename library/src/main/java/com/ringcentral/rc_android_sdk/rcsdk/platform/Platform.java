@@ -30,11 +30,18 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.message.BasicStatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,9 +66,8 @@ public class Platform {
     final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
 
    /*
-   Authentication  and Refresh Token Endpoint
+   Authentication and Refresh Token Endpoint
     */
-
     final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
 
 
@@ -117,6 +123,9 @@ public class Platform {
         if (!loggedIn()) {
             refreshInProgress = true;
             refresh(callback);
+        }
+        else{
+            client._response(callback);
         }
     }
 
@@ -200,7 +209,7 @@ public class Platform {
         final String URL = server.value + endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", apiKey());
-        headers.put("Content-Type", ContentTypeSelection.FORM_TYPE_MARKDOWN.value.toString());
+        headers.put("Content-Type", ContentTypeSelection.FORM_TYPE.value.toString());
         request = inflateRequest(headers).url(URL).post(formBody(body)).build();
         final Callback c = new Callback() {
             @Override
@@ -226,22 +235,19 @@ public class Platform {
 
     public  void refresh(final Callback callback) throws AuthException {
 
-        synchronized (lock) {
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+        synchronized(lock){
             if (refreshInProgress == false) {
                 refreshInProgress = true;
             }
             queue.add(callback);
         }
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
-
         synchronized (lock) {
             Future future = executorService.submit(new Runnable() {
                 public void run() {
-
-
                         System.out.println("Queue"+ String.valueOf(queue.size()));
-                    try {
                         makeRequest(new Callback() {
                             @Override
                             public void onResponse(Response response) throws IOException {
@@ -261,23 +267,17 @@ public class Platform {
                                 }
                             }
                         });
-                    } catch (AuthException e) {
-                        e.printStackTrace();
-                    }
-
-
                 }
             });
-
-            while(!future.isDone())
-                try {
+            try {
+                while(!future.isDone())
                     future.get();
+                Log.v("future.get() = " ,String.valueOf(future.isDone()));
                 } catch (InterruptedException e) {
                     throw new RuntimeException("Interupted exception Occured while refreshing");
                 } catch (ExecutionException e) {
                     throw new RuntimeException("Thread execution exception Occured while refreshing");
                 }
-            System.out.println("future.get() = " + future.isDone());
         }
         synchronized (lock) {
             refreshInProgress = false;
@@ -285,134 +285,19 @@ public class Platform {
     }
 
 
-
-
-
-
-
-//    /**
-//     * Sets new access and refresh tokens
-//     *
-//     * @param callback
-//     * @throws AuthException
-//     */
-//    public synchronized void refresh(final Callback callback) throws AuthException {
-//
-//        synchronized (lock) {
-//            if (refreshInProgress == false) {
-//                refreshInProgress = true;
-//            }
-//            queue.add(callback);
-//        }
-//
-//        Log.v("Queue", String.valueOf(queue.size()));
-//
-//        makeRequest(callback);
-//
-//
-////        new Callback() {
-////                @Override
-////                public void onFailure(Request request, IOException e) {
-////                    if (!queue.isEmpty()) {
-////                        for (int i = 0; i < queue.size(); i++) {
-////                            Callback c = queue.poll();
-////                            c.onFailure(request, new IOException());
-////                            // queue.poll();
-////                        }
-////                        synchronized (lock) {
-////                            refreshInProgress = false;
-//////                            queue.poll();
-////                        }
-////                    }
-//
-////                    for (int i = 0; i < queue.size(); i++) {
-////                        if (queue.)
-////                            c.onFailure();
-////                        queue.poll();
-////                    }
-////                    synchronized (lock) {
-////                        state = false;
-////                    }
-//        // }
-//
-//
-////
-////                    for (Callback c : queue) {
-////                        if (response.isSuccessful()) {
-////                            c.onResponse(response);
-////                            queue.poll();
-////                        } else {
-////                            queue.poll();
-////                            c.onFailure(response.request(), new IOException("IO Exception Occured. Failed Refreshing with Error Code " + response.code()));
-////                        }
-////                    }
-////                    synchronized (lock) {
-////                        state = false;
-////                    }
-////                }
-////            });
-////        synchronized (lock) {
-////            if(refreshInProgress==false)
-////            queue.poll();
-//////            refreshInProgress = false;
-////
-////        }
-//        //  queue.poll();
-////        synchronized (lock) {
-////            queue.poll();
-////        }
-//        Log.v("DQueue", String.valueOf(queue.size()));
-//
-//    }
-
-
-        /*
-
-        synchronized(lock) {
-           callbackueue.push(callback)
-           if state == refresh_in_progress:
-             return
-           else:
-             state = refresh_in_progress
-        }
-
-           make_request(refresh_params, new Callback() {
-             onSuccess() {
-               synchronized(lock) {
-                 state = free
-                 for ( c : callbackqueue ):
-                   c.onSuccess()
-                   callbackqueue.remove(c)
-               }
-             }
-           });
-if (!queue.isEmpty()) {
-                        for (int i = 0; i < queue.size(); i++) {
-                            Callback c = queue.poll();
-
-                            if (response.isSuccessful()) {
-                                c.onResponse(response);
-                            } else {
-                                c.onFailure(response.request(), new IOException());
-                            }
-                            //queue.poll();
-                        }
-                        synchronized (lock) {
-                            refreshInProgress = false;
-                            //queue.poll();
-                        }
-
-         */
-
-    protected void makeRequest(final Callback callback) throws AuthException {
+    protected void makeRequest(final Callback callback){
          if (!this.auth.refreshTokenValid()) {
-            throw new AuthException("Refresh Token has Expired");
+            callback.onFailure(request,new IOException("Refresh Token is Invalid"));
          }
          else{
              HashMap<String, String> body = new HashMap<String, String>();
              body.put("grant_type", "refresh_token");
              body.put("refresh_token", this.auth.refreshToken());
-             requestToken(TOKEN_ENDPOINT_URL, body,callback);
+             try {
+                 requestToken(TOKEN_ENDPOINT_URL, body,callback);
+             } catch (AuthException e) {
+                 callback.onFailure(request,new IOException("Refresh Token is Invalid"));
+             }
          }
     }
 
@@ -453,46 +338,34 @@ if (!queue.isEmpty()) {
      * @param headerMap
      * @param callback
      */
-    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException{
-
+    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException {
         ensureAuthentication(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                Log.v("Failed","Subscription");
                 callback.onFailure(request,e);
             }
 
             @Override
-            public void onResponse(Response response) {
+            public void onResponse(Response response) throws IOException {
+                if (response.isSuccessful()) {
                     HashMap<String, String> header = null;
-                    if (headerMap == null) {
+                    if (headerMap == null)
                         header = new HashMap<String, String>();
-                    } else
+                    else
                         header = headerMap;
                     final String URL = server.value + apiURL;
-
                     if (!header.containsKey("Authorization")) {
                         header.put("Authorization", authHeader());
                     }
                     request = client.createRequest(method, URL, body, inflateRequest(header));
                     client.sendRequest(request, callback);
+                }
+                else
+                    callback.onFailure(response.request(),new IOException("API Call failed with error code: "+response.code()));
             }
         });
-//            HashMap<String,String> header=null;
-//                if(headerMap==null){
-//                    header = new HashMap<String,String>();
-//                }
-//                else
-//                    header=headerMap;
-//                final String URL = server.value + apiURL;
-//
-//                    if (!header.containsKey("Authorization")) {
-//                        header.put("Authorization", authHeader());
-//                    }
-//                    request = client.createRequest(method, URL, body, inflateRequest(header));
-//                    client.sendRequest(request, callback);
-    }
 
+    }
 
     /**
      * Sets auth data
@@ -506,8 +379,8 @@ if (!queue.isEmpty()) {
      * FIXME Change naming:Fixed
      */
     public enum ContentTypeSelection {
-        FORM_TYPE_MARKDOWN("application/x-www-form-urlencoded"), JSON_TYPE_MARKDOWN(
-                "application/json"), MULTIPART_TYPE_MARKDOWN("multipart/mixed;");
+        FORM_TYPE("application/x-www-form-urlencoded"), JSON_TYPE(
+                "application/json"), MULTIPART_TYPE("multipart/mixed;");
         protected MediaType value;
 
         private ContentTypeSelection(String contentType) {
