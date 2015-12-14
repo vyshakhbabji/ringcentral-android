@@ -119,7 +119,7 @@ public class Platform {
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
      * FIXME This is asynchronous method, so it must accept a callback : Fixed
      */
-    public void ensureAuthentication(final Callback callback) throws AuthException {
+    protected void ensureAuthentication(final Callback callback) throws AuthException {
         if (!loggedIn()) {
             refreshInProgress = true;
             refresh(callback);
@@ -248,7 +248,7 @@ public class Platform {
             Future future = executorService.submit(new Runnable() {
                 public void run() {
                         System.out.println("Queue"+ String.valueOf(queue.size()));
-                        makeRequest(new Callback() {
+                        makeRefresh(new Callback() {
                             @Override
                             public void onResponse(Response response) throws IOException {
                                 while(!queue.isEmpty()){
@@ -284,8 +284,7 @@ public class Platform {
         }
     }
 
-
-    protected void makeRequest(final Callback callback){
+    protected void makeRefresh(final Callback callback){
          if (!this.auth.refreshTokenValid()) {
             callback.onFailure(request,new IOException("Refresh Token is Invalid"));
          }
@@ -360,7 +359,7 @@ public class Platform {
                     request = client.createRequest(method, URL, body, inflateRequest(header));
                     client.sendRequest(request, callback);
                 }
-                else
+                else if(response.code()==400 && showError(response).contains("invalid_"))
                     callback.onFailure(response.request(),new IOException("API Call failed with error code: "+response.code()));
             }
         });
