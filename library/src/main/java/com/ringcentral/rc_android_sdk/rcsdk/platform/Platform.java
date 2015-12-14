@@ -23,6 +23,8 @@
 
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
+import android.util.Log;
+
 import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
@@ -37,9 +39,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.ResponseCache;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -105,15 +113,16 @@ public class Platform {
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
      * FIXME This is asynchronous method, so it must accept a callback : Fixed
      */
-    protected void ensureAuthentication(Callback callback) throws AuthException {
-        if(!loggedIn()){
-                refreshInProgress=true;
-                refresh(callback);
+    public void ensureAuthentication(final Callback callback) throws AuthException {
+        if (!loggedIn()) {
+            refreshInProgress = true;
+            refresh(callback);
         }
     }
 
     /**
      * Sets Request body for content type FORM_TYPE("application/x-www-form-urlencoded")
+     *
      * @param body Input body as key:value pairs
      * @return
      */
@@ -126,6 +135,7 @@ public class Platform {
 
     /**
      * Get Auth object
+     *
      * @return Auth Object
      */
     public Auth auth() {
@@ -136,7 +146,7 @@ public class Platform {
      * Checks if the login is valid
      */
     public boolean loggedIn() {
-            return this.auth.accessTokenValid();
+        return this.auth.accessTokenValid();
     }
 
     /**
@@ -172,14 +182,16 @@ public class Platform {
 
     /**
      * Sets authentication values after successful authentication
+     *
      * @param response
      */ //FIXME : Fixed by calling method
     protected void setAuth(Response response) throws IOException {
-            this.auth.setData(auth.jsonToHashMap(response));
+        this.auth.setData(auth.jsonToHashMap(response));
     }
 
     /**
      * Creates request object
+     *
      * @param endpoint
      * @param body
      * @param callback
@@ -193,7 +205,7 @@ public class Platform {
         final Callback c = new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                callback.onFailure(request,e);
+                callback.onFailure(request, e);
                 //throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
             }
 
@@ -211,54 +223,147 @@ public class Platform {
     }
 
 
-    /**
-     * Sets new access and refresh tokens
-     *
-     * @param callback
-     * @throws AuthException
-     */
-    public synchronized void refresh(final Callback callback) throws AuthException {
+
+    public  void refresh(final Callback callback) throws AuthException {
 
         synchronized (lock) {
             if (refreshInProgress == false) {
                 refreshInProgress = true;
             }
             queue.add(callback);
-            if (state == refreshInProgress)
-                return;
-            else {
-                state = refreshInProgress;
-            }
         }
-            makeRequest(new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        for (Callback c : queue) {
-                            c.onFailure(request,new IOException());
-                            queue.remove(c);
-                        }
-                        synchronized (lock) {
-                            state = false;
-                        }
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+        synchronized (lock) {
+            Future future = executorService.submit(new Runnable() {
+                public void run() {
+
+
+                        System.out.println("Queue"+ String.valueOf(queue.size()));
+                    try {
+                        makeRequest(new Callback() {
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                while(!queue.isEmpty()){
+                                    Callback c = queue.poll();
+                                    c.onResponse(response);
+                                    System.out.println("dequeue "+queue.size() );
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                while(!queue.isEmpty()){
+                                    Callback c = queue.poll();
+                                    c.onFailure(request, e);
+                                    System.out.println("dequeue "+queue.size() );
+                                }
+                            }
+                        });
+                    } catch (AuthException e) {
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        for (Callback c : queue) {
-                            if (response.isSuccessful()) {
-                                c.onResponse(response);
-                                queue.remove(c);
-                            } else {
-                                queue.remove(c);
-                                c.onFailure(response.request(),new IOException("IO Exception Occured. Failed Refreshing with Error Code "+response.code()));
-                            }
-                        }
-                        synchronized (lock) {
-                            state = false;
-                        }
-                    }
+
+                }
             });
+
+            while(!future.isDone())
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Interupted exception Occured while refreshing");
+                } catch (ExecutionException e) {
+                    throw new RuntimeException("Thread execution exception Occured while refreshing");
+                }
+            System.out.println("future.get() = " + future.isDone());
+        }
+        synchronized (lock) {
+            refreshInProgress = false;
+        }
     }
+
+
+
+
+
+
+
+//    /**
+//     * Sets new access and refresh tokens
+//     *
+//     * @param callback
+//     * @throws AuthException
+//     */
+//    public synchronized void refresh(final Callback callback) throws AuthException {
+//
+//        synchronized (lock) {
+//            if (refreshInProgress == false) {
+//                refreshInProgress = true;
+//            }
+//            queue.add(callback);
+//        }
+//
+//        Log.v("Queue", String.valueOf(queue.size()));
+//
+//        makeRequest(callback);
+//
+//
+////        new Callback() {
+////                @Override
+////                public void onFailure(Request request, IOException e) {
+////                    if (!queue.isEmpty()) {
+////                        for (int i = 0; i < queue.size(); i++) {
+////                            Callback c = queue.poll();
+////                            c.onFailure(request, new IOException());
+////                            // queue.poll();
+////                        }
+////                        synchronized (lock) {
+////                            refreshInProgress = false;
+//////                            queue.poll();
+////                        }
+////                    }
+//
+////                    for (int i = 0; i < queue.size(); i++) {
+////                        if (queue.)
+////                            c.onFailure();
+////                        queue.poll();
+////                    }
+////                    synchronized (lock) {
+////                        state = false;
+////                    }
+//        // }
+//
+//
+////
+////                    for (Callback c : queue) {
+////                        if (response.isSuccessful()) {
+////                            c.onResponse(response);
+////                            queue.poll();
+////                        } else {
+////                            queue.poll();
+////                            c.onFailure(response.request(), new IOException("IO Exception Occured. Failed Refreshing with Error Code " + response.code()));
+////                        }
+////                    }
+////                    synchronized (lock) {
+////                        state = false;
+////                    }
+////                }
+////            });
+////        synchronized (lock) {
+////            if(refreshInProgress==false)
+////            queue.poll();
+//////            refreshInProgress = false;
+////
+////        }
+//        //  queue.poll();
+////        synchronized (lock) {
+////            queue.poll();
+////        }
+//        Log.v("DQueue", String.valueOf(queue.size()));
+//
+//    }
 
 
         /*
@@ -281,11 +386,25 @@ public class Platform {
                }
              }
            });
+if (!queue.isEmpty()) {
+                        for (int i = 0; i < queue.size(); i++) {
+                            Callback c = queue.poll();
 
+                            if (response.isSuccessful()) {
+                                c.onResponse(response);
+                            } else {
+                                c.onFailure(response.request(), new IOException());
+                            }
+                            //queue.poll();
+                        }
+                        synchronized (lock) {
+                            refreshInProgress = false;
+                            //queue.poll();
+                        }
 
          */
 
-    protected void makeRequest(Callback callback)  throws AuthException{
+    protected void makeRequest(final Callback callback) throws AuthException {
          if (!this.auth.refreshTokenValid()) {
             throw new AuthException("Refresh Token has Expired");
          }
@@ -293,7 +412,7 @@ public class Platform {
              HashMap<String, String> body = new HashMap<String, String>();
              body.put("grant_type", "refresh_token");
              body.put("refresh_token", this.auth.refreshToken());
-             requestToken(TOKEN_ENDPOINT_URL, body, callback);
+             requestToken(TOKEN_ENDPOINT_URL, body,callback);
          }
     }
 
@@ -339,18 +458,18 @@ public class Platform {
         ensureAuthentication(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
+                Log.v("Failed","Subscription");
                 callback.onFailure(request,e);
             }
 
             @Override
-            public void onResponse(Response response)  {
-                HashMap<String,String> header=null;
-                if(headerMap==null){
-                    header = new HashMap<String,String>();
-                }
-                else
-                    header=headerMap;
-                final String URL = server.value + apiURL;
+            public void onResponse(Response response) {
+                    HashMap<String, String> header = null;
+                    if (headerMap == null) {
+                        header = new HashMap<String, String>();
+                    } else
+                        header = headerMap;
+                    final String URL = server.value + apiURL;
 
                     if (!header.containsKey("Authorization")) {
                         header.put("Authorization", authHeader());
@@ -359,7 +478,21 @@ public class Platform {
                     client.sendRequest(request, callback);
             }
         });
+//            HashMap<String,String> header=null;
+//                if(headerMap==null){
+//                    header = new HashMap<String,String>();
+//                }
+//                else
+//                    header=headerMap;
+//                final String URL = server.value + apiURL;
+//
+//                    if (!header.containsKey("Authorization")) {
+//                        header.put("Authorization", authHeader());
+//                    }
+//                    request = client.createRequest(method, URL, body, inflateRequest(header));
+//                    client.sendRequest(request, callback);
     }
+
 
     /**
      * Sets auth data

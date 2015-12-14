@@ -54,7 +54,8 @@ public class Client {
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
 
-    public void sendRequest(final Request request, final Callback callback) {
+    public void sendRequest(final Request request,  final Callback callback) {
+
 
         try {
             new AsyncTask<String, Integer, Void>() {
@@ -83,7 +84,17 @@ public class Client {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
+    //    loadResponse(request,callback);
     }
+
+
+//    public void send(final Request request, final Callback callback) {
+//
+//
+//                    loadResponse(request,callback);
+//
+//    }
+
 
     /**
      * Creates OKHttp Request

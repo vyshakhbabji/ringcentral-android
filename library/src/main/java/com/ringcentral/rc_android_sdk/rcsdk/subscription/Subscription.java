@@ -23,12 +23,7 @@ package com.ringcentral.rc_android_sdk.rcsdk.subscription;
 
 import android.util.Base64;
 
-import com.pubnub.api.Callback;
-import com.pubnub.api.Pubnub;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,87 +31,70 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
-public class Subscription{
+public class Subscription {
 
-    public Pubnub pubnub;
+    public class IDeliveryMode {
+        public String address = "";
+        public boolean encryption = false;
+        public String encryptionKey = "";
+        public String secretKey = "";
+        public String subscriberKey = "";
+        public String transportType = "Pubnub";
+    }
+
+    String creationTime = "";
+    public IDeliveryMode deliveryMode = new IDeliveryMode();
     ArrayList<String> eventFilters = new ArrayList<>();
     String expirationTime = "";
     int expiresIn = 0;
-    public IDeliveryMode deliveryMode = new IDeliveryMode();
     public String id = "";
-    String creationTime = "";
+    Platform platform;
+    public Pubnub pubnub;
+
     String status = "";
+    Subscription subscription;
+
+    String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
+
     String uri = "";
 
-    public class IDeliveryMode {
-        public String transportType = "Pubnub";
-        public boolean encryption = false;
-        public String address = "";
-        public String subscriberKey = "";
-        public String secretKey = "";
-        public String encryptionKey = "";
-    }
+    public Subscription(Platform platform) {
 
-    Platform platform;
-
-    public Subscription(Platform platform){
         this.platform = platform;
+        this.subscription = this;
     }
 
-    public void updateSubscription(JSONObject responseJson) throws JSONException{
-        id = responseJson.getString("id");
-        JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
-        this.deliveryMode.encryptionKey = deliveryMode.getString("encryptionKey");
-        this.deliveryMode.address = deliveryMode.getString("address");
-        this.deliveryMode.subscriberKey = deliveryMode.getString("subscriberKey");
-        this.deliveryMode.secretKey = deliveryMode.getString("secretKey");
+    public void addEvents(String[] events) {
+        for (String event : events) {
+            this.eventFilters.add(event);
+        }
     }
 
-    public void setEncryptionKey(String encryptionKey) {
-        this.deliveryMode.encryptionKey = encryptionKey;
+    private ArrayList getFullEventFilters() {
+        return this.eventFilters;
     }
 
     public Pubnub getPubnub() {
         return pubnub;
     }
 
-    public void subscribe(JSONObject subscriptionResponse, Callback c) {
-        try {
-            updateSubscription(subscriptionResponse);
-            pubnub = new Pubnub("", deliveryMode.subscriberKey, deliveryMode.secretKey);
-            pubnub.subscribe(this.deliveryMode.address, c);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    boolean isSubscribed() {
+        return !(this.deliveryMode.subscriberKey.equals("") && this.deliveryMode.address
+                .equals(""));
     }
 
-    public void addEvents(String[] events) {
-        for(String event:events){
-            this.eventFilters.add(event);
-        }
-    }
-
-    public void setEvents(String[] events){
-        this.eventFilters = new ArrayList<String>(Arrays.asList(events));
-    }
-
-    private ArrayList getFullEventFilters(){
-        return this.eventFilters;
-    }
-
-    boolean isSubscribed(){
-        return !(this.deliveryMode.subscriberKey.equals("") && this.deliveryMode.address.equals(""));
-    }
-
-    public void unsubscribe() {
-        if((this.pubnub != null) && this.isSubscribed())
-            this.pubnub.unsubscribe(deliveryMode.address);
-    }
-
-    public String notify(String message, String encryptionKey){
+    public String notify(String message, String encryptionKey) {
         byte[] key = Base64.decode(encryptionKey, Base64.NO_WRAP);
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         byte[] data = Base64.decode(message, Base64.NO_WRAP);
@@ -130,6 +108,47 @@ public class Subscription{
             e.printStackTrace();
         }
         return decryptedString;
+    }
+
+    public void removeSubscription(final com.squareup.okhttp.Callback callback) throws IOException, AuthException {
+
+        System.out.println("Subscription ID: " + subscription.id);
+        String url = SUBSCRIPTION_END_POINT + subscription.id;
+        platform.delete(url, null, null, callback);
+        this.unsubscribe();
+    }
+
+    public void setEvents(String[] events) {
+        this.eventFilters = new ArrayList<String>(Arrays.asList(events));
+    }
+
+    public void subscribe(JSONObject subscriptionResponse, Callback c) {
+        try {
+            updateSubscription(subscriptionResponse);
+            pubnub = new Pubnub("", deliveryMode.subscriberKey,
+                    deliveryMode.secretKey);
+            pubnub.subscribe(this.deliveryMode.address, c);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void unsubscribe() {
+        if ((this.pubnub != null) && this.isSubscribed())
+            this.pubnub.unsubscribe(deliveryMode.address);
+        System.out.println("Unsubscribed!!! ");
+    }
+
+    public void updateSubscription(JSONObject responseJson)
+            throws JSONException {
+        id = responseJson.getString("id");
+        JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
+        this.deliveryMode.encryptionKey = deliveryMode
+                .getString("encryptionKey");
+        this.deliveryMode.address = deliveryMode.getString("address");
+        this.deliveryMode.subscriberKey = deliveryMode
+                .getString("subscriberKey");
+        this.deliveryMode.secretKey = "sec-c-ZDNlYjY0OWMtMWFmOC00OTg2LWJjMTMtYjBkMzgzOWRmMzUz";// deliveryMode.getString("secretKey");
     }
 
 }
