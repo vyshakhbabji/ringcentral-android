@@ -29,6 +29,12 @@ package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -43,12 +49,22 @@ public class Auth {
     protected String refresh_token;
     protected Date refresh_token_expire_time;
     protected String refresh_token_expires_in;
-    protected String remember;
     protected String scope;
     protected String token_type;
 
     public Auth() {
-        this.reset();
+        this.token_type = "";
+
+        this.access_token = "";
+        this.expires_in = "";
+        this.expire_time = new Date(01 / 01 / 0001);
+
+        this.refresh_token = "";
+        this.refresh_token_expires_in = "";
+        this.refresh_token_expire_time = new Date(01 / 01 / 0001);
+
+        this.scope = "";
+        this.owner_id = "";
     }
 
     /**
@@ -67,7 +83,6 @@ public class Auth {
      */
     public boolean accessTokenValid() {
         GregorianCalendar cal = new GregorianCalendar();
-        Log.v("isTokenValid", this.expire_time.toString());
         cal.setTime(this.expire_time);
         return isTokenDateValid(cal);
     }
@@ -75,7 +90,6 @@ public class Auth {
 
     protected boolean isTokenDateValid(GregorianCalendar token_date) {
         boolean value = token_date.compareTo(new GregorianCalendar()) > 0;
-        Log.v("isTokenValid", String.valueOf(value));
         return (token_date.compareTo(new GregorianCalendar()) > 0);
     }
 
@@ -106,7 +120,6 @@ public class Auth {
      */
     public void reset() {
         this.token_type = "";
-        this.remember = ""; //FIXME Not needed here
 
         this.access_token = "";
         this.expires_in = "";
@@ -124,14 +137,12 @@ public class Auth {
      * Sets Authorization data
      *
      * @param authData
+     * @return this
      */
     public Auth setData(HashMap<String, String> authData) {
 
         if (authData == null || authData.isEmpty())
             return this;
-
-        if (authData.containsKey("remember"))
-            this.remember = authData.get("remember");
 
         if (authData.containsKey("token_type")) {
             this.token_type = authData.get("token_type");
@@ -179,8 +190,36 @@ public class Auth {
         return this;
     }
 
+    protected HashMap<String, String> jsonToHashMap(Response response) throws IOException {
+        try {
+        if (response.isSuccessful()) {
+            Gson gson = new Gson();
+            Type HashMapType = new TypeToken<HashMap<String, String>>() {
+            }.getType();
+            String responseString = null;
+
+                responseString = response.body().string();
+
+            Log.v("OAuth Response :", responseString);
+            return gson.fromJson(responseString, HashMapType);
+        } else {
+            Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
+        }
+        } catch (IOException e) {
+            throw  new IOException("Illegal Authentication Response. Authentication Failed with response code "+response.code());
+        }
+        return new HashMap<>();
+    }
+
+
     public String tokenType() {
         return this.token_type;
+    }
+
+    public void expire_access(){
+      //  this.access_token = "";
+        this.expires_in = "0";
+        this.expire_time = new Date(01 / 01 / 0001);
     }
 }
 

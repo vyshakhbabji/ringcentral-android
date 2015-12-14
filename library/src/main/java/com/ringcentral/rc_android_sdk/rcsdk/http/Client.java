@@ -24,14 +24,16 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 import android.os.AsyncTask;
 
 import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
+
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -39,7 +41,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class Client {
 
-    OkHttpClient client;
+    public OkHttpClient client;
 
     public Client() {
         client = new OkHttpClient();
@@ -49,14 +51,41 @@ public class Client {
      * Makes a OKHttp  call
      *
      * @param request
-     * @return
      */
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
-    public Call send(final Request request) {
-        Call call;
-        call = client.newCall(request);
-        return call;
+
+    public void sendRequest(final Request request,  final Callback callback) {
+
+
+        try {
+            new AsyncTask<String, Integer, Void>() {
+                @Override
+                protected Void doInBackground(String... params) {
+                        Callback c = new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                callback.onFailure(request,e);
+                            }
+
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                if(response.isSuccessful())
+                                   callback.onResponse(response);
+                                else
+                                   callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
+                            }
+                        };
+                        loadResponse(request,c);
+                        return null;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
@@ -67,16 +96,13 @@ public class Client {
      * @param body
      * @param header
      * @return OKHttp Request
-     * @throws AuthException
      */
-    public Request createRequest(String method, String URL, RequestBody body, Builder header) throws AuthException {
-
+    public Request createRequest(String method, String URL, RequestBody body, Builder header) {
         Request.Builder request = new Request.Builder();
         if (method.equalsIgnoreCase("get")) {
             request = header.url(URL);
         } else if (method.equalsIgnoreCase("delete")) {
             request = header.url(URL).delete();
-
         } else {
             if (method.equalsIgnoreCase("post")) {
                 request = header.url(URL).post(body);
@@ -84,49 +110,32 @@ public class Client {
             } else if (method.equalsIgnoreCase("put")) {
                 request = header.url(URL).put(body);
             } else
-                throw new AuthException("Method not Allowed. Please Refer API Documentation. See\n" +
-                        "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
+                    throw new RuntimeException(method +" Method not Allowed. Please Refer API Documentation. See\n" +
+                            "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
         return request.build();
     }
 
     /**
      * Loads OKHttp Response synchronizing async api calls
-     *
      * @param request
      * @param callback
      */
     //FIXME Async
     //FIXME Take a look at reference -- this method should do a different thing
-    public void loadResponse(final Request request, final Callback callback) {
-        try {
-            new AsyncTask<String, Integer, Void>() {
-                @Override
-                protected Void doInBackground(String... params) {
-                    try {
-                        send(request).enqueue(callback);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-//                @Override
-//                protected void onPostExecute(Void result) {
-//                    super.onPostExecute(result);
-//                    Log.e("ANSWER", "" + result);
-//                }
-            }.execute().get();
-        } catch (InterruptedException e) {
-            throw new AuthException("Error in Loading Response..", e);
-        } catch (ExecutionException e) {
-            throw new AuthException("Error in Executing Response..", e);
-        }
-        ;
-
+    public  void loadResponse(final Request request, final Callback callback) {
+          client.newCall(request).enqueue(callback);
     }
 
     public Headers getRequestHeader(Request request) {
         return request.headers();
+    }
+
+    public void _response(Callback callback){
+        Request request = new Request.Builder()
+                .url("http://www.ringcentral.com")
+                .build();
+        sendRequest(request,callback);
     }
 
 }
