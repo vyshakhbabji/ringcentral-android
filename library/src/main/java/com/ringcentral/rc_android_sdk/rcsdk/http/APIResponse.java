@@ -30,9 +30,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 
 public class APIResponse {
@@ -40,9 +37,8 @@ public class APIResponse {
     protected Request request;
     protected Response response;
 
-    //FIXME APIResponse can also be created with only a request (without response) in case of errors
-    public APIResponse(Response response) {
-        this.request = response.request();
+    public APIResponse(Response response, Request request) {
+        this.request = request;
         this.response = response;
     }
 
@@ -92,4 +88,6 @@ public class APIResponse {
         return body().string();
 
     }
+
+
 }

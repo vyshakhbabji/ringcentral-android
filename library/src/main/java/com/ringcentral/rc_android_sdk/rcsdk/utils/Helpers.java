@@ -24,6 +24,7 @@ package com.ringcentral.rc_android_sdk.rcsdk.utils;
 
 import android.util.Log;
 
+import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 import com.ringcentral.rc_android_sdk.rcsdk.subscription.Subscription;
@@ -38,7 +39,8 @@ public class Helpers {
 
     public enum API {
         CALLLOG("/restapi/v1.0/account/~/call-log"), SMS(
-                "/restapi/v1.0/account/~/extension/~/sms");
+                "/restapi/v1.0/account/~/extension/~/sms"), RINGOUT("/restapi/v1.0/account/~/extension/~/ringout");
+
         private String value;
 
         API(String url) {
@@ -57,7 +59,7 @@ public class Helpers {
      * Call-log helper
      * @param callback
      */
-    public void callLog(final Callback callback) {
+    public void callLog(final APICallback callback) {
         try {
             platform.get(API.CALLLOG.value, null, null, callback);
         } catch (AuthException e) {
@@ -72,7 +74,7 @@ public class Helpers {
      * @param message
      * @param callback
      */
-    public void sendSMS(String to, String from, String message, Callback callback) {
+    public void sendSMS(String to, String from, String message, APICallback callback) {
 
         String payload = "{\"to\": [{\"phoneNumber\":\" "+to+"\"}]," +
                 "\"from\": {\"phoneNumber\":\" "+from+"\"}," +
@@ -89,7 +91,29 @@ public class Helpers {
     }
 
 
-    public void subscribe(Callback callback){
+    public void ringout(String to, String from, String callerID, String hasprompt, APICallback callback) {
+
+         if(hasprompt==""||hasprompt==null)
+             hasprompt=String.valueOf(true);
+
+
+        String payload = "{\"to\": [{\"phoneNumber\":\" "+to+"\"}]," +
+                "\"from\": {\"phoneNumber\":\" "+from+"\"}," +
+                "\"callerId\": {\"phoneNumber\":\" "+callerID+"\"}," +
+                "\"playPrompt\": true}";
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"),payload.getBytes());
+
+        try {
+            platform.post(API.RINGOUT.value, body, null, callback);
+        } catch (AuthException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void subscribe(APICallback callback){
 
         String payload = "{\r\n  \"eventFilters\": [ \r\n    \"/restapi/v1.0/account/~/extension/~/presence\", \r\n    \"/restapi/v1.0/account/~/extension/~/message-store\" \r\n  ], \r\n  \"deliveryMode\": { \r\n    \"transportType\": \"PubNub\", \r\n    \"encryption\": \"false\" \r\n  } \r\n}";
         String url = "/restapi/v1.0/subscription";
@@ -103,7 +127,7 @@ public class Helpers {
     }
 
 
-    public void removeSubscription(int subscriptionId, Callback callback) {
+    public void removeSubscription(int subscriptionId, APICallback callback) {
 
         final Subscription subscription = new Subscription(platform);
         String url =  "/restapi/v1.0/subscription" + subscriptionId;

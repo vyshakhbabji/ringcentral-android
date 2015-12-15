@@ -25,32 +25,25 @@ package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 import android.util.Log;
 
+import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
-import com.squareup.okhttp.Callback;
+//import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.message.BasicStatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.ResponseCache;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -83,7 +76,7 @@ public class Platform {
     boolean refreshInProgress;
     boolean state;
 
-    protected Queue<Callback> queue = new LinkedBlockingQueue<>();
+    protected Queue<APICallback> queue = new LinkedBlockingQueue<>();
 
     /**
      * Creates Platform object
@@ -119,7 +112,7 @@ public class Platform {
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
      * FIXME This is asynchronous method, so it must accept a callback : Fixed
      */
-    protected void ensureAuthentication(final Callback callback) throws AuthException {
+    protected void ensureAuthentication(final APICallback callback) throws AuthException {
         if (!loggedIn()) {
             refreshInProgress = true;
             refresh(callback);
@@ -166,7 +159,7 @@ public class Platform {
      * @param password
      * @param callback
      */
-    public void login(String userName, String extension, String password, Callback callback) throws AuthException {
+    public void login(String userName, String extension, String password, APICallback callback) throws AuthException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("username", userName);
         body.put("password", password);
@@ -180,10 +173,9 @@ public class Platform {
      *
      * @param hm
      * @return fombody
-     * FIXME Async
+     * FIXME Async :  Fixed
      */
     protected Builder inflateRequest(HashMap<String, String> hm) {
-        //FIXME Ensure authentication is missing
         Builder requestBuilder = new Request.Builder();
         for (Entry<String, String> entry : hm.entrySet())
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
@@ -195,8 +187,8 @@ public class Platform {
      *
      * @param response
      */ //FIXME : Fixed by calling method
-    protected void setAuth(Response response) throws IOException {
-        this.auth.setData(auth.jsonToHashMap(response));
+    protected void setAuth(APIResponse response) throws IOException {
+        this.auth.setData(auth.jsonToHashMap(response.response()));
     }
 
     /**
@@ -206,26 +198,26 @@ public class Platform {
      * @param body
      * @param callback
      */ //FIXME : CHange name
-    protected void requestToken(String endpoint, HashMap<String, String> body, final Callback callback) throws AuthException {
+    protected void requestToken(String endpoint, HashMap<String, String> body, final APICallback callback) throws AuthException {
         final String URL = server.value + endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", apiKey());
         headers.put("Content-Type", ContentTypeSelection.FORM_TYPE.value.toString());
         request = inflateRequest(headers).url(URL).post(formBody(body)).build();
-        final Callback c = new Callback() {
+        final APICallback c = new APICallback() {
             @Override
-            public void onFailure(Request request, IOException e) {
-                callback.onFailure(request, e);
+            public void onAPIFailure(Request request, IOException e) {
+                callback.onAPIFailure(request, e);
                 //throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
             }
 
             @Override
-            public void onResponse(Response response) throws IOException {
+            public void onAPIResponse(APIResponse response) throws IOException {
                 try {
                     setAuth(response);
-                    callback.onResponse(response);
+                    callback.onAPIResponse(response);
                 } catch (IOException e) {
-                    callback.onFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.code()));
+                    callback.onAPIFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.ok()));
                 }
             }
         };
@@ -234,7 +226,7 @@ public class Platform {
 
 
 
-    public  void refresh(final Callback callback) throws AuthException {
+    public  void refresh(final APICallback callback) throws AuthException {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -248,23 +240,23 @@ public class Platform {
         synchronized (lock) {
             Future future = executorService.submit(new Runnable() {
                 public void run() {
-                        System.out.println("Queue"+ String.valueOf(queue.size()));
-                        makeRefresh(new Callback() {
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                while(!queue.isEmpty()){
-                                    Callback c = queue.poll();
-                                    c.onResponse(response);
-                                    System.out.println("dequeue "+queue.size() ); //FIXME
+                        System.out.println("Queue" + String.valueOf(queue.size()));
+                        makeRefresh(new APICallback() {
+
+                            public void onAPIResponse(APIResponse response) throws IOException {
+                                while (!queue.isEmpty()) {
+                                    APICallback c = queue.poll();
+                                    c.onAPIResponse(response);
+                                    System.out.println("dequeue " + queue.size());
                                 }
                             }
 
                             @Override
-                            public void onFailure(Request request, IOException e) {
-                                while(!queue.isEmpty()){
-                                    Callback c = queue.poll();
-                                    c.onFailure(request, e);
-                                    System.out.println("dequeue "+queue.size() ); //FIXME
+                            public void onAPIFailure(Request request, IOException e) {
+                                while (!queue.isEmpty()) {
+                                    APICallback c = queue.poll();
+                                    c.onAPIFailure(request, e);
+                                    System.out.println("dequeue " + queue.size());
                                 }
                             }
                         });
@@ -280,14 +272,15 @@ public class Platform {
                     throw new RuntimeException("Thread execution exception Occured while refreshing");
                 }
         }
+
         synchronized (lock) {
             refreshInProgress = false;
         }
     }
 
-    protected void makeRefresh(final Callback callback){
+    protected void makeRefresh(final APICallback callback){
          if (!this.auth.refreshTokenValid()) {
-            callback.onFailure(request,new IOException("Refresh Token is Invalid"));
+            callback.onAPIFailure(request,new IOException("Refresh Token is Invalid"));
          }
          else{
              HashMap<String, String> body = new HashMap<String, String>();
@@ -296,7 +289,7 @@ public class Platform {
              try {
                  requestToken(TOKEN_ENDPOINT_URL, body,callback);
              } catch (AuthException e) {
-                 callback.onFailure(request,new IOException("Refresh Token is Invalid"));
+                 callback.onAPIFailure(request,new IOException("Refresh Token is Invalid"));
              }
          }
     }
@@ -306,22 +299,22 @@ public class Platform {
      *
      * @param callback
      */
-    public void logout(final Callback callback) throws AuthException {
+    public void logout(final APICallback callback) throws AuthException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
-        requestToken(REVOKE_ENDPOINT_URL, body, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                callback.onFailure(request, e);
+        requestToken(REVOKE_ENDPOINT_URL, body, new APICallback() {
+
+            public void onAPIFailure(Request request, IOException e) {
+                callback.onAPIFailure(request, e);
             }
 
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (response.isSuccessful()) {
+
+            public void onAPIResponse(APIResponse response) throws IOException {
+                if (response.ok()) {
                     auth.reset(); //FIXME This should go inside the callback:fixed
-                    callback.onResponse(response);
+                    callback.onAPIResponse(response);
                 } else {
-                    callback.onFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.code()));
+                    callback.onAPIFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.statusCode()));
                 }
             }
         });
@@ -338,16 +331,8 @@ public class Platform {
      * @param headerMap
      * @param callback
      */
-    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException {
-        ensureAuthentication(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                callback.onFailure(request, e);
-            }
+    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
 
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (response.isSuccessful()) {
                     HashMap<String, String> header = null;
                     if (headerMap == null)
                         header = new HashMap<String, String>();
@@ -359,10 +344,11 @@ public class Platform {
                     }
                     request = client.createRequest(method, URL, body, inflateRequest(header));
                     client.sendRequest(request, callback);
-                } else if (response.code() == 400 && showError(response).contains("invalid_"))
-                    callback.onFailure(response.request(), new IOException("API Call failed with error code: " + response.code()));
-            }
-        });
+
+//                else if(response.code()==400 && showError(response).contains("invalid_"))
+//                    callback.onFailure(response.request(),new IOException("API Call failed with error code: "+response.code()));
+
+
 
     }
 
@@ -403,21 +389,21 @@ public class Platform {
 
     //FIXME get, post, put, delete methods are missing : Fixed
 
-    public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+    public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
 
         sendRequest("get",apiURL,body==null?null:body,headerMap,callback);
     }
 
-    public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
-        sendRequest("post", apiURL, body, headerMap, callback);
+    public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
+        sendRequest("post",apiURL,body,headerMap,callback);
     }
 
-    public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+    public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
 
         sendRequest("put",apiURL,body,headerMap,callback);
     }
 
-    public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+    public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
 
         sendRequest("delete",apiURL,body==null?null:body,headerMap,callback);
     }

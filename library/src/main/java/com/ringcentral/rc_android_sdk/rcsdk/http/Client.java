@@ -23,15 +23,14 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
-import com.squareup.okhttp.Callback;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
+//import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -54,31 +53,26 @@ public class Client {
      */
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
-    public void sendRequest(final Request request,  final Callback callback) {
 
 
+    //Todo:Handle else condition with failure checked exception
+    public void sendRequest(final Request request,  final APICallback callback) {
         try {
             new AsyncTask<String, Integer, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
-                        Callback c = new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                //FIXME Create an instance of ApiResponse w/Request and wo/Response
-                                //FIXME Wrap exception with ApiException class
-                                callback.onFailure(request,e);
+                        APICallback c = new APICallback() {
+
+                            public void onAPIFailure(Request request, IOException e) {
+                                callback.onAPIFailure(request, e);
                             }
 
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                //FIXME Create an instance of ApiResponse w/Request & Response
-                                APIResponse apiResponse = new APIResponse(request, response);
-                                if(response.isSuccessful())
-                                   callback.onResponse(response);
-                                else {
-                                    //FIXME Use ApiException
-                                    callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
-                                }
+
+                            public void onAPIResponse(APIResponse response) throws IOException {
+                                if(response.ok())
+                                   callback.onAPIResponse(response);
+                                else{}
+                            //       callback.onAPIFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.ok()));
                             }
                         };
                         loadResponse(request,c);
@@ -128,7 +122,7 @@ public class Client {
      */
     //FIXME Async
     //FIXME Take a look at reference -- this method should do a different thing
-    public  void loadResponse(final Request request, final Callback callback) {
+    public  void loadResponse(final Request request, final APICallback callback) {
           client.newCall(request).enqueue(callback);
     }
 
@@ -136,7 +130,7 @@ public class Client {
         return request.headers();
     }
 
-    public void _response(Callback callback){
+    public void _response(APICallback callback){
         Request request = new Request.Builder()
                 .url("http://www.ringcentral.com")
                 .build();
