@@ -22,37 +22,50 @@
 package com.ringcentral.rc_android_sdk.rcsdk.subscription;
 
 import android.util.Base64;
-import android.util.Log;
-
-import com.pubnub.api.Callback;
-import com.pubnub.api.Pubnub;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+
+
 public class Subscription {
 
-    /*
-    Subscription endpoint
-     */
-    final String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
+    public class IDeliveryMode {
+        public String address = "";
+        public boolean encryption = false;
+        public String encryptionKey = "";
+        public String secretKey = "";
+        public String subscriberKey = "";
+        public String transportType = "Pubnub";
+    }
+
+    String creationTime = "";
     public IDeliveryMode deliveryMode = new IDeliveryMode();
-    public String id = "";
-    public Pubnub pubnub;
-    public Subscription subscription;
     ArrayList<String> eventFilters = new ArrayList<>();
+    String expirationTime = "";
+    int expiresIn = 0;
+    public String id = "";
     Platform platform;
+    public Pubnub pubnub;
+
+    String status = "";
+    Subscription subscription;
+
+    String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
+
     String uri = "";
 
     public Subscription(Platform platform) {
@@ -80,76 +93,34 @@ public class Subscription {
                 .equals(""));
     }
 
-    /**
-     * Decrypt and notify Subscription message
-     *
-     * @param message
-     * @param encryptionKey
-     * @return
-     */
     public String notify(String message, String encryptionKey) {
-        // Security.addProvider(new BouncyCastleProvider());
-        System.out.println(message);
         byte[] key = Base64.decode(encryptionKey, Base64.NO_WRAP);
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         byte[] data = Base64.decode(message, Base64.NO_WRAP);
         String decryptedString = "";
         try {
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
             byte[] decrypted = cipher.doFinal(data);
             decryptedString = new String(decrypted);
-        } catch (Exception e) {
-            throw new AuthException("Subscription Notification Failed.");
+        } catch(Exception e){
+            e.printStackTrace();
         }
-        System.out.println(decryptedString);
         return decryptedString;
     }
 
-    /**
-     * Remove Subscription
-     *
-     * @throws AuthException
-     */
-    public void removeSubscription() throws AuthException {
+    public void removeSubscription(final com.squareup.okhttp.Callback callback) throws IOException, AuthException {
 
         System.out.println("Subscription ID: " + subscription.id);
         String url = SUBSCRIPTION_END_POINT + subscription.id;
-        platform.sendRequest("delete", url, null, null, new com.squareup.okhttp.Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                throw new AuthException("Failed to remove subscription");
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-
-                if (response.isSuccessful()) {
-                    unsubscribe();
-                    Log.v("Unsubscribe", String.valueOf(response.code()));
-                } else
-                    throw new AuthException("Failed to remove subscription and unsubscribe");
-
-
-            }
-        });
+        platform.delete(url, null, null, callback);
+        this.unsubscribe();
     }
 
-    /**
-     * Subscribe to pubnub events adding event fiters
-     *
-     * @param events
-     */
     public void setEvents(String[] events) {
         this.eventFilters = new ArrayList<String>(Arrays.asList(events));
     }
 
-    /**
-     * Subscribe to pubnub service
-     *
-     * @param subscriptionResponse
-     * @param c
-     */
     public void subscribe(JSONObject subscriptionResponse, Callback c) {
         try {
             updateSubscription(subscriptionResponse);
@@ -157,25 +128,16 @@ public class Subscription {
                     deliveryMode.secretKey);
             pubnub.subscribe(this.deliveryMode.address, c);
         } catch (Exception e) {
-            throw new AuthException("Failed to remove subscription", e);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Unsubscibe pubnub subscription
-     */
     public void unsubscribe() {
         if ((this.pubnub != null) && this.isSubscribed())
             this.pubnub.unsubscribe(deliveryMode.address);
         System.out.println("Unsubscribed!!! ");
     }
 
-    /**
-     * Update the pubnub subscription service
-     *
-     * @param responseJson
-     * @throws JSONException
-     */
     public void updateSubscription(JSONObject responseJson)
             throws JSONException {
         id = responseJson.getString("id");
@@ -186,15 +148,6 @@ public class Subscription {
         this.deliveryMode.subscriberKey = deliveryMode
                 .getString("subscriberKey");
         this.deliveryMode.secretKey = "sec-c-ZDNlYjY0OWMtMWFmOC00OTg2LWJjMTMtYjBkMzgzOWRmMzUz";// deliveryMode.getString("secretKey");
-    }
-
-    public class IDeliveryMode {
-        public String address = "";
-        public boolean encryption = false;
-        public String encryptionKey = "";
-        public String secretKey = "";
-        public String subscriberKey = "";
-        public String transportType = "Pubnub";
     }
 
 }
