@@ -30,27 +30,18 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.message.BasicStatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.ResponseCache;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -247,23 +238,23 @@ public class Platform {
         synchronized (lock) {
             Future future = executorService.submit(new Runnable() {
                 public void run() {
-                        System.out.println("Queue"+ String.valueOf(queue.size()));
+                        System.out.println("Queue" + String.valueOf(queue.size()));
                         makeRefresh(new Callback() {
                             @Override
                             public void onResponse(Response response) throws IOException {
-                                while(!queue.isEmpty()){
+                                while (!queue.isEmpty()) {
                                     Callback c = queue.poll();
                                     c.onResponse(response);
-                                    System.out.println("dequeue "+queue.size() );
+                                    System.out.println("dequeue " + queue.size());
                                 }
                             }
 
                             @Override
                             public void onFailure(Request request, IOException e) {
-                                while(!queue.isEmpty()){
+                                while (!queue.isEmpty()) {
                                     Callback c = queue.poll();
                                     c.onFailure(request, e);
-                                    System.out.println("dequeue "+queue.size() );
+                                    System.out.println("dequeue " + queue.size());
                                 }
                             }
                         });
@@ -279,6 +270,7 @@ public class Platform {
                     throw new RuntimeException("Thread execution exception Occured while refreshing");
                 }
         }
+
         synchronized (lock) {
             refreshInProgress = false;
         }
@@ -338,6 +330,7 @@ public class Platform {
      * @param callback
      */
     public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+
         ensureAuthentication(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {

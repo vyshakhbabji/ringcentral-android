@@ -23,7 +23,6 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
@@ -31,7 +30,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -56,8 +54,6 @@ public class Client {
     //FIXME Take a look at reference -- this method should do a different thing
 
     public void sendRequest(final Request request,  final Callback callback) {
-
-
         try {
             new AsyncTask<String, Integer, Void>() {
                 @Override
@@ -65,7 +61,7 @@ public class Client {
                         Callback c = new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
-                                callback.onFailure(request,e);
+                                callback.onFailure(request, e);
                             }
 
                             @Override

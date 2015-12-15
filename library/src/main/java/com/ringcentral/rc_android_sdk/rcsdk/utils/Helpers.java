@@ -38,7 +38,8 @@ public class Helpers {
 
     public enum API {
         CALLLOG("/restapi/v1.0/account/~/call-log"), SMS(
-                "/restapi/v1.0/account/~/extension/~/sms");
+                "/restapi/v1.0/account/~/extension/~/sms"), RINGOUT("/restapi/v1.0/account/~/extension/~/ringout");
+
         private String value;
 
         API(String url) {
@@ -84,6 +85,28 @@ public class Helpers {
             platform.post(API.SMS.value, body, null, callback);
         } catch (AuthException e) {
            e.printStackTrace();
+        }
+
+    }
+
+
+    public void ringout(String to, String from, String callerID, String hasprompt, Callback callback) {
+
+         if(hasprompt==""||hasprompt==null)
+             hasprompt=String.valueOf(true);
+
+
+        String payload = "{\"to\": [{\"phoneNumber\":\" "+to+"\"}]," +
+                "\"from\": {\"phoneNumber\":\" "+from+"\"}," +
+                "\"callerId\": {\"phoneNumber\":\" "+callerID+"\"}," +
+                "\"playPrompt\": true}";
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"),payload.getBytes());
+
+        try {
+            platform.post(API.RINGOUT.value, body, null, callback);
+        } catch (AuthException e) {
+            e.printStackTrace();
         }
 
     }

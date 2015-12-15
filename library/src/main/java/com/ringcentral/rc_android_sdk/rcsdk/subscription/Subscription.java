@@ -23,22 +23,20 @@ package com.ringcentral.rc_android_sdk.rcsdk.subscription;
 
 import android.util.Base64;
 
-import java.io.IOException;
+import com.pubnub.api.Callback;
+import com.pubnub.api.Pubnub;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
-
-import com.pubnub.api.Callback;
-import com.pubnub.api.Pubnub;
 
 
 public class Subscription {
