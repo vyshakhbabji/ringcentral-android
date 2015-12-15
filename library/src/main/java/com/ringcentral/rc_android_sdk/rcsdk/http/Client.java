@@ -54,7 +54,6 @@ public class Client {
      */
     //FIXME Name should be sendRequest
     //FIXME Take a look at reference -- this method should do a different thing
-
     public void sendRequest(final Request request,  final Callback callback) {
 
 
@@ -65,15 +64,21 @@ public class Client {
                         Callback c = new Callback() {
                             @Override
                             public void onFailure(Request request, IOException e) {
+                                //FIXME Create an instance of ApiResponse w/Request and wo/Response
+                                //FIXME Wrap exception with ApiException class
                                 callback.onFailure(request,e);
                             }
 
                             @Override
                             public void onResponse(Response response) throws IOException {
+                                //FIXME Create an instance of ApiResponse w/Request & Response
+                                APIResponse apiResponse = new APIResponse(request, response);
                                 if(response.isSuccessful())
                                    callback.onResponse(response);
-                                else
-                                   callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
+                                else {
+                                    //FIXME Use ApiException
+                                    callback.onFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.code()));
+                                }
                             }
                         };
                         loadResponse(request,c);

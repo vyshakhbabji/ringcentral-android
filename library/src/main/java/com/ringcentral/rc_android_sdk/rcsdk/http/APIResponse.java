@@ -40,6 +40,7 @@ public class APIResponse {
     protected Request request;
     protected Response response;
 
+    //FIXME APIResponse can also be created with only a request (without response) in case of errors
     public APIResponse(Response response) {
         this.request = response.request();
         this.response = response;

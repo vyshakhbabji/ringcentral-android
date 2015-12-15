@@ -180,9 +180,10 @@ public class Platform {
      *
      * @param hm
      * @return fombody
-     * FIXME Async :  Fixed
+     * FIXME Async
      */
     protected Builder inflateRequest(HashMap<String, String> hm) {
+        //FIXME Ensure authentication is missing
         Builder requestBuilder = new Request.Builder();
         for (Entry<String, String> entry : hm.entrySet())
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
@@ -254,7 +255,7 @@ public class Platform {
                                 while(!queue.isEmpty()){
                                     Callback c = queue.poll();
                                     c.onResponse(response);
-                                    System.out.println("dequeue "+queue.size() );
+                                    System.out.println("dequeue "+queue.size() ); //FIXME
                                 }
                             }
 
@@ -263,7 +264,7 @@ public class Platform {
                                 while(!queue.isEmpty()){
                                     Callback c = queue.poll();
                                     c.onFailure(request, e);
-                                    System.out.println("dequeue "+queue.size() );
+                                    System.out.println("dequeue "+queue.size() ); //FIXME
                                 }
                             }
                         });
@@ -341,7 +342,7 @@ public class Platform {
         ensureAuthentication(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                callback.onFailure(request,e);
+                callback.onFailure(request, e);
             }
 
             @Override
@@ -358,9 +359,8 @@ public class Platform {
                     }
                     request = client.createRequest(method, URL, body, inflateRequest(header));
                     client.sendRequest(request, callback);
-                }
-                else if(response.code()==400 && showError(response).contains("invalid_"))
-                    callback.onFailure(response.request(),new IOException("API Call failed with error code: "+response.code()));
+                } else if (response.code() == 400 && showError(response).contains("invalid_"))
+                    callback.onFailure(response.request(), new IOException("API Call failed with error code: " + response.code()));
             }
         });
 
@@ -409,7 +409,7 @@ public class Platform {
     }
 
     public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
-        sendRequest("post",apiURL,body,headerMap,callback);
+        sendRequest("post", apiURL, body, headerMap, callback);
     }
 
     public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final Callback callback) throws AuthException {
