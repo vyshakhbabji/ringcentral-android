@@ -91,7 +91,11 @@ public class Helpers {
     }
 
 
+<<<<<<< HEAD
     public void ringout(String to, String from, String callerID, String hasprompt, APICallback callback) {
+=======
+    public void ringout(String to, String from, String callerID, String hasprompt, Callback callback) {
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
 
          if(hasprompt==""||hasprompt==null)
              hasprompt=String.valueOf(true);
@@ -113,7 +117,11 @@ public class Helpers {
     }
 
 
+<<<<<<< HEAD
     public void subscribe(APICallback callback){
+=======
+    public void subscribe(Callback callback){
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
 
         String payload = "{\r\n  \"eventFilters\": [ \r\n    \"/restapi/v1.0/account/~/extension/~/presence\", \r\n    \"/restapi/v1.0/account/~/extension/~/message-store\" \r\n  ], \r\n  \"deliveryMode\": { \r\n    \"transportType\": \"PubNub\", \r\n    \"encryption\": \"false\" \r\n  } \r\n}";
         String url = "/restapi/v1.0/subscription";

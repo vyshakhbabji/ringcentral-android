@@ -23,8 +23,12 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
+<<<<<<< HEAD
 import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
 //import com.squareup.okhttp.Callback;
+=======
+import com.squareup.okhttp.Callback;
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -51,15 +55,29 @@ public class Client {
      *
      * @param request
      */
+<<<<<<< HEAD
     public void sendRequest(final Request request,  final APICallback callback) {
+=======
+    //FIXME Name should be sendRequest
+    //FIXME Take a look at reference -- this method should do a different thing
+
+    public void sendRequest(final Request request,  final Callback callback) {
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
         try {
             new AsyncTask<String, Integer, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
+<<<<<<< HEAD
                         APICallback c = new APICallback() {
 
                             public void onAPIFailure(Request request, IOException e) {
                                 callback.onAPIFailure(request, e);
+=======
+                        Callback c = new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                callback.onFailure(request, e);
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
                             }
 
 

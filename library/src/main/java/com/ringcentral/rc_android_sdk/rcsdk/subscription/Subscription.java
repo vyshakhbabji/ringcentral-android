@@ -25,7 +25,10 @@ import android.util.Base64;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
+<<<<<<< HEAD
 import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
+=======
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
 import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 

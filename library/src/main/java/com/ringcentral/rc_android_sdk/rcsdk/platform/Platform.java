@@ -240,21 +240,37 @@ public class Platform {
             Future future = executorService.submit(new Runnable() {
                 public void run() {
                         System.out.println("Queue" + String.valueOf(queue.size()));
+<<<<<<< HEAD
                         makeRefresh(new APICallback() {
 
                             public void onAPIResponse(APIResponse response) throws IOException {
                                 while (!queue.isEmpty()) {
                                     APICallback c = queue.poll();
                                     c.onAPIResponse(response);
+=======
+                        makeRefresh(new Callback() {
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+                                while (!queue.isEmpty()) {
+                                    Callback c = queue.poll();
+                                    c.onResponse(response);
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
                                     System.out.println("dequeue " + queue.size());
                                 }
                             }
 
                             @Override
+<<<<<<< HEAD
                             public void onAPIFailure(Request request, IOException e) {
                                 while (!queue.isEmpty()) {
                                     APICallback c = queue.poll();
                                     c.onAPIFailure(request, e);
+=======
+                            public void onFailure(Request request, IOException e) {
+                                while (!queue.isEmpty()) {
+                                    Callback c = queue.poll();
+                                    c.onFailure(request, e);
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
                                     System.out.println("dequeue " + queue.size());
                                 }
                             }
@@ -330,7 +346,17 @@ public class Platform {
      * @param headerMap
      * @param callback
      */
+<<<<<<< HEAD
     public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
+=======
+    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+
+        ensureAuthentication(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                callback.onFailure(request,e);
+            }
+>>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
 
                     HashMap<String, String> header = null;
                     if (headerMap == null)
