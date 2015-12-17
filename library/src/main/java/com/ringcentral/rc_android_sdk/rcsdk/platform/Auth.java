@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
 
@@ -32,7 +31,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.okhttp.Response;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -191,23 +190,21 @@ public class Auth {
         return this;
     }
 
-    protected HashMap<String, String> jsonToHashMap(Response response) throws IOException {
+    protected HashMap<String, String> jsonToHashMap(APIResponse response) throws APIException {
         try {
-        if (response.isSuccessful()) {
-            Gson gson = new Gson();
-            Type HashMapType = new TypeToken<HashMap<String, String>>() {
-            }.getType();
-            String responseString = null;
-
+            if (response.ok()) {
+                Gson gson = new Gson();
+                Type HashMapType = new TypeToken<HashMap<String, String>>() {
+                }.getType();
+                String responseString = null;
                 responseString = response.body().string();
-
-            Log.v("OAuth Response :", responseString);
-            return gson.fromJson(responseString, HashMapType);
-        } else {
-            Log.v("Error Message: ", "HTTP Status Code " + response.code() + " " + response.message());
-        }
-        } catch (IOException e) {
-            throw  new IOException("Illegal Authentication Response. Authentication Failed with response code "+response.code());
+                Log.v("OAuth Response :", responseString);
+                return gson.fromJson(responseString, HashMapType);
+            } else {
+                Log.v("Error Message: ", response.showError());
+            }
+        } catch (APIException | IOException e) {
+            throw new APIException("Illegal authentication Response data. Authentication Failed with response code " + response.code(), e);
         }
         return new HashMap<>();
     }
@@ -217,8 +214,8 @@ public class Auth {
         return this.token_type;
     }
 
-    public void expire_access(){
-      //  this.access_token = "";
+    public void expire_access() {
+        //  this.access_token = "";
         this.expires_in = "0";
         this.expire_time = new Date(01 / 01 / 0001);
     }

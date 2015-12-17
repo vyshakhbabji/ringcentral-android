@@ -25,11 +25,8 @@ import android.util.Base64;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
-<<<<<<< HEAD
 import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
-=======
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 
 import org.json.JSONException;
@@ -45,29 +42,17 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Subscription {
 
-    public class IDeliveryMode {
-        public String address = "";
-        public boolean encryption = false;
-        public String encryptionKey = "";
-        public String secretKey = "";
-        public String subscriberKey = "";
-        public String transportType = "Pubnub";
-    }
-
-    String creationTime = "";
     public IDeliveryMode deliveryMode = new IDeliveryMode();
+    public String id = "";
+    public Pubnub pubnub;
+    String creationTime = "";
     ArrayList<String> eventFilters = new ArrayList<>();
     String expirationTime = "";
     int expiresIn = 0;
-    public String id = "";
     Platform platform;
-    public Pubnub pubnub;
-
     String status = "";
     Subscription subscription;
-
     String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
-
     String uri = "";
 
     public Subscription(Platform platform) {
@@ -105,13 +90,13 @@ public class Subscription {
             cipher.init(Cipher.DECRYPT_MODE, skeySpec);
             byte[] decrypted = cipher.doFinal(data);
             decryptedString = new String(decrypted);
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return decryptedString;
     }
 
-    public void removeSubscription(final APICallback callback) throws IOException, AuthException {
+    public void removeSubscription(final APICallback callback) throws IOException, APIException {
 
         System.out.println("Subscription ID: " + subscription.id);
         String url = SUBSCRIPTION_END_POINT + subscription.id;
@@ -150,6 +135,15 @@ public class Subscription {
         this.deliveryMode.subscriberKey = deliveryMode
                 .getString("subscriberKey");
         this.deliveryMode.secretKey = "sec-c-ZDNlYjY0OWMtMWFmOC00OTg2LWJjMTMtYjBkMzgzOWRmMzUz";// deliveryMode.getString("secretKey");
+    }
+
+    public class IDeliveryMode {
+        public String address = "";
+        public boolean encryption = false;
+        public String encryptionKey = "";
+        public String secretKey = "";
+        public String subscriberKey = "";
+        public String transportType = "Pubnub";
     }
 
 }

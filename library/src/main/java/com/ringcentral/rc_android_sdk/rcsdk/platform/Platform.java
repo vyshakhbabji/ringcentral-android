@@ -23,24 +23,20 @@
 
 package com.ringcentral.rc_android_sdk.rcsdk.platform;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
-//import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import com.squareup.okhttp.internal.framed.Header;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -51,18 +47,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-
 public class Platform {
     /*
     Revoke Session Endpoint
      */
-    final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
+    private static final String REVOKE_ENDPOINT_URL = "/restapi/oauth/revoke";
 
-   /*
-   Authentication and Refresh Token Endpoint
-    */
-    final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
-
+    /*
+    Authentication and Refresh Token Endpoint
+     */
+    private static final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
+    private static final String  USER_AGENT  = "Android "+Build.VERSION.SDK_INT+"/Build "+ Build.VERSION.RELEASE + "/RCAndroidSDK";
 
     protected String appKey;
     protected String appSecret;
@@ -71,12 +66,11 @@ public class Platform {
     protected Auth auth;
     protected Request request;
     protected Client client;
-
+    protected Queue<APICallback> queue = new LinkedBlockingQueue<>();
+    protected Builder requestBuilder;
     Object lock = new Object();
     boolean refreshInProgress;
     boolean state;
-
-    protected Queue<APICallback> queue = new LinkedBlockingQueue<>();
 
     /**
      * Creates Platform object
@@ -110,15 +104,13 @@ public class Platform {
 
     /**
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
-     *
      */
-    protected void ensureAuthentication(final APICallback callback) throws AuthException {
-        if (!loggedIn()) {
+    protected void ensureAuthentication(final APICallback callback) throws APIException {
+        if (loggedIn()) {
+            client._response(callback);
+        } else {
             refreshInProgress = true;
             refresh(callback);
-        }
-        else{
-            client._response(callback);
         }
     }
 
@@ -159,7 +151,7 @@ public class Platform {
      * @param password
      * @param callback
      */
-    public void login(String userName, String extension, String password, APICallback callback) throws AuthException {
+    public void login(String userName, String extension, String password, APICallback callback) throws APIException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("username", userName);
         body.put("password", password);
@@ -168,18 +160,45 @@ public class Platform {
         requestToken(TOKEN_ENDPOINT_URL, body, callback);
     }
 
+
+    protected void addHeaders(HashMap<String, String> headers) {
+        requestBuilder = new Builder();
+        if (headers == null)
+            headers = new HashMap<String, String>();
+        for (Entry<String, String> entry : headers.entrySet())
+            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+        if (auth().accessTokenValid()) {
+            requestBuilder.addHeader("Authorization", authHeader());
+            requestBuilder.addHeader("User-Agent",USER_AGENT);
+        }
+    }
+
+
     /**
      * Sets Request Header
      *
-     * @param hm
+     * @param headers
      * @return fombody
-     * FIXME Async :  Fixed
      */
-    protected Builder inflateRequest(HashMap<String, String> hm) {
-        Builder requestBuilder = new Request.Builder();
-        for (Entry<String, String> entry : hm.entrySet())
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
-        return requestBuilder;
+    protected void inflateRequest(final HashMap<String, String> headers, final APICallback callback) throws APIException {
+
+        ensureAuthentication(new APICallback() {
+            @Override
+            public void onResponse(APIResponse response) {
+                if (response.ok()) {
+                    addHeaders(headers);
+                    callback.onResponse(response);
+                } else {
+                    callback.onFailure(new APIException(response, null));
+                }
+            }
+
+            @Override
+            public void onFailure(APIException e) {
+                callback.onFailure(e);
+            }
+        });
+
     }
 
     /**
@@ -187,8 +206,8 @@ public class Platform {
      *
      * @param response
      */
-    protected void setAuth(APIResponse response) throws IOException {
-        this.auth.setData(auth.jsonToHashMap(response.response()));
+    protected void setAuth(APIResponse response) throws APIException {
+        this.auth.setData(auth.jsonToHashMap(response));
     }
 
     /**
@@ -198,38 +217,40 @@ public class Platform {
      * @param body
      * @param callback
      */
-    protected void requestToken(String endpoint, HashMap<String, String> body, final APICallback callback) throws AuthException {
+    protected void requestToken(String endpoint, final HashMap<String, String> body, final APICallback callback) throws APIException {
         final String URL = server.value + endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", apiKey());
         headers.put("Content-Type", ContentTypeSelection.FORM_TYPE.value.toString());
-        request = inflateRequest(headers).url(URL).post(formBody(body)).build();
+
+        this.addHeaders(headers);
+        request = requestBuilder.url(URL).post(formBody(body)).build();
+
         final APICallback c = new APICallback() {
             @Override
-            public void onAPIFailure(Request request, IOException e) {
-                callback.onAPIFailure(request, e);
+            public void onFailure(APIException e) {
+                callback.onFailure(new APIException("Unable to request token. Request Failed.", e));
             }
 
             @Override
-            public void onAPIResponse(APIResponse response) throws IOException {
+            public void onResponse(APIResponse response) {
                 try {
                     setAuth(response);
-                    callback.onAPIResponse(response);
-                } catch (IOException e) {
-                    callback.onAPIFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.ok()));
+                } catch (APIException e) {
+                    callback.onFailure(new APIException(response, e));
                 }
+                callback.onResponse(response);
             }
         };
         client.sendRequest(request, c);
     }
 
 
-
-    public  void refresh(final APICallback callback) throws AuthException {
+    public void refresh(final APICallback callback) throws APIException {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        synchronized(lock){
+        synchronized (lock) {
             if (refreshInProgress == false) {
                 refreshInProgress = true;
             }
@@ -237,76 +258,61 @@ public class Platform {
         }
 
         synchronized (lock) {
-            Future future = executorService.submit(new Runnable() {
-                public void run() {
-                        System.out.println("Queue" + String.valueOf(queue.size()));
-<<<<<<< HEAD
-                        makeRefresh(new APICallback() {
-
-                            public void onAPIResponse(APIResponse response) throws IOException {
-                                while (!queue.isEmpty()) {
-                                    APICallback c = queue.poll();
-                                    c.onAPIResponse(response);
-=======
-                        makeRefresh(new Callback() {
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-                                while (!queue.isEmpty()) {
-                                    Callback c = queue.poll();
-                                    c.onResponse(response);
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
-                                    System.out.println("dequeue " + queue.size());
-                                }
-                            }
-
-                            @Override
-<<<<<<< HEAD
-                            public void onAPIFailure(Request request, IOException e) {
-                                while (!queue.isEmpty()) {
-                                    APICallback c = queue.poll();
-                                    c.onAPIFailure(request, e);
-=======
-                            public void onFailure(Request request, IOException e) {
-                                while (!queue.isEmpty()) {
-                                    Callback c = queue.poll();
-                                    c.onFailure(request, e);
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
-                                    System.out.println("dequeue " + queue.size());
-                                }
-                            }
-                        });
-                }
-            });
             try {
-                while(!future.isDone())
+                Future future = executorService.submit(new Runnable() {
+                    public void run() {
+                        System.out.println("Queue" + String.valueOf(queue.size()));
+                        try {
+                            makeRefresh(new APICallback() {
+
+                                public void onResponse(APIResponse response) {
+                                    while (!queue.isEmpty()) {
+                                        APICallback c = queue.poll();
+                                        c.onResponse(response);
+                                        Log.v("dequeue", String.valueOf(queue.size()));
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(APIException e) {
+                                    while (!queue.isEmpty()) {
+                                        APICallback c = queue.poll();
+                                        c.onFailure(e);
+                                        Log.v("dequeue ", String.valueOf(queue.size()));
+                                    }
+                                }
+                            });
+                        } catch (APIException e) {
+                            callback.onFailure(e);
+                        }
+                    }
+                });
+                while (!future.isDone())
                     future.get();
-                Log.v("future.get() = " ,String.valueOf(future.isDone()));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Interupted exception Occured while refreshing");
-                } catch (ExecutionException e) {
-                    throw new RuntimeException("Thread execution exception Occured while refreshing");
-                }
+                Log.v("future.get() = ", String.valueOf(future.isDone()));
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Interupted exception Occured while refreshing. Refresh Failed.Try logging in Again");
+            } catch (ExecutionException e) {
+                throw new RuntimeException("Thread execution exception Occured while refreshing. Refresh Failed. Try logging in Again");
+            }
         }
+
 
         synchronized (lock) {
             refreshInProgress = false;
         }
     }
 
-    protected void makeRefresh(final APICallback callback){
-         if (!this.auth.refreshTokenValid()) {
-            callback.onAPIFailure(request,new IOException("Refresh Token is Invalid"));
-         }
-         else{
-             HashMap<String, String> body = new HashMap<String, String>();
-             body.put("grant_type", "refresh_token");
-             body.put("refresh_token", this.auth.refreshToken());
-             try {
-                 requestToken(TOKEN_ENDPOINT_URL, body,callback);
-             } catch (AuthException e) {
-                 callback.onAPIFailure(request,new IOException("Refresh Token is Invalid"));
-             }
-         }
+    protected void makeRefresh(final APICallback callback) throws APIException {
+        if (!this.auth.refreshTokenValid()) {
+            //      callback.onFailure(new IOException("Refresh Token is Invalid"));
+        } else {
+            HashMap<String, String> body = new HashMap<String, String>();
+            body.put("grant_type", "refresh_token");
+            body.put("refresh_token", this.auth.refreshToken());
+
+            requestToken(TOKEN_ENDPOINT_URL, body, callback);
+        }
     }
 
     /**
@@ -314,22 +320,21 @@ public class Platform {
      *
      * @param callback
      */
-    public void logout(final APICallback callback) throws AuthException {
+    public void logout(final APICallback callback) throws APIException {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
         requestToken(REVOKE_ENDPOINT_URL, body, new APICallback() {
 
-            public void onAPIFailure(Request request, IOException e) {
-                callback.onAPIFailure(request, e);
+            public void onFailure(APIException e) {
+                callback.onFailure(e);
             }
 
-
-            public void onAPIResponse(APIResponse response) throws IOException {
+            public void onResponse(APIResponse response) {
                 if (response.ok()) {
                     auth.reset();
-                    callback.onAPIResponse(response);
+                    callback.onResponse(response);
                 } else {
-                    callback.onAPIFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.statusCode()));
+                    callback.onFailure(new APIException("IOException Occured. Failed Logout with error code " + response.code()));
                 }
             }
         });
@@ -343,50 +348,54 @@ public class Platform {
      * @param method
      * @param apiURL
      * @param body
-     * @param headerMap
+     * @param headers
      * @param callback
      */
-<<<<<<< HEAD
-    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
-=======
-    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headerMap, final Callback callback) throws AuthException {
+    public void sendRequest(final String method, final String apiURL, final RequestBody body, final HashMap<String, String> headers, final APICallback callback) throws APIException {
+        final String URL = server.value + apiURL;
 
-        ensureAuthentication(new Callback() {
+        inflateRequest(headers, new APICallback() {
             @Override
-            public void onFailure(Request request, IOException e) {
-                callback.onFailure(request,e);
-            }
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
-
-                    HashMap<String, String> header = null;
-                    if (headerMap == null)
-                        header = new HashMap<String, String>();
-                    else
-                        header = headerMap;
-                    final String URL = server.value + apiURL;
-                    if (!header.containsKey("Authorization")) {
-                        header.put("Authorization", authHeader());
-                    }
-                    request = client.createRequest(method, URL, body, inflateRequest(header));
+            public void onResponse(APIResponse response) {
+                if (response.ok()) {
+                    request = client.createRequest(method, URL, body, requestBuilder);
                     client.sendRequest(request, callback);
+                }
+            }
 
-//                else if(response.code()==400 && showError(response).contains("invalid_"))
-//                    callback.onFailure(response.request(),new IOException("API Call failed with error code: "+response.code()));
+            @Override
+            public void onFailure(APIException e) {
+                callback.onFailure(e);
+            }
+        });
+    }
 
 
+    public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
 
+        sendRequest("get", apiURL, body == null ? null : body, headerMap, callback);
+    }
+
+    public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
+        sendRequest("post", apiURL, body, headerMap, callback);
+    }
+
+    public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
+
+        sendRequest("put", apiURL, body, headerMap, callback);
+    }
+
+    public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
+
+        sendRequest("delete", apiURL, body == null ? null : body, headerMap, callback);
+    }
+
+    public void expire_access() {
+        auth().expire_access();
     }
 
     /**
-     * Sets auth data
-     * @param response
-     * @return
-     * @throws IOException
-     */
-
-    /**
      * Sets content-type
-     *
      */
     public enum ContentTypeSelection {
         FORM_TYPE("application/x-www-form-urlencoded"), JSON_TYPE(
@@ -410,63 +419,6 @@ public class Platform {
         Server(String url) {
             this.value = url;
         }
-    }
-
-
-
-    public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
-
-        sendRequest("get",apiURL,body==null?null:body,headerMap,callback);
-    }
-
-    public void post(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
-        sendRequest("post",apiURL,body,headerMap,callback);
-    }
-
-    public void put(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
-
-        sendRequest("put",apiURL,body,headerMap,callback);
-    }
-
-    public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
-
-        sendRequest("delete",apiURL,body==null?null:body,headerMap,callback);
-    }
-
-
-    public void expire_access(){
-        auth().expire_access();
-    }
-
-    public String showError(Response response) {
-        String message = "";
-        if (!response.isSuccessful()) {
-            message = "HTTP error code: " + response.code() + "\n";
-
-            try {
-                JSONObject data = new JSONObject(response.body().string());
-
-                if (data == null) {
-                    message = "Unknown response reason phrase";
-                }
-
-                if (data.getString("message") != null)
-                    message = message + data.getString("message");
-
-                if (data.getString("error_description") != null)
-                    message = message + data.getString("error_description");
-
-                if (data.getString("description") != null)
-                    message = message + data.getString("description");
-
-
-            } catch (JSONException | IOException e) {
-                message = message + " and additional error happened during JSON parse " + e.getMessage();
-            }
-        } else {
-            message = "";
-        }
-        return message;
     }
 
 }

@@ -1,12 +1,9 @@
 package com.ringcentral.rc_android_sdk.rcsdk.http;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
 
-/**
- * Created by vyshakh.babji on 12/14/15.
- */
-//public interface APICallBack implements Callback {
-//
-//
-//}
+public abstract class APICallback {
+    abstract public void onResponse(APIResponse response);
+
+    abstract public void onFailure(APIException e);
+}

@@ -25,10 +25,14 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.AuthException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -40,6 +44,15 @@ public class APIResponse {
     public APIResponse(Response response, Request request) {
         this.request = request;
         this.response = response;
+    }
+
+    public APIResponse(Request request) {
+        this.request = request;
+    }
+
+    APIResponse(Response response) {
+        this.response = response;
+        this.request = response.request();
     }
 
     public ResponseBody body() {
@@ -54,20 +67,19 @@ public class APIResponse {
         return getContentType().toString().equalsIgnoreCase(contentType);
     }
 
-    public JsonElement json() throws AuthException {
+    public JsonElement json() throws APIException {
         JsonElement jObject = new JsonObject();
         try {
             JsonParser parser = new JsonParser();
             jObject = parser.parse(body().string());
             return jObject;
         } catch (Exception e) {
-           throw  new AuthException("Exception occured while converting the HTTP response to JSON in Class:  " , e);  //FIXME :Fixed
+            throw new APIException("Exception occured while converting the HTTP response to JSON in Class:  ", e);
         }
-       // return jObject;
     }
 
     public boolean ok() {
-        return (statusCode() >= 200 && statusCode() < 300);
+        return (code() >= 200 && code() < 300);
     }
 
     public Request request() {
@@ -80,7 +92,7 @@ public class APIResponse {
     }
 
 
-    public int statusCode() {
+    public int code() {
         return this.response.code();
     }
 
@@ -88,6 +100,83 @@ public class APIResponse {
         return body().string();
 
     }
+
+    public String showError() {
+        String message = "";
+        if (!response.isSuccessful()) {
+            message = "HTTP error code: " + response.code() + "\n";
+
+            try {
+
+                String msg = response.body().string();
+                JSONObject data = new JSONObject(msg);
+
+                if (data == null) {
+                    message = "Unknown response reason phrase";
+                }
+
+                if (data.getString("message") != null)
+                    message = message + data.getString("message");
+
+                if (data.getString("error_description") != null)
+                    message = message + data.getString("error_description");
+
+                if (data.getString("description") != null)
+                    message = message + data.getString("description");
+
+
+            } catch (JSONException | IOException e) {
+                message = message + " and additional error happened during JSON parse " + e.getMessage();
+            }
+        } else {
+            message = "";
+        }
+        return message;
+
+
+    }
+
+    public Headers getRequestHeader(Request request) {
+        return request.headers();
+    }
+
+//    protected APIException handleErrorResponse(Response response, Request request)
+//            throws IOException, InterruptedException {
+//
+//        final int statusCode=response.code();
+//        final String reasonPhrase=response.message();
+//
+//        APIException exception = null;
+//        try {
+//            exception = new APIException(response);
+//
+//        } catch (Exception e) {
+//            // If the errorResponseHandler doesn't work, then check for error
+//            // responses that don't have any content
+//            if (statusCode == 413) {
+//                exception = new APIException("Request entity too large");
+//
+//                exception.setStatusCode(statusCode);
+//                exception.setErrorType(APIException.ErrorType.Client);
+//                exception.setErrorCode("Request entity too large");
+//            } else if (statusCode == 503 && "Service Unavailable".equalsIgnoreCase(reasonPhrase)) {
+//                exception = new APIException("Service unavailable");
+//                exception.setStatusCode(statusCode);
+//                exception.setErrorType(APIException.ErrorType.Service);
+//                exception.setErrorCode("Service unavailable");
+//            } else if (e instanceof IOException) {
+//                throw (IOException) e;
+//            } else {
+//                String errorMessage = "Unable to unmarshall error response (" + e.getMessage() + "). Response Code: "
+//                        + statusCode + ", Response Text: " + reasonPhrase;
+//                throw new APIException(errorMessage, e);
+//            }
+//        }
+//
+//        exception.setStatusCode(statusCode);
+//        exception.fillInStackTrace();
+//        return exception;
+//    }
 
 
 }

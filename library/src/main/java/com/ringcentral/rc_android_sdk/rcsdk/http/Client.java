@@ -23,13 +23,9 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
-<<<<<<< HEAD
-import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
-//import com.squareup.okhttp.Callback;
-=======
+import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.RingCentralException;
 import com.squareup.okhttp.Callback;
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
-import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
@@ -44,61 +40,66 @@ import java.util.concurrent.ExecutionException;
  */
 public class Client {
 
-    public OkHttpClient client;
+//    public OkHttpClient client;
+//
+//    public Client() {
+//        client = new OkHttpClient();
+//    }
 
-    public Client() {
-        client = new OkHttpClient();
-    }
+    private final OkHttpClient client = new OkHttpClient();
 
     /**
      * Makes a OKHttp  call
      *
      * @param request
      */
-<<<<<<< HEAD
-    public void sendRequest(final Request request,  final APICallback callback) {
-=======
-    //FIXME Name should be sendRequest
-    //FIXME Take a look at reference -- this method should do a different thing
+    public void sendRequest(final Request request, final APICallback callback) {
 
-    public void sendRequest(final Request request,  final Callback callback) {
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
+
         try {
             new AsyncTask<String, Integer, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
-<<<<<<< HEAD
-                        APICallback c = new APICallback() {
+                    Callback responseLoaderCallback = new Callback() {
 
-                            public void onAPIFailure(Request request, IOException e) {
-                                callback.onAPIFailure(request, e);
-=======
-                        Callback c = new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                callback.onFailure(request, e);
->>>>>>> f35ebd5902482eda5b90874d7e689071c019ffdc
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            APIResponse apiresponse = new APIResponse(response);
+                            if (apiresponse.ok())
+                                callback.onResponse(apiresponse);
+                            else {
+
+                                throw new APIException(apiresponse.showError());
                             }
+                        }
 
-
-                            public void onAPIResponse(APIResponse response) throws IOException {
-                                if(response.ok())
-                                   callback.onAPIResponse(response);
-                                else
-                                   callback.onAPIFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.ok()));
-                            }
-                        };
-                        loadResponse(request,c);
-                        return null;
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            callback.onFailure(new APIException(new APIResponse(request), e));
+                        }
+                    };
+                    loadResponse(request, responseLoaderCallback);
+                    return null;
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            handleInterruptedException(e);
         } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+            handleExecutionException(e);
         }
 
     }
+
+    private RuntimeException handleInterruptedException(Exception e) {
+        Thread.currentThread().interrupt();
+        return new RingCentralException(e);
+    }
+
+    private RuntimeException handleExecutionException(Exception e) {
+        Thread.currentThread().interrupt();
+        return new RingCentralException(e);
+    }
+
 
     /**
      * Creates OKHttp Request
@@ -111,6 +112,8 @@ public class Client {
      */
     public Request createRequest(String method, String URL, RequestBody body, Builder header) {
         Request.Builder request = new Request.Builder();
+
+
         if (method.equalsIgnoreCase("get")) {
             request = header.url(URL);
         } else if (method.equalsIgnoreCase("delete")) {
@@ -122,30 +125,28 @@ public class Client {
             } else if (method.equalsIgnoreCase("put")) {
                 request = header.url(URL).put(body);
             } else
-                    throw new RuntimeException(method +" Method not Allowed. Please Refer API Documentation. See\n" +
-                            "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
+                throw new APIException(method + " Method not Allowed. Please Refer API Documentation. See\n" +
+                        "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
         return request.build();
     }
 
     /**
      * Loads OKHttp Response synchronizing async api calls
+     *
      * @param request
      * @param callback
      */
-    public  void loadResponse(final Request request, final APICallback callback) {
-          client.newCall(request).enqueue(callback);
+    protected void loadResponse(final Request request, final Callback callback) {
+        client.newCall(request).enqueue(callback);
     }
 
-    public Headers getRequestHeader(Request request) {
-        return request.headers();
-    }
-
-    public void _response(APICallback callback){
+    public void _response(APICallback callback) {
         Request request = new Request.Builder()
                 .url("http://www.ringcentral.com")
                 .build();
-        sendRequest(request,callback);
+        sendRequest(request, callback);
     }
+
 
 }
