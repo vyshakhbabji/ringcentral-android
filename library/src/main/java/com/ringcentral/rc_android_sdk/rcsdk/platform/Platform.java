@@ -110,7 +110,7 @@ public class Platform {
 
     /**
      * Checks if the current access token is valid. If the access token is expired, it does token refresh.
-     * FIXME This is asynchronous method, so it must accept a callback : Fixed
+     *
      */
     protected void ensureAuthentication(final APICallback callback) throws AuthException {
         if (!loggedIn()) {
@@ -186,7 +186,7 @@ public class Platform {
      * Sets authentication values after successful authentication
      *
      * @param response
-     */ //FIXME : Fixed by calling method
+     */
     protected void setAuth(APIResponse response) throws IOException {
         this.auth.setData(auth.jsonToHashMap(response.response()));
     }
@@ -197,7 +197,7 @@ public class Platform {
      * @param endpoint
      * @param body
      * @param callback
-     */ //FIXME : CHange name
+     */
     protected void requestToken(String endpoint, HashMap<String, String> body, final APICallback callback) throws AuthException {
         final String URL = server.value + endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
@@ -208,7 +208,6 @@ public class Platform {
             @Override
             public void onAPIFailure(Request request, IOException e) {
                 callback.onAPIFailure(request, e);
-                //throw new AuthException("Unable to request token.", e); //FIXME Call the callback instead of throwing
             }
 
             @Override
@@ -311,7 +310,7 @@ public class Platform {
 
             public void onAPIResponse(APIResponse response) throws IOException {
                 if (response.ok()) {
-                    auth.reset(); //FIXME This should go inside the callback:fixed
+                    auth.reset();
                     callback.onAPIResponse(response);
                 } else {
                     callback.onAPIFailure(response.request(), new IOException("IOException Occured. Failed Logout with error code " + response.statusCode()));
@@ -361,7 +360,7 @@ public class Platform {
 
     /**
      * Sets content-type
-     * FIXME Change naming:Fixed
+     *
      */
     public enum ContentTypeSelection {
         FORM_TYPE("application/x-www-form-urlencoded"), JSON_TYPE(
@@ -387,7 +386,7 @@ public class Platform {
         }
     }
 
-    //FIXME get, post, put, delete methods are missing : Fixed
+
 
     public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws AuthException {
 

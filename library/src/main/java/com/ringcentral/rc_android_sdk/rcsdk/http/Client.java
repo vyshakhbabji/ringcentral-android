@@ -51,11 +51,6 @@ public class Client {
      *
      * @param request
      */
-    //FIXME Name should be sendRequest
-    //FIXME Take a look at reference -- this method should do a different thing
-
-
-    //Todo:Handle else condition with failure checked exception
     public void sendRequest(final Request request,  final APICallback callback) {
         try {
             new AsyncTask<String, Integer, Void>() {
@@ -71,8 +66,8 @@ public class Client {
                             public void onAPIResponse(APIResponse response) throws IOException {
                                 if(response.ok())
                                    callback.onAPIResponse(response);
-                                else{}
-                            //       callback.onAPIFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.ok()));
+                                else
+                                   callback.onAPIFailure(response.request(), new IOException("IOException Occured. Sending request failed with error code " + response.ok()));
                             }
                         };
                         loadResponse(request,c);
@@ -120,8 +115,6 @@ public class Client {
      * @param request
      * @param callback
      */
-    //FIXME Async
-    //FIXME Take a look at reference -- this method should do a different thing
     public  void loadResponse(final Request request, final APICallback callback) {
           client.newCall(request).enqueue(callback);
     }
