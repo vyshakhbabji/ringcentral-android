@@ -25,7 +25,6 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -36,7 +35,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class APIResponse {
+public class APIResponse { //FIXME ApiResponse
 
     protected Request request;
     protected Response response;
@@ -56,6 +55,7 @@ public class APIResponse {
     }
 
     public ResponseBody body() {
+        //FIXME Add a guard for undefined response
         return this.response.body();
     }
 
@@ -64,7 +64,7 @@ public class APIResponse {
     }
 
     protected boolean isContentType(String contentType) {
-        return getContentType().toString().equalsIgnoreCase(contentType);
+        return getContentType().equalsIgnoreCase(contentType);
     }
 
     public JsonElement json() throws APIException {
@@ -101,6 +101,7 @@ public class APIResponse {
 
     }
 
+    //FIXME Naming
     public String showError() {
         String message = "";
         if (!response.isSuccessful()) {
@@ -136,6 +137,7 @@ public class APIResponse {
 
     }
 
+    //FIXME Remove
     public Headers getRequestHeader(Request request) {
         return request.headers();
     }

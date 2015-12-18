@@ -31,6 +31,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 
 import java.io.IOException;

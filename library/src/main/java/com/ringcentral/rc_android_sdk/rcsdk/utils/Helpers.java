@@ -25,7 +25,7 @@ package com.ringcentral.rc_android_sdk.rcsdk.utils;
 import android.util.Log;
 
 import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
+import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
 import com.ringcentral.rc_android_sdk.rcsdk.subscription.Subscription;
 import com.squareup.okhttp.MediaType;

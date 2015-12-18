@@ -23,7 +23,6 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.APIException;
 import com.ringcentral.rc_android_sdk.rcsdk.platform.RingCentralException;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -33,18 +32,14 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by vyshakh.babji on 11/9/15.
  */
 public class Client {
-
-//    public OkHttpClient client;
-//
-//    public Client() {
-//        client = new OkHttpClient();
-//    }
 
     private final OkHttpClient client = new OkHttpClient();
 
@@ -64,7 +59,7 @@ public class Client {
 
                         @Override
                         public void onResponse(Response response) throws IOException {
-                            APIResponse apiresponse = new APIResponse(response);
+                            APIResponse apiresponse = new APIResponse(response, response.request());
                             if (apiresponse.ok())
                                 callback.onResponse(apiresponse);
                             else {
@@ -82,10 +77,11 @@ public class Client {
                     return null;
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+
         } catch (InterruptedException e) {
-            handleInterruptedException(e);
+            handleInterruptedException(e); //FIXME Let them go up?
         } catch (ExecutionException e) {
-            handleExecutionException(e);
+            handleExecutionException(e); //FIXME Let them go up?
         }
 
     }
@@ -107,28 +103,36 @@ public class Client {
      * @param method
      * @param URL
      * @param body
-     * @param header
+     * @param headers
      * @return OKHttp Request
      */
-    public Request createRequest(String method, String URL, RequestBody body, Builder header) {
-        Request.Builder request = new Request.Builder();
+    public Request createRequest(String method, String URL, RequestBody body, HashMap<String, String> headers) {
 
+        Request.Builder builder = new Request.Builder();
+
+        if (headers == null)
+            headers = new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : headers.entrySet())
+            builder.addHeader(entry.getKey(), entry.getValue());
+
+        //TODO Add default headers here, e.g. JSON-related stuff
 
         if (method.equalsIgnoreCase("get")) {
-            request = header.url(URL);
+            builder = builder.url(URL);
         } else if (method.equalsIgnoreCase("delete")) {
-            request = header.url(URL).delete();
+            builder = builder.url(URL).delete();
         } else {
             if (method.equalsIgnoreCase("post")) {
-                request = header.url(URL).post(body);
+                builder = builder.url(URL).post(body);
 
             } else if (method.equalsIgnoreCase("put")) {
-                request = header.url(URL).put(body);
+                builder = builder.url(URL).put(body);
             } else
                 throw new APIException(method + " Method not Allowed. Please Refer API Documentation. See\n" +
                         "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
-        return request.build();
+
+        return builder.build();
     }
 
     /**
@@ -140,13 +144,5 @@ public class Client {
     protected void loadResponse(final Request request, final Callback callback) {
         client.newCall(request).enqueue(callback);
     }
-
-    public void _response(APICallback callback) {
-        Request request = new Request.Builder()
-                .url("http://www.ringcentral.com")
-                .build();
-        sendRequest(request, callback);
-    }
-
 
 }
