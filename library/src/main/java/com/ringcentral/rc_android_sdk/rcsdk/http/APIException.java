@@ -1,7 +1,5 @@
 package com.ringcentral.rc_android_sdk.rcsdk.http;
 
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.RingCentralException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -40,7 +38,7 @@ public class APIException extends RingCentralException { //FIXME ApiException
     public APIException(APIResponse response, Exception cause) {
         super(null, cause);
         this.response = response;
-        this.extraInfo = response.showError();
+        this.extraInfo = response.error();
     }
 
     public String getErrorCode() {

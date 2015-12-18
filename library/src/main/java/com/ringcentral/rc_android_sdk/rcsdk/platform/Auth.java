@@ -202,7 +202,7 @@ public class Auth {
                 Log.v("OAuth Response :", responseString);
                 return gson.fromJson(responseString, HashMapType);
             } else {
-                Log.v("Error Message: ", response.showError());
+                Log.v("Error Message: ", response.error());
             }
         } catch (APIException | IOException e) {
             throw new APIException("Illegal authentication Response data. Authentication Failed with response code " + response.code(), e);

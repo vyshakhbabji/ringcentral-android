@@ -30,6 +30,7 @@ import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
 import com.ringcentral.rc_android_sdk.rcsdk.http.Client;
+import com.ringcentral.rc_android_sdk.rcsdk.http.RingCentralException;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
@@ -37,9 +38,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -65,7 +64,7 @@ public class Platform {
     protected Server server;
 
     protected Auth auth;
-    protected Request request;
+    //protected Request request;
     protected Client client;
     protected Queue<APICallback> queue = new LinkedBlockingQueue<>();
     protected Builder requestBuilder;
@@ -145,12 +144,13 @@ public class Platform {
         ensureAuthentication(new APICallback() {
             @Override
             public void onResponse(APIResponse response) {
-                callback.onSuccess();
+                if (response == null)
+                    callback.onResponse(true);
             }
 
             @Override
             public void onFailure(APIException e) {
-                callback.onFailure();
+                callback.onResponse(false);
             }
         });
     }
@@ -177,22 +177,21 @@ public class Platform {
      * @param request
      * @return
      */
-    protected Request inflateRequestHeaders(final Request request) {
-
-        if (!auth().accessTokenValid()) {
+    protected Request inflateRequestHeaders(boolean skipAuthCheck, final Request request) {
+        if (!auth().accessTokenValid()&&!skipAuthCheck) {
             throw new RingCentralException("Internal inflate request has been called without authentication");
         }
-
         Builder requestBuilder = request.newBuilder();
-
-        requestBuilder.addHeader("Authorization", authHeader());
-        requestBuilder.addHeader("User-Agent",USER_AGENT);
-
-        requestBuilder.url(server.value + request.urlString());
+        if(!skipAuthCheck)
+        {
+            requestBuilder.addHeader("Authorization", authHeader());
+        }
+        //      requestBuilder.addHeader("User-Agent", USER_AGENT);
 
         return requestBuilder.build();
 
     }
+
 
     /**
      * Sets Request Header
@@ -200,28 +199,25 @@ public class Platform {
      * @param request
      * @param callback
      */
-    protected void inflateRequest(final Request request, final InflateCallback callback, boolean skipAuthCheck) throws APIException {
-
+    public void inflateRequest(final Request request, final boolean skipAuthCheck,final InflateCallback callback) throws APIException {
         if (!skipAuthCheck) {
-
             ensureAuthentication(new APICallback() {
                 @Override
                 public void onResponse(APIResponse response) {
-                    Request inflatedRequest = inflateRequestHeaders(request);
-                    callback.onResponse(inflatedRequest);
+                    if(response==null){
+                        Request inflatedRequest = inflateRequestHeaders(skipAuthCheck,request);
+                        callback.onResponse(inflatedRequest);
+                    }
                 }
 
                 @Override
-                public void onFailure(APIException e) { callback.onFailure(e); }
+                public void onFailure(APIException e) {
+                    callback.onFailure(e); }
             });
-
         } else {
-
-            Request inflatedRequest = inflateRequestHeaders(request);
+            Request inflatedRequest = inflateRequestHeaders(skipAuthCheck,request);
             callback.onResponse(inflatedRequest);
-
         }
-
     }
 
     /**
@@ -241,14 +237,12 @@ public class Platform {
      * @param callback
      */
     protected void requestToken(String endpoint, final HashMap<String, String> body, final APICallback callback) throws APIException {
-
+        final String URL = server.value+endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", apiKey());
         headers.put("Content-Type", ContentTypeSelection.FORM_TYPE.value.toString());
-
-        Request request = client.createRequest("POST", endpoint, formBody(body), headers);
-
-        final APICallback c = new APICallback() {
+        Request request = client.createRequest("POST", URL, formBody(body), headers);
+        sendRequest(request,true, new APICallback() {
             @Override
             public void onFailure(APIException e) {
                 callback.onFailure(new APIException("Unable to request token. Request Failed.", e));
@@ -256,17 +250,14 @@ public class Platform {
 
             @Override
             public void onResponse(APIResponse response) {
-                try { //FIXME Check this
+                try {
                     setAuth(response);
                     callback.onResponse(response);
                 } catch (APIException e) {
                     callback.onFailure(e);
                 }
             }
-        };
-
-        sendRequest(request, c);
-
+        });
     }
 
 
@@ -285,7 +276,7 @@ public class Platform {
             try {
                 Future future = executorService.submit(new Runnable() {
                     public void run() {
-                        System.out.println("Queue" + String.valueOf(queue.size())); //FIXME
+                        Log.v("Queue" , String.valueOf(queue.size())); //FIXME
                         try {
                             makeRefresh(new APICallback() {
 
@@ -347,33 +338,27 @@ public class Platform {
      * @param callback
      */
     public void logout(final APICallback callback) throws APIException {
-
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
-
         requestToken(REVOKE_ENDPOINT_URL, body, new APICallback() {
             public void onFailure(APIException e) { callback.onFailure(e); }
             public void onResponse(APIResponse response) {
-                if (response.ok()) {
-                    auth.reset();
-                    callback.onResponse(response);
-                } else {
-                    callback.onFailure(new APIException("IOException Occured. Failed Logout with error code " + response.code()));
-                }
+                auth.reset();
+                callback.onResponse(response);
             }
         });
-
     }
 
-    protected void sendRequest(Request request, final APICallback callback) throws APIException {
-        inflateRequest(request, new InflateCallback() {
-            @Override
-            public void onResponse(Request inflatedRequest) { client.sendRequest(inflatedRequest, callback); }
-            @Override
+    protected void sendRequest(Request request, boolean skipAuthentication, final APICallback callback) throws APIException {
+        inflateRequest(request, skipAuthentication, new InflateCallback() {
+            public void onResponse(Request inflatedRequest) {
+                client.sendRequest(inflatedRequest, callback);
+            }
+
             public void onFailure(APIException e) {
                 callback.onFailure(e);
             }
-        }, false);
+        });
     }
 
     /**
@@ -386,7 +371,9 @@ public class Platform {
      * @param callback
      */
     public void send(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
-        sendRequest(client.createRequest(method, apiURL, body == null ? null : body, headerMap), callback);
+        final String endpointURL=server.value+apiURL;
+        Request request = client.createRequest(method, endpointURL, body == null ? null : body, headerMap);
+        sendRequest(request,false, callback);
     }
 
     public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final APICallback callback) throws APIException {
