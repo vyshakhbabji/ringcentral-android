@@ -55,7 +55,10 @@ public class APIResponse { //FIXME ApiResponse
     }
 
     public ResponseBody body() {
-        //FIXME Add a guard for undefined response
+        //FIXME Add a guard for undefined response :Fixed
+        if(response==null){
+            return null;
+        }
         return this.response.body();
     }
 
@@ -102,7 +105,7 @@ public class APIResponse { //FIXME ApiResponse
     }
 
     //FIXME Naming
-    public String showError() {
+    public String error() {
         String message = "";
         if (!response.isSuccessful()) {
             message = "HTTP error code: " + response.code() + "\n";

@@ -23,11 +23,9 @@ package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import android.os.AsyncTask;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.RingCentralException;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
@@ -64,7 +62,7 @@ public class Client {
                                 callback.onResponse(apiresponse);
                             else {
 
-                                throw new APIException(apiresponse.showError());
+                                throw new APIException(apiresponse.error());
                             }
                         }
 
@@ -79,22 +77,13 @@ public class Client {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
         } catch (InterruptedException e) {
-            handleInterruptedException(e); //FIXME Let them go up?
+           throw new RuntimeException(e);
         } catch (ExecutionException e) {
-            handleExecutionException(e); //FIXME Let them go up?
+            throw new RuntimeException(e);
         }
 
     }
 
-    private RuntimeException handleInterruptedException(Exception e) {
-        Thread.currentThread().interrupt();
-        return new RingCentralException(e);
-    }
-
-    private RuntimeException handleExecutionException(Exception e) {
-        Thread.currentThread().interrupt();
-        return new RingCentralException(e);
-    }
 
 
     /**
@@ -112,6 +101,8 @@ public class Client {
 
         if (headers == null)
             headers = new HashMap<String, String>();
+
+
         for (Map.Entry<String, String> entry : headers.entrySet())
             builder.addHeader(entry.getKey(), entry.getValue());
 
