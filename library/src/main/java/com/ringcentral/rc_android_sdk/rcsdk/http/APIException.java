@@ -1,13 +1,14 @@
-package com.ringcentral.rc_android_sdk.rcsdk.platform;
+package com.ringcentral.rc_android_sdk.rcsdk.http;
 
 import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
+import com.ringcentral.rc_android_sdk.rcsdk.platform.RingCentralException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 /**
  * Created by vyshakh.babji on 12/15/15.
  */
-public class APIException extends RingCentralException {
+public class APIException extends RingCentralException { //FIXME ApiException
     private static final long serialVersionUID = 1L;
 
     private String message;
