@@ -29,7 +29,7 @@ This RingCentral Android SDK has been made to make Android development easier fo
 
 You can install the RingCentral SDK via JCenter or by installing the AAR file locally.
 
-#### JCenter
+#### Via JCenter
 
 To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
 Add these to your app's Gradle dependencies:
@@ -41,7 +41,7 @@ dependencies {
 }
 ```
 
-#### Local AAR File
+#### Via Local AAR File
 
 1. Download AAR from the GitHub release page
 2. Move AAR file into your app module's `libs` directory
