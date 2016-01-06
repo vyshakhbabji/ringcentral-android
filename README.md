@@ -60,7 +60,7 @@ dependencies {
 }
 ```
 
-### Configuration App
+### Configure App Permissions
 
 Add the follow permissions to your app module's `AndroidManifest.xml` (`app/src/main/AndroidManifest.xml`) within the `<manifest>` tag to utilize RingCentral capabilties:
 
