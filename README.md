@@ -25,7 +25,11 @@ This RingCentral Android SDK has been made to make Android development easier fo
 
 ## Android Studio Environment
 
-### Gradle
+### Install SDK
+
+You can install the RingCentral SDK via JCenter or by installing the AAR file locally.
+
+#### JCenter
 
 To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
 Add these to your app's Gradle dependencies:
@@ -37,9 +41,28 @@ dependencies {
 }
 ```
 
-### Android Manifest
+#### Local AAR File
 
-Add these permissions to your AndroidManifest.xml:
+1. Download AAR from the GitHub release page
+2. Move AAR file into your app module's `libs` directory
+3. Edit the `app/build.gradle` file to add the following Gradle script:
+
+```
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    ...
+    compile 'com.ringcentral.library:ringcentral-android-0-7@aar'
+}
+```
+
+### Configuration App
+
+Add the follow permissions to your app module's `AndroidManifest.xml` (`app/src/main/AndroidManifest.xml`) within the `<manifest>` tag to utilize RingCentral capabilties:
 
 ```java
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -50,7 +73,7 @@ Add these permissions to your AndroidManifest.xml:
 
 ### Import library
 
-To import the SDK to your file, add this line:
+To import the SDK to your app, e.g. `MainActivity`, add this line:
 
 ```java
 import com.ringcentral.android.rcsdk.*;
