@@ -1,16 +1,17 @@
-package com.ringcentral.rc_android_sdk.rcsdk.http;
+package com.ringcentral.android.sdk.http;
 
+import com.ringcentral.android.sdk.core.RingCentralException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 /**
  * Created by vyshakh.babji on 12/15/15.
  */
-public class APIException extends RingCentralException { //FIXME ApiException
+public class ApiException extends RingCentralException {
     private static final long serialVersionUID = 1L;
 
     private String message;
-    private APIResponse response;
+    private ApiResponse response;
     private Request request;
     private String serviceName;
     private String errorCode;
@@ -20,22 +21,22 @@ public class APIException extends RingCentralException { //FIXME ApiException
     private String rawResponseContent;
     private String extraInfo;
 
-    public APIException(String errorMessage) {
+    public ApiException(String errorMessage) {
         super((String) null);
         this.errorMessage = errorMessage;
     }
 
 
-    public APIException(String errorMessage, Exception cause) {
+    public ApiException(String errorMessage, Exception cause) {
         super(null, cause);
         this.errorMessage = errorMessage;
     }
 
-    public APIException(Response response) {
+    public ApiException(Response response) {
         super((String) null);
     }
 
-    public APIException(APIResponse response, Exception cause) {
+    public ApiException(ApiResponse response, Exception cause) {
         super(null, cause);
         this.response = response;
         this.extraInfo = response.error();
@@ -117,50 +118,6 @@ public class APIException extends RingCentralException { //FIXME ApiException
         Unknown
     }
 
-
-//    public APIException(APIResponse response, Exception e) {
-//
-//        this.response = response;
-//        this.request = response.request();
-//
-//        String message = e.getMessage();
-//        if (apiResponse() != null) {
-//            this.message = apiResponse().showError();
-//        } else {
-//            this.message = "Unknown error";
-//        }
-//    }
-
-//    public APIException(Throwable cause) {
-//        super(cause);
-//    }
-
-//    public APIException(String message) {
-//        super(message);
-//        this.message = message;
-//    }
-
-//    public APIException(String message, Throwable cause) {
-//        super("RingCentral Exception :" + message, cause);
-//    }
-//
-//    public Request getRequest() {
-//        return request;
-//    }
-
-//    @Override
-//    public String getMessage() {
-//        return message;
-//    }
-
-//    @Override
-//    public String toString() {
-//        return message;
-//    }
-//
-//    public APIResponse apiResponse() {
-//        return this.response;
-//    }
+  }
 
 
-}

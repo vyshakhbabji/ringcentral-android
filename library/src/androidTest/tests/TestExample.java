@@ -1,20 +1,15 @@
-import android.content.Intent;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
-import com.ringcentral.rc_android_sdk.rcsdk.core.SDK;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+import com.ringcentral.android.sdk.core.SDK;
+import com.ringcentral.android.sdk.platform.Platform;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-
-import javax.inject.Singleton;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -53,7 +53,7 @@ Add these permissions to your AndroidManifest.xml:
 To import the SDK to your file, add this line:
 
 ```java
-import com.ringcentral.rc_android_sdk.rcsdk.*;
+import com.ringcentral.android.rcsdk.*;
 ```
 
 # Basic Usage

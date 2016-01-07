@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.http;
+package com.ringcentral.android.sdk.http;
 
 
 import com.google.gson.JsonElement;
@@ -35,29 +35,28 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class APIResponse { //FIXME ApiResponse
+public class ApiResponse {
 
     protected Request request;
     protected Response response;
 
-    public APIResponse(Response response, Request request) {
+    public ApiResponse(Response response, Request request) {
         this.request = request;
         this.response = response;
     }
 
-    public APIResponse(Request request) {
+    public ApiResponse(Request request) {
         this.request = request;
     }
 
-    APIResponse(Response response) {
+    ApiResponse(Response response) {
         this.response = response;
         this.request = response.request();
     }
 
     public ResponseBody body() {
-        //FIXME Add a guard for undefined response :Fixed
         if(response==null){
-            return null;
+            throw new ApiException("No Response Recieved.");
         }
         return this.response.body();
     }
@@ -70,14 +69,14 @@ public class APIResponse { //FIXME ApiResponse
         return getContentType().equalsIgnoreCase(contentType);
     }
 
-    public JsonElement json() throws APIException {
+    public JsonElement json() throws ApiException {
         JsonElement jObject = new JsonObject();
         try {
             JsonParser parser = new JsonParser();
             jObject = parser.parse(body().string());
             return jObject;
         } catch (Exception e) {
-            throw new APIException("Exception occured while converting the HTTP response to JSON in Class:  ", e);
+            throw new ApiException("Exception occured while converting the HTTP response to JSON in Class:  ", e);
         }
     }
 
@@ -145,36 +144,36 @@ public class APIResponse { //FIXME ApiResponse
         return request.headers();
     }
 
-//    protected APIException handleErrorResponse(Response response, Request request)
+//    protected ApiException handleErrorResponse(Response response, Request request)
 //            throws IOException, InterruptedException {
 //
 //        final int statusCode=response.code();
 //        final String reasonPhrase=response.message();
 //
-//        APIException exception = null;
+//        ApiException exception = null;
 //        try {
-//            exception = new APIException(response);
+//            exception = new ApiException(response);
 //
 //        } catch (Exception e) {
 //            // If the errorResponseHandler doesn't work, then check for error
 //            // responses that don't have any content
 //            if (statusCode == 413) {
-//                exception = new APIException("Request entity too large");
+//                exception = new ApiException("Request entity too large");
 //
 //                exception.setStatusCode(statusCode);
-//                exception.setErrorType(APIException.ErrorType.Client);
+//                exception.setErrorType(ApiException.ErrorType.Client);
 //                exception.setErrorCode("Request entity too large");
 //            } else if (statusCode == 503 && "Service Unavailable".equalsIgnoreCase(reasonPhrase)) {
-//                exception = new APIException("Service unavailable");
+//                exception = new ApiException("Service unavailable");
 //                exception.setStatusCode(statusCode);
-//                exception.setErrorType(APIException.ErrorType.Service);
+//                exception.setErrorType(ApiException.ErrorType.Service);
 //                exception.setErrorCode("Service unavailable");
 //            } else if (e instanceof IOException) {
 //                throw (IOException) e;
 //            } else {
 //                String errorMessage = "Unable to unmarshall error response (" + e.getMessage() + "). Response Code: "
 //                        + statusCode + ", Response Text: " + reasonPhrase;
-//                throw new APIException(errorMessage, e);
+//                throw new ApiException(errorMessage, e);
 //            }
 //        }
 //

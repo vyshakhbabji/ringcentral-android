@@ -19,15 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.subscription;
+package com.ringcentral.android.sdk.subscription;
 
 import android.util.Base64;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
+import com.ringcentral.android.sdk.http.ApiCallback;
+import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.platform.Platform;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -96,7 +96,7 @@ public class Subscription {
         return decryptedString;
     }
 
-    public void removeSubscription(final APICallback callback) throws IOException, APIException {
+    public void removeSubscription(final ApiCallback callback) throws IOException, ApiException {
 
         System.out.println("Subscription ID: " + subscription.id);
         String url = SUBSCRIPTION_END_POINT + subscription.id;

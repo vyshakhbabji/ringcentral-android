@@ -1,7 +1,7 @@
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Auth;
+import com.ringcentral.android.sdk.platform.Auth;
 
 import org.junit.After;
 import org.junit.Before;
