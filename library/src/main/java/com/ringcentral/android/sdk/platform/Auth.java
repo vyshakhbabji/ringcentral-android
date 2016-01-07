@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.platform;
+package com.ringcentral.android.sdk.platform;
 
 
 /**
@@ -31,8 +31,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIResponse;
+import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.http.ApiResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -191,7 +191,7 @@ public class Auth {
         return this;
     }
 
-    protected HashMap<String, String> jsonToHashMap(APIResponse response) throws APIException {
+    protected HashMap<String, String> jsonToHashMap(ApiResponse response) throws ApiException {
         try {
             if (response.ok()) {
                 Gson gson = new Gson();
@@ -204,8 +204,8 @@ public class Auth {
             } else {
                 Log.v("Error Message: ", response.error());
             }
-        } catch (APIException | IOException e) {
-            throw new APIException("Illegal authentication Response data. Authentication Failed with response code " + response.code(), e);
+        } catch (ApiException | IOException e) {
+            throw new ApiException("Illegal authentication Response data. Authentication Failed with response code " + response.code(), e);
         }
         return new HashMap<>();
     }

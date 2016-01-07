@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.rc_android_sdk.rcsdk.http;
+package com.ringcentral.android.sdk.http;
 
 import android.os.AsyncTask;
 
@@ -46,7 +46,7 @@ public class Client {
      *
      * @param request
      */
-    public void sendRequest(final Request request, final APICallback callback) {
+    public void sendRequest(final Request request, final ApiCallback callback) {
 
 
         try {
@@ -57,18 +57,18 @@ public class Client {
 
                         @Override
                         public void onResponse(Response response) throws IOException {
-                            APIResponse apiresponse = new APIResponse(response, response.request());
+                            ApiResponse apiresponse = new ApiResponse(response, response.request());
                             if (apiresponse.ok())
                                 callback.onResponse(apiresponse);
                             else {
 
-                                throw new APIException(apiresponse.error());
+                                throw new ApiException(apiresponse.error());
                             }
                         }
 
                         @Override
                         public void onFailure(Request request, IOException e) {
-                            callback.onFailure(new APIException(new APIResponse(request), e));
+                            callback.onFailure(new ApiException(new ApiResponse(request), e));
                         }
                     };
                     loadResponse(request, responseLoaderCallback);
@@ -119,7 +119,7 @@ public class Client {
             } else if (method.equalsIgnoreCase("put")) {
                 builder = builder.url(URL).put(body);
             } else
-                throw new APIException(method + " Method not Allowed. Please Refer API Documentation. See\n" +
+                throw new ApiException(method + " Method not Allowed. Please Refer API Documentation. See\n" +
                         "     * <a href =\"https://developer.ringcentral.com/api-docs/latest/index.html#!#Resources.html\">Server Endpoint</a> for more information. ");
         }
 

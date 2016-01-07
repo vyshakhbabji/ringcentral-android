@@ -20,14 +20,14 @@
  * THE SOFTWARE.
  */
 
-package com.ringcentral.rc_android_sdk.rcsdk.utils;
+package com.ringcentral.android.sdk.utils;
 
 import android.util.Log;
 
-import com.ringcentral.rc_android_sdk.rcsdk.http.APICallback;
-import com.ringcentral.rc_android_sdk.rcsdk.http.APIException;
-import com.ringcentral.rc_android_sdk.rcsdk.platform.Platform;
-import com.ringcentral.rc_android_sdk.rcsdk.subscription.Subscription;
+import com.ringcentral.android.sdk.http.ApiCallback;
+import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.platform.Platform;
+import com.ringcentral.android.sdk.subscription.Subscription;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 
@@ -48,11 +48,11 @@ public class Helpers {
      *
      * @param callback
      */
-    public void callLog(final APICallback callback) throws APIException {
+    public void callLog(final ApiCallback callback) throws ApiException {
         try {
             platform.get(API.CALLLOG.value, null, null, callback);
-        } catch (APIException e) {
-            throw new APIException("Call-log failed", e);
+        } catch (ApiException e) {
+            throw new ApiException("Call-log failed", e);
         }
     }
 
@@ -64,7 +64,7 @@ public class Helpers {
      * @param message
      * @param callback
      */
-    public void sendSMS(String to, String from, String message, APICallback callback) throws APIException {
+    public void sendSMS(String to, String from, String message, ApiCallback callback) throws ApiException {
 
         String payload = "{\"to\": [{\"phoneNumber\":\" " + to + "\"}]," +
                 "\"from\": {\"phoneNumber\":\" " + from + "\"}," +
@@ -74,13 +74,13 @@ public class Helpers {
 
         try {
             platform.post(API.SMS.value, body, null, callback);
-        } catch (APIException e) {
-            throw new APIException("Sending SMS failed", e);
+        } catch (ApiException e) {
+            throw new ApiException("Sending SMS failed", e);
         }
 
     }
 
-    public void ringout(String to, String from, String callerID, String hasprompt, APICallback callback) throws APIException {
+    public void ringout(String to, String from, String callerID, String hasprompt, ApiCallback callback) throws ApiException {
 
         if (hasprompt == "" || hasprompt == null)
             hasprompt = String.valueOf(true);
@@ -95,32 +95,32 @@ public class Helpers {
 
         try {
             platform.post(API.RINGOUT.value, body, null, callback);
-        } catch (APIException e) {
-            throw new APIException("Ringout failed", e);
+        } catch (ApiException e) {
+            throw new ApiException("Ringout failed", e);
         }
 
     }
 
-    public void subscribe(APICallback callback) throws APIException {
+    public void subscribe(ApiCallback callback) throws ApiException {
         String payload = "{\r\n  \"eventFilters\": [ \r\n    \"/restapi/v1.0/account/~/extension/~/presence\", \r\n    \"/restapi/v1.0/account/~/extension/~/message-store\" \r\n  ], \r\n  \"deliveryMode\": { \r\n    \"transportType\": \"PubNub\", \r\n    \"encryption\": \"false\" \r\n  } \r\n}";
         String url = "/restapi/v1.0/subscription";
         Log.v("Subscribe payload", payload);
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.getBytes());
         try {
             platform.post(url, body, null, callback);
-        } catch (APIException e) {
-            throw new APIException("Subscription failed", e);
+        } catch (ApiException e) {
+            throw new ApiException("Subscription failed", e);
         }
 
     }
 
-    public void removeSubscription(int subscriptionId, APICallback callback) throws APIException {
+    public void removeSubscription(int subscriptionId, ApiCallback callback) throws ApiException {
         final Subscription subscription = new Subscription(platform);
         String url = "/restapi/v1.0/subscription" + subscriptionId;
         try {
             platform.delete(url, null, null, callback);
-        } catch (APIException e) {
-            throw new APIException("Remove subscription Failed ", e);
+        } catch (ApiException e) {
+            throw new ApiException("Remove subscription Failed ", e);
         }
 
     }
