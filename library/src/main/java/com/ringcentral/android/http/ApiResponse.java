@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.http;
 
 
 import com.google.gson.JsonElement;
@@ -55,7 +55,7 @@ public class ApiResponse {
     }
 
     public ResponseBody body() {
-        if(response==null){
+        if (response == null) {
             throw new ApiException("No Response Recieved.");
         }
         return this.response.body();

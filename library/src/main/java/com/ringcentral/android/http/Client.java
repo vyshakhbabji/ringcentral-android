@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.http;
 
 import android.os.AsyncTask;
 
@@ -77,13 +77,12 @@ public class Client {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
         } catch (InterruptedException e) {
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
 
     }
-
 
 
     /**

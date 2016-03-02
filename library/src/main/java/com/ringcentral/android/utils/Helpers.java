@@ -20,14 +20,14 @@
  * THE SOFTWARE.
  */
 
-package com.ringcentral.android.sdk.utils;
+package com.ringcentral.android.utils;
 
 import android.util.Log;
 
-import com.ringcentral.android.sdk.http.ApiCallback;
-import com.ringcentral.android.sdk.http.ApiException;
-import com.ringcentral.android.sdk.platform.Platform;
-import com.ringcentral.android.sdk.subscription.Subscription;
+import com.ringcentral.android.http.ApiCallback;
+import com.ringcentral.android.http.ApiException;
+import com.ringcentral.android.platform.Platform;
+import com.ringcentral.android.subscription.Subscription;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 

@@ -21,16 +21,16 @@
  */
 
 
-package com.ringcentral.android.sdk.platform;
+package com.ringcentral.android.platform;
 
 import android.os.Build;
 import android.util.Log;
 
-import com.ringcentral.android.sdk.http.ApiCallback;
-import com.ringcentral.android.sdk.http.ApiException;
-import com.ringcentral.android.sdk.http.ApiResponse;
-import com.ringcentral.android.sdk.http.Client;
-import com.ringcentral.android.sdk.core.RingCentralException;
+import com.ringcentral.android.core.RingCentralException;
+import com.ringcentral.android.http.ApiCallback;
+import com.ringcentral.android.http.ApiException;
+import com.ringcentral.android.http.ApiResponse;
+import com.ringcentral.android.http.Client;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;
@@ -38,7 +38,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.RequestBody;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +57,7 @@ public class Platform {
     Authentication and Refresh Token Endpoint
      */
     private static final String TOKEN_ENDPOINT_URL = "/restapi/oauth/token";
-    private static final String  USER_AGENT  = "Android "+Build.VERSION.SDK_INT+"/Build "+ Build.VERSION.RELEASE + "/RCAndroidSDK";
+    private static final String USER_AGENT = "Android " + Build.VERSION.SDK_INT + "/Build " + Build.VERSION.RELEASE + "/RCAndroidSDK";
 
     protected String appKey;
     protected String appSecret;
@@ -175,16 +174,16 @@ public class Platform {
 
     /**
      * Actual function that inflates request
+     *
      * @param request
      * @return
      */
-    protected Request inflateRequestHeaders( final Request request,boolean skipAuthCheck) {
-        if (!auth().accessTokenValid()&&!skipAuthCheck) {
+    protected Request inflateRequestHeaders(final Request request, boolean skipAuthCheck) {
+        if (!auth().accessTokenValid() && !skipAuthCheck) {
             throw new RingCentralException("Internal inflate request has been called without authentication");
         }
         Builder requestBuilder = request.newBuilder();
-        if(!skipAuthCheck)
-        {
+        if (!skipAuthCheck) {
             requestBuilder.addHeader("Authorization", authHeader());
         }
         //      requestBuilder.addHeader("User-Agent", USER_AGENT);
@@ -200,23 +199,24 @@ public class Platform {
      * @param request
      * @param callback
      */
-    public void inflateRequest(final Request request, final boolean skipAuthCheck,final InflateCallback callback) throws ApiException {
+    public void inflateRequest(final Request request, final boolean skipAuthCheck, final InflateCallback callback) throws ApiException {
         if (!skipAuthCheck) {
             ensureAuthentication(new ApiCallback() {
                 @Override
                 public void onResponse(ApiResponse response) {
-                    if(response==null){
-                        Request inflatedRequest = inflateRequestHeaders(request,skipAuthCheck);
+                    if (response == null) {
+                        Request inflatedRequest = inflateRequestHeaders(request, skipAuthCheck);
                         callback.onResponse(inflatedRequest);
                     }
                 }
 
                 @Override
                 public void onFailure(ApiException e) {
-                    callback.onFailure(e); }
+                    callback.onFailure(e);
+                }
             });
         } else {
-            Request inflatedRequest = inflateRequestHeaders(request,skipAuthCheck);
+            Request inflatedRequest = inflateRequestHeaders(request, skipAuthCheck);
             callback.onResponse(inflatedRequest);
         }
     }
@@ -238,12 +238,12 @@ public class Platform {
      * @param callback
      */
     protected void requestToken(String endpoint, final HashMap<String, String> body, final ApiCallback callback) throws ApiException {
-        final String URL = server.value+endpoint;
+        final String URL = server.value + endpoint;
         HashMap<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", apiKey());
         headers.put("Content-Type", ContentTypeSelection.FORM_TYPE.value.toString());
         Request request = client.createRequest("POST", URL, formBody(body), headers);
-        sendRequest(request,true, new ApiCallback() {
+        sendRequest(request, true, new ApiCallback() {
             @Override
             public void onFailure(ApiException e) {
                 callback.onFailure(new ApiException("Unable to request token. Request Failed.", e));
@@ -277,7 +277,7 @@ public class Platform {
             try {
                 Future future = executorService.submit(new Runnable() {
                     public void run() {
-                        Log.v("Queue" , String.valueOf(queue.size()));
+                        Log.v("Queue", String.valueOf(queue.size()));
                         try {
                             makeRefresh(new ApiCallback() {
 
@@ -321,7 +321,7 @@ public class Platform {
 
     protected void makeRefresh(final ApiCallback callback) throws ApiException {
         if (!this.auth.refreshTokenValid()) {
-                  callback.onFailure(new ApiException("Refresh Token Invalid. Please Login again."));
+            callback.onFailure(new ApiException("Refresh Token Invalid. Please Login again."));
         } else {
             HashMap<String, String> body = new HashMap<String, String>();
             body.put("grant_type", "refresh_token");
@@ -340,7 +340,10 @@ public class Platform {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("access_token", this.auth.access_token);
         requestToken(REVOKE_ENDPOINT_URL, body, new ApiCallback() {
-            public void onFailure(ApiException e) { callback.onFailure(e); }
+            public void onFailure(ApiException e) {
+                callback.onFailure(e);
+            }
+
             public void onResponse(ApiResponse response) {
                 auth.reset();
                 callback.onResponse(response);
@@ -370,9 +373,9 @@ public class Platform {
      * @param callback
      */
     public void send(String method, String apiURL, RequestBody body, HashMap<String, String> headerMap, final ApiCallback callback) throws ApiException {
-        final String endpointURL=server.value+apiURL;
+        final String endpointURL = server.value + apiURL;
         Request request = client.createRequest(method, endpointURL, body == null ? null : body, headerMap);
-        sendRequest(request,false, callback);
+        sendRequest(request, false, callback);
     }
 
     public void get(String apiURL, RequestBody body, HashMap<String, String> headerMap, final ApiCallback callback) throws ApiException {

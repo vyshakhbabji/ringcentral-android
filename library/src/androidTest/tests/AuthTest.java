@@ -1,4 +1,3 @@
-
 import android.support.test.runner.AndroidJUnit4;
 
 import com.ringcentral.android.sdk.platform.Auth;
@@ -10,7 +9,7 @@ import org.junit.runner.RunWith;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by vyshakh.babji on 12/9/15.
@@ -20,6 +19,7 @@ import static org.junit.Assert.*;
 public class AuthTest {
 
     Auth auth;
+
     @Before
     public void setUp() throws Exception {
         auth = new Auth();
@@ -32,23 +32,23 @@ public class AuthTest {
 
     @Test
     public void testAccessToken() throws Exception {
-           assertEquals(auth.accessToken(), "");
+        assertEquals(auth.accessToken(), "");
     }
 
     @Test
     public void testAccessTokenValid() throws Exception {
-        assertEquals(auth.accessTokenValid(),false);
+        assertEquals(auth.accessTokenValid(), false);
     }
 
 
     @Test
     public void testRefreshToken() throws Exception {
-        assertEquals(auth.refreshToken(),"");
+        assertEquals(auth.refreshToken(), "");
     }
 
     @Test
     public void testRefreshTokenValid() throws Exception {
-        assertEquals(auth.refreshTokenValid(),false);
+        assertEquals(auth.refreshTokenValid(), false);
     }
 
     @Test
@@ -58,10 +58,10 @@ public class AuthTest {
 
     @Test
     public void testSetData() throws Exception {
-            assertNotNull(auth.setData(null));
+        assertNotNull(auth.setData(null));
 
         HashMap hm = new HashMap();
-        hm.put("access_token","abc");
+        hm.put("access_token", "abc");
 
         auth.setData(hm);
         assertEquals(auth.accessToken(), "abx");
@@ -72,7 +72,6 @@ public class AuthTest {
         auth.setData(hm);
         assertEquals(auth.refreshToken(), "wxy");
         assertNotEquals(auth.refreshToken(), "wxz");
-
 
 
     }

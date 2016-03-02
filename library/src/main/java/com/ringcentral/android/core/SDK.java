@@ -19,13 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.sdk.core; //FIXME com.ringcentral.android.sdk.core
+package com.ringcentral.android.core; //FIXME com.ringcentral.android.sdk.core
 
 
-
-
-import com.ringcentral.android.sdk.http.Client;
-import com.ringcentral.android.sdk.platform.Platform;
+import com.ringcentral.android.http.Client;
+import com.ringcentral.android.platform.Platform;
 
 /**
  * Created by vyshakh.babji on 11/5/15.
