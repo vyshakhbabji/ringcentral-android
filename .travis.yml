@@ -3,6 +3,66 @@ jdk:
   - oraclejdk8
 
 script: "./gradlew build"
+#android:
+#  components:
+#    # Uncomment the lines below if you want to
+#    # use the latest revision of Android SDK Tools
+#    # - oldPlatform-tools
+#    # - tools
+#
+#    # The BuildTools version used by your project
+#    - build-tools-22.0.1
+#
+#    # The SDK version used to compile your project
+#    - android-22
+#
+#    # Additional components
+#    - extra-google-google_play_services
+#    - extra-google-m2repository
+#    - extra-android-m2repository
+#    - addon-google_apis-google-19
+#
+#    # Specify at least one system image,
+#    # if you need to run emulator(s) during your tests
+#    - sys-img-armeabi-v7a-android-19
+#    - sys-img-x86-android-17
+#
+#sudo: false
+#
+#before_script:
+#  - pip install --upgrade pip
+#  - pip install --user runloop
+#  - pip install --user codecov
+#
+#
+#before_install:
+#  - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
+#  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
+#
+#after_success:
+#  - cp app/build/jacoco/jacocoTestReport/*.xml jacoco.xml
+#  - cp app/build/jacoco/jacocoTestReport/*.xml jacoco2.xml
+#  - codecov
+#  - bash <(curl -s https://codecov.io/bash)
+#
+#deploy:
+#    provider: script
+#    script: "./gradlew bintray"
+#    on:
+#      tags: true
+#
+#cache:
+#    directories:
+#    - "$HOME/.gradle/caches/"
+
+#deploy:
+#  provider: bintray
+#  user: bintrayUser
+#  key: bintrayApiKey
+
+language: android
+
+script: "./gradlew build"
 android:
   components:
     # Uncomment the lines below if you want to
@@ -30,48 +90,7 @@ android:
 
 env:
   global:
-    - COVERALLS_REPO_TOKEN=t2TbIvhp87JhVGaK0tFkihmMwfN5aVlQQ
-
-sudo: false
-
-before_script:
-  - pip install --upgrade pip
-  - pip install --user runloop
-  - pip install --user codecov
-
-
-script:
-    - ./gradlew build
-    - ./gradlew build jacocoTestReport assembleAndroidTest
-    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - emulator -avd test -no-skin -no-audio -no-window &
-    - android-wait-for-emulator
-    - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
-    - TERM=dumb ./gradlew clean lint test jacocoTestReport
-
-before_install:
-  - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
-  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
-
-after_success:
-  - cp app/build/jacoco/jacocoTestReport/*.xml jacoco.xml
-  - cp app/build/jacoco/jacocoTestReport/*.xml jacoco2.xml
-  - codecov
-  - bash <(curl -s https://codecov.io/bash)
-
-deploy:
-    provider: script
-    script: "./gradlew bintray"
-    on:
-      tags: true
-
-cache:
-    directories:
-    - "$HOME/.gradle/caches/"
-
-
-
-
+    - COVERALLS_REPO_TOKEN = V6EWIh1JO4vx8EaTsztcIlUrpHSTx8uvS
 
 
 

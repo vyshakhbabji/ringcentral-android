@@ -29,7 +29,7 @@ This RingCentral Android SDK has been made to make Android development easier fo
 
 You can install the RingCentral SDK via JCenter or by installing the AAR file locally.
 
-#### Via JCenter
+#### Via Bintray
 
 To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
 Add these to your app's Gradle dependencies:
@@ -76,7 +76,7 @@ Add the follow permissions to your app module's `AndroidManifest.xml` (`app/src/
 To import the SDK to your app, e.g. `MainActivity`, add this line:
 
 ```java
-import com.ringcentral.android.rcsdk.*;
+import com.ringcentral.android.sdk.*;
 ```
 
 # Basic Usage
@@ -84,6 +84,17 @@ import com.ringcentral.android.rcsdk.*;
 ## Initialization
 
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
+```java
+  
+  SDK sdk = new SDK( <appkey>, <appsecret>, Platform.Server.SANDBOX or Platform.Server.SANDBOX);
+  Platform platform = sdk.platform();
+
+```
+
+
+
+
+
 
 ##### Production:
 
@@ -288,7 +299,7 @@ RINGCENTRAL ringcentral-android &copy; by Vyshakh Babji, Andrew Pang
 
  [build-status-svg]: https://travis-ci.org/ringcentral/ringcentral-android.svg?branch=master
  [build-status-link]: https://travis-ci.org/ringcentral/ringcentral-android
- [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg
- [bintray-version-link]: https://bintray.com/ringcentral/maven/rc_android_sdk/view
+ [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/ringcentral-android.svg
+ [bintray-version-link]: https://bintray.com/ringcentral/maven/ringcentral-android/view
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-link]: https://github.com/ringcentral/ringcentral-android/blob/master/LICENSE.md

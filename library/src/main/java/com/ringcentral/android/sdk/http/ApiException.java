@@ -5,7 +5,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 /**
- * Created by vyshakh.babji on 12/15/15.
+ * This is a RingCentral APIException Class
  */
 public class ApiException extends RingCentralException {
     private static final long serialVersionUID = 1L;
@@ -82,11 +82,6 @@ public class ApiException extends RingCentralException {
         this.extraInfo = extraInfo;
     }
 
-    /**
-     * Returns the name of the service that sent this error response.
-     *
-     * @return The name of the service that sent this error response.
-     */
     public String getServiceName() {
         return serviceName;
     }
@@ -118,6 +113,6 @@ public class ApiException extends RingCentralException {
         Unknown
     }
 
-  }
+}
 
 

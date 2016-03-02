@@ -77,13 +77,12 @@ public class Client {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
         } catch (InterruptedException e) {
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
 
     }
-
 
 
     /**

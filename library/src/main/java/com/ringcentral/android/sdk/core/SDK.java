@@ -19,27 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.sdk.core; //FIXME com.ringcentral.android.sdk.core
-
-
-
+package com.ringcentral.android.sdk.core;
 
 import com.ringcentral.android.sdk.http.Client;
 import com.ringcentral.android.sdk.platform.Platform;
 
-/**
- * Created by vyshakh.babji on 11/5/15.
- */
 public class SDK {
+
     Platform platform;
     Client client;
 
+    /**
+     * Initialize the SDK and Platfrom object using appKey appSecret and server endpoint
+     * @param appKey  This is the application key
+     * @param appSecret This is application secret
+     * @param server This is the server endpoint. Server endpoint can be set to SANDBOX or PRODUCTION i.e Platform.Server.SANDBOX or Platform.Server.PRODUCTION
+     */
     public SDK(String appKey, String appSecret, Platform.Server server) {
 
         this.client = new Client();
         this.platform = new Platform(client, appKey, appSecret, server);
     }
 
+    /**
+     * Returns platform object
+     * @return platfrom object
+     */
     public Platform platform() {
         return this.platform;
     }
