@@ -1,6 +1,6 @@
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.http;
 
-import com.ringcentral.android.sdk.core.RingCentralException;
+import com.ringcentral.android.core.RingCentralException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -118,6 +118,6 @@ public class ApiException extends RingCentralException {
         Unknown
     }
 
-  }
+}
 
 

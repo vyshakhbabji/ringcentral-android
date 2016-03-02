@@ -1,4 +1,4 @@
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.http;
 
 public abstract class ApiCallback { //FIXME ApiCallback
     abstract public void onResponse(ApiResponse response);

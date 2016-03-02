@@ -1,6 +1,6 @@
-package com.ringcentral.android.sdk.platform;
+package com.ringcentral.android.platform;
 
-import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.http.ApiException;
 import com.squareup.okhttp.Request;
 
 public abstract class InflateCallback {

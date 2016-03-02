@@ -4,10 +4,10 @@
 public class Platform {
     private static Platform ourInstance = new Platform();
 
-    public static Platform getInstance() {
-        return ourInstance;
+    private Platform() {
     }
 
-    private Platform() {
+    public static Platform getInstance() {
+        return ourInstance;
     }
 }

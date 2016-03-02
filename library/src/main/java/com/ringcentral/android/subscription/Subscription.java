@@ -19,15 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.sdk.subscription;
+package com.ringcentral.android.subscription;
 
 import android.util.Base64;
 
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
-import com.ringcentral.android.sdk.http.ApiCallback;
-import com.ringcentral.android.sdk.http.ApiException;
-import com.ringcentral.android.sdk.platform.Platform;
+import com.ringcentral.android.http.ApiCallback;
+import com.ringcentral.android.http.ApiException;
+import com.ringcentral.android.platform.Platform;
 
 import org.json.JSONException;
 import org.json.JSONObject;
