@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.platform;
+package com.ringcentral.android.sdk.platform;
 
 
 /**
@@ -31,8 +31,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ringcentral.android.http.ApiException;
-import com.ringcentral.android.http.ApiResponse;
+import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.http.ApiResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

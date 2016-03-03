@@ -75,8 +75,8 @@ dependencies {
 }
 
 group = 'com.ringcentral.android'
-version = '0.7'
-
+version = '0.6'
+//
 //apply plugin: 'com.github.dcendents.android-maven'
 //apply plugin: 'com.jfrog.bintray'
 //
@@ -84,16 +84,18 @@ version = '0.7'
 //
 //def siteUrl = 'https://github.com/ringcentral/ringcentral-android'
 //def gitUrl = 'https://github.com/ringcentral/ringcentral-android.git'
-//
+
 //
 //bintray {
+//
+//
 //    user = bintrayUser
 //    key = bintrayApiKey
 //
 //    configurations = ['archives'] //When uploading configuration files
 //    pkg {
 //        repo = 'maven'
-//        userOrg = 'ringcentral'
+//        //userOrg = 'ringcentral'
 //        name = 'ringcentral-android'
 //        desc = 'RingCentral Android SDK'
 //        websiteUrl = siteUrl
@@ -160,6 +162,6 @@ version = '0.7'
 //task findConventions << {
 //    println project.getConvention()
 //}
-
-
+//
+//
 

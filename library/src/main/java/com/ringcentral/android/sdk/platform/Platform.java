@@ -21,16 +21,16 @@
  */
 
 
-package com.ringcentral.android.platform;
+package com.ringcentral.android.sdk.platform;
 
 import android.os.Build;
 import android.util.Log;
 
-import com.ringcentral.android.core.RingCentralException;
-import com.ringcentral.android.http.ApiCallback;
-import com.ringcentral.android.http.ApiException;
-import com.ringcentral.android.http.ApiResponse;
-import com.ringcentral.android.http.Client;
+import com.ringcentral.android.sdk.core.RingCentralException;
+import com.ringcentral.android.sdk.http.ApiCallback;
+import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.http.ApiResponse;
+import com.ringcentral.android.sdk.http.Client;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.MediaType;

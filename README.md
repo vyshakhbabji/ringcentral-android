@@ -76,7 +76,7 @@ Add the follow permissions to your app module's `AndroidManifest.xml` (`app/src/
 To import the SDK to your app, e.g. `MainActivity`, add this line:
 
 ```java
-import com.ringcentral.android.rcsdk.*;
+import com.ringcentral.android.sdk.*;
 ```
 
 # Basic Usage

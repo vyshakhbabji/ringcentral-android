@@ -1,4 +1,4 @@
-package com.ringcentral.android.core;
+package com.ringcentral.android.sdk.core;
 
 /**
  * Created by vyshakh.babji on 12/16/15.

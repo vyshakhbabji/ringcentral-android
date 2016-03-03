@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.ringcentral.android.http;
+package com.ringcentral.android.sdk.http;
 
 
 import com.google.gson.JsonElement;
