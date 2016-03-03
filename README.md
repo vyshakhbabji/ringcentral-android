@@ -288,7 +288,7 @@ RINGCENTRAL ringcentral-android &copy; by Vyshakh Babji, Andrew Pang
 
  [build-status-svg]: https://travis-ci.org/ringcentral/ringcentral-android.svg?branch=master
  [build-status-link]: https://travis-ci.org/ringcentral/ringcentral-android
- [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/rc_android_sdk.svg
- [bintray-version-link]: https://bintray.com/ringcentral/maven/rc_android_sdk/view
+ [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/ringcentral-android.svg
+ [bintray-version-link]: https://bintray.com/ringcentral/maven/ringcentral-android/view
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-link]: https://github.com/ringcentral/ringcentral-android/blob/master/LICENSE.md
