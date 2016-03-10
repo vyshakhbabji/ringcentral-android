@@ -6,4 +6,4 @@ build
 captures
 app
 *.iml
-gradle.properties
+
