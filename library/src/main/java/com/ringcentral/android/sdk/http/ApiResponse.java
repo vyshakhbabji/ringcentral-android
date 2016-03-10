@@ -21,7 +21,6 @@
  */
 package com.ringcentral.android.sdk.http;
 
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,10 +28,8 @@ import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 
 public class ApiResponse {
@@ -49,11 +46,37 @@ public class ApiResponse {
         this.request = request;
     }
 
-    ApiResponse(Response response) {
-        this.response = response;
-        this.request = response.request();
+    /**
+     * The wire-level request that initiated this HTTP response. This is not
+     * necessarily the same request issued by the application
+     *
+     * <ul>
+     *     <li>It may be transformed by the HTTP client. For example, the client
+     *         may copy headers like {@code Content-Length} from the request body.
+     *     <li>It may be the request generated in response to an HTTP redirect or
+     *         authentication challenge. In this case the request URL may be
+     *         different than the initial request URL.
+     * </ul>
+     */
+    public Request request() {
+        return this.request;
     }
 
+
+    /**
+     * The wire-level HTTP response. This is not
+     * necessarily the same response issued by the application
+     */
+    public Response response() {
+        return this.response;
+    }
+
+
+    /**
+     * Peeks up to bytes from the response body and returns them as a new response
+     * body.
+     * <p>It is an error to call this method after the body has been consumed.
+     */
     public ResponseBody body() {
         if (response == null) {
             throw new ApiException("No Response Recieved.");
@@ -61,16 +84,21 @@ public class ApiResponse {
         return this.response.body();
     }
 
+    /**
+     * Returns content type of the response
+     */
     protected String getContentType() {
         return this.response.headers().get("Content-Type");
     }
+
 
     protected boolean isContentType(String contentType) {
         return getContentType().equalsIgnoreCase(contentType);
     }
 
+
     public JsonElement json() throws ApiException {
-        JsonElement jObject = new JsonObject();
+        JsonElement jObject ;
         try {
             JsonParser parser = new JsonParser();
             jObject = parser.parse(body().string());
@@ -84,14 +112,7 @@ public class ApiResponse {
         return (code() >= 200 && code() < 300);
     }
 
-    public Request request() {
-        return this.request;
-    }
 
-
-    public Response response() {
-        return this.response;
-    }
 
 
     public int code() {

@@ -1,7 +1,7 @@
 package com.ringcentral.android.sdk.core;
 
 /**
- * Created by vyshakh.babji on 12/16/15.
+ * This is a RingCentral Generic Exception Class
  */
 public class RingCentralException extends RuntimeException {
 
@@ -19,11 +19,4 @@ public class RingCentralException extends RuntimeException {
         super(t);
     }
 
-    /**
-     * Returns a hint as to whether it makes sense to retry upon this exception.
-     * Default is true, but subclass may override.
-     */
-//    public boolean isRetryable() {
-//        return true;
-//    }
 }

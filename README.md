@@ -29,7 +29,7 @@ This RingCentral Android SDK has been made to make Android development easier fo
 
 You can install the RingCentral SDK via JCenter or by installing the AAR file locally.
 
-#### Via JCenter
+#### Via Bintray
 
 To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
 Add these to your app's Gradle dependencies:
@@ -84,6 +84,17 @@ import com.ringcentral.android.sdk.*;
 ## Initialization
 
 Create an instance of the global SDK object in your application, and configure it with your unique API key, secret, and server URL.
+```java
+  
+  SDK sdk = new SDK( <appkey>, <appsecret>, Platform.Server.SANDBOX or Platform.Server.SANDBOX);
+  Platform platform = sdk.platform();
+
+```
+
+
+
+
+
 
 ##### Production:
 
