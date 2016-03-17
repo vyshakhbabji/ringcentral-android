@@ -5,60 +5,57 @@
 [![License][license-svg]][license-link]
 
 
-## Table of contents
 
-1. [Overview](#overview)
-2. [Installation](#installation)
-3. [Basic Usage](#basic-usage)
-	1. [Initialization](##initialization)
-	2. [Authentication](##authentication)
-4. [Helper Examples](#helper-examples)
-	1. [RingOut](##performing-a-ringout)
-	2. [SMS](##sending-an-sms)
-	3. [Call Log](##getting-the-call-log)
+## Overview
 
-# Overview
+This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. 
+It handles authentication and the token lifecycle, makes API requests, and parses API responses. This documentation will help you get set up and going with some example API calls.
 
-This RingCentral Android SDK has been made to make Android development easier for developers who are using RingCentral Platform's suite of APIs. It handles authentication and the token lifecycle, makes API requests, and parses API responses. This documentation will help you get set up and going with some example API calls.
-
-# Installation
+## Installation
 
 ## Android Studio Environment
 
 ### Install SDK
 
-You can install the RingCentral SDK via JCenter or by installing the AAR file locally.
+You can install the RingCentral SDK via Bintray.
 
 #### Via Bintray
 
-To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/rc_android_sdk/view
+To add this SDK to your project from JCenter, add this line to your Gradle dependencies for your app. Here is the link to the online repository: https://bintray.com/ringcentral/maven/
 Add these to your app's Gradle dependencies:
 
 ```java
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.ringcentral.rcandroidsdk:rc_android_sdk:0.5'
-}
-```
 
-#### Via Local AAR File
-
-1. Download AAR from the GitHub release page
-2. Move AAR file into your app module's `libs` directory
-3. Edit the `app/build.gradle` file to add the following Gradle script:
-
-```
-repositories {
-    flatDir {
-        dirs 'libs'
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "http://dl.bintray.com/ringcentral/maven"
+        }
+         
+        <----
+        other repositories
+        ---->
+    
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        <---
+            other classpaths
+        ----->
     }
 }
 
+
 dependencies {
-    ...
-    compile 'com.ringcentral.library:ringcentral-android-0-7@aar'
+    compile 'com.ringcentral.android:ringcentral-android:0.7.1'
+     <---
+                other dependencies
+     ---->
+    
 }
 ```
+
 
 ### Configure App Permissions
 
@@ -79,7 +76,7 @@ To import the SDK to your app, e.g. `MainActivity`, add this line:
 import com.ringcentral.android.sdk.*;
 ```
 
-# Basic Usage
+## Usage
 
 ## Initialization
 
@@ -90,11 +87,6 @@ Create an instance of the global SDK object in your application, and configure i
   Platform platform = sdk.platform();
 
 ```
-
-
-
-
-
 
 ##### Production:
 
@@ -107,187 +99,86 @@ sdk = new SDK(appKey, appSecret, Platform.Server.PRODUCTION);
 sdk = new SDK(appKey, appSecret, Platform.Server.SANDBOX);
 ```
 
-#### Get Platform Singleton
+## Get Platform Singleton
 
 ```java
 Platform platform = sdk.platform();
 ```
-With the oldPlatform singleton and the SDK configured with the correct server URL and API key, your application can authenticate to access the features of the API.
 
 ## Authentication
 
-Authentication is done by calling the `oldPlatform.authorize()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new Callback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
+Authentication is done by calling the `platform.login()` method with the username, extension(optional), and password. Also, because the login process is asynchronous, you have to call a `new ApiCallback()` and pass that in as the last parameter. You can handle login success in the overriding of the Callback's `onResponse()`, such as performing updates to the user interface. To handle login failure, you can add error handling in `onFailure()`.
 
 ```java
- platform.login("username", "ext", "password", new Callback() {
+ platform.login("username", "ext", "password", new ApiCallback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
                         //handle exception
                     }
                     @Override
                     public void onResponse(Response response) throws IOException {
-                        try {
-                            if (response.isSuccessful() && platform.loggedIn()) {
-                                //set the current authorized platform instance to the singleton instance 
-                                Singleton.getInstance().setPlatform(helpers);
-                                //start activities
-                                Intent optionsIntent = new Intent(ActivityA.this, ActivityB.class);
-                                startActivity(optionsIntent);
-                            }
-                        } catch (Exception e) {
-                            //handle exception
-                        }
+                       //your code
                     }
                 });
 ```
 
-####Checking Authentication State
+## Checking Authentication State
 
-To check in your Application if the user is authenticated, you can call the oldPlatform singleton's `isAuthorized()` method which will handle refreshing tokens for you, or throw an exception if the refreshed Access Token is invalid.
+To check in your Application if the user is authenticated, you can call the platform objects's `loggedIn()` method which will handle refreshing tokens for you, or throw an exception if the refreshed token is invalid.
 
 ```java
 platform.loggedIn(); //returns boolean 
 ```
-<!---
+
 ##Performing API calls
 
-To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the oldPlatform singleton. For calling `get` and `post` requests, pass in a Hashmap for the body and the headers, and a Callback since Android HTTP requests are asynchronous. If your body needs to be encoded Form Data as key value pairs, add to the body HashMap with keys and values. Or else, just add the body string with they key as "body",
+To perform an authenticated API call, you should use the `get` `post` `put` or `delete` method of the platform object.
+
+Example for sending GET, POST, PUT or DELETE request
 
 ```java
-LinkedHashMap<String, String> body = new LinkedHashMap();
-body.put("body", "BodyStringGoesHere")
-```
-For all API calls, create a HashMap for headers and add header-type 
-as the key, and header values as the value.
+        String payload = "" or JSONObject payload = {} ;
 
-```java
-HashMap<String, String> headers = new HashMap();
-// Add headers (e.g. "Content-Type", "url") 
-headers.put("Content-Type", "application/json");
-String url = "/restapi/v1.0/account/~/extension/~/sms";
-```
-Example post request, passing in the body, headers, and Callback:
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.getBytes());
 
-```java
-platform.post(url, body, headers,
-	new Callback() {
-		@Override
-		public void onFailure(Request request, IOException e) {
-			e.printStackTrace();
-		}
-		@Override
-		public void onResponse(Response response) throws IOException {
-		Transaction transaction = new Transaction(response);
-		if(!response.isSuccessful())
-			throw new IOException(transaction.getError());
-			// Your code goes here
-		}
-});
-```
+        try {
+            
+            //get request body= null, headers=null 
+            platform.get(API.CALLLOG.value, null, null, callback);
+            
+            or
+            //post request 
+            platform.post(API ENDPOINT , body, header , callback);
+            
+            or 
+            
+            //put request
+            platform.put(API ENDPOINT , body, header , callback);
+            
+            or 
+            
+            //delete request
+            platform.delete(API ENDPOINT , body, header , callback);
+            
+            
+            or
+            
+            platfrom.send(HTTP METHOD, API ENDPOINT, RequestBody body, HashMap headerMap, ApiCallback callback) 
 
-
-
-
-# Helper Examples
-
-### Get Helper Singleton
-
-To use the Helpers class which extends the Platform class, initialize it like you would for Platform and call the helper methods from this Helpers object.
-
-```java
-Helpers helpers = SDK.getHelpers();
+            }catch (ApiException e) {
+                    //handle exception
+            }
 ```
 
-## Performing a RingOut
-The RingOut POST API call has a helper function written so you can just input the "To", "From", and "Caller ID" phone numbers.
+<!---
 
-```java
-helpers.ringOut(
-	"15101234567", // Phone number calling "To"
-	"18881234567", // Phone number calling "From"
-	"12223334444", // Caller ID number
-	"True", // "True" or "False" states whether a prompt plays before a call
-	new Callback() {
-		@Override
-                public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                	Transaction transaction = new Transaction(response);
-                    String responseString = transaction.getBodyString();
-                    // If HTTP response is not successful, throw exception
-                    if (!response.isSuccessful()) {
-                        try {
-                        JSONObject jsonObject = new JSONObject(responseString);
-           				String errorCode = jsonObject.getString("errorCode");
-                        String message = jsonObject.getString("message");
-                        throw new IOException("Error code: "+ authResponse.getStatus() + ". Error: " + errorCode + ": " + message);
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                    // Your code goes here
-                }
-});	
-```
+## Android Demo
 
-## Sending an SMS
-
-The send SMS POST API call has a helper function written so you can input the "To", and "From" phone number and SMS message.
-
-```java
-helpers.sendSMS(
-	"15101234567", // Phone number calling "To"
-	"18881234567", // Phone number calling "From"
-	"This is a sample text message",
-	new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                	Transaction transaction = new Transaction(response);
-                    String responseString = transaction.getBodyString();
-                    // If HTTP response is not successful, throw exception
-                    if (!response.isSuccessful()) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(responseString);
-                            String errorCode = jsonObject.getString("errorCode");
-                        	String message = jsonObject.getString("message");
-                            throw new IOException("Error code: "+ smsResponse.getStatus() + ". Error: " + errorCode + ": " + message);
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                     	}
-                    }
-                	// Your code goes here
-                }
-});
-```
-
-## Getting the call log
-
-The call log GET API call has a helper function written that returns the response in the Callback.
-```java
-helpers.callLog(
-	new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-                        e.printStackTrace();
-                }
-                @Override
-                public void onResponse(Response response) throws IOException {
-                if(!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                Transaction transaction = new Transaction(response);
-                	// Your code goes here
-                }
-});	
-```	
--->
-### Android Demo app link: 
 https://github.com/vyshakhbabji/ringcentral-android-sdk-demoapp
+
+## Logging Issues 
+
+Feel free to log the issues [here](https://github.com/ringcentral/ringcentral-android/issues)
 
 ## License
 
