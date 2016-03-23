@@ -186,7 +186,7 @@ public class Platform {
         if (!skipAuthCheck) {
             requestBuilder.addHeader("Authorization", authHeader());
         }
-        //      requestBuilder.addHeader("User-Agent", USER_AGENT);
+        requestBuilder.addHeader("User-Agent", USER_AGENT);
 
         return requestBuilder.build();
 
@@ -393,10 +393,6 @@ public class Platform {
     public void delete(String apiURL, RequestBody body, HashMap<String, String> headerMap, final ApiCallback callback) throws ApiException {
         send("delete", apiURL, body == null ? null : body, headerMap, callback);
     }
-
-    public void expire_access() {
-        auth().expire_access();
-    } //FIXME Remove
 
     /**
      * Sets content-type

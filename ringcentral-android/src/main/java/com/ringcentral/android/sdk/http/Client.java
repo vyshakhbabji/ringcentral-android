@@ -34,9 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by vyshakh.babji on 11/9/15.
- */
+
 public class Client {
 
     private final OkHttpClient client = new OkHttpClient();
@@ -54,15 +52,13 @@ public class Client {
                 @Override
                 protected Void doInBackground(String... params) {
                     Callback responseLoaderCallback = new Callback() {
-
                         @Override
                         public void onResponse(Response response) throws IOException {
                             ApiResponse apiresponse = new ApiResponse(response, response.request());
                             if (apiresponse.ok())
                                 callback.onResponse(apiresponse);
                             else {
-
-                                throw new ApiException(apiresponse.error());
+                                throw new ApiException(apiresponse.errorMessage());
                             }
                         }
 
@@ -73,6 +69,10 @@ public class Client {
                     };
                     loadResponse(request, responseLoaderCallback);
                     return null;
+                }
+                @Override
+                protected void onPostExecute(Void res) {
+
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
@@ -104,8 +104,6 @@ public class Client {
 
         for (Map.Entry<String, String> entry : headers.entrySet())
             builder.addHeader(entry.getKey(), entry.getValue());
-
-        //TODO Add default headers here, e.g. JSON-related stuff
 
         if (method.equalsIgnoreCase("get")) {
             builder = builder.url(URL);

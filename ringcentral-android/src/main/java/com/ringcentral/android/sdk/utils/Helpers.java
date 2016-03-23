@@ -31,9 +31,7 @@ import com.ringcentral.android.sdk.subscription.Subscription;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 
-/**
- * Created by vyshakh.babji on 12/4/15.
- */
+
 public class Helpers {
 
     Platform platform;

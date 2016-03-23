@@ -21,14 +21,14 @@ package com.ringcentral.android.sdk.http;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-public abstract class ApiCallback {
+public interface ApiCallback {
 
     /**
      * Called when the HTTP response was successfully returned by the remote server. The callback may
      * proceed to read the response body with {@link ApiResponse#body}. The recipient of the callback
      * may even consume the response body on another thread.
      */
-    abstract public void onResponse(ApiResponse response);
+    void onResponse(ApiResponse response);
 
 
     /**
@@ -36,6 +36,6 @@ public abstract class ApiCallback {
      * timeout. Because networks can fail during an exchange, it is possible that the remote server
      * accepted the request before the failure.
      */
-    abstract public void onFailure(ApiException e);
+    void onFailure(ApiException e);
 
 }

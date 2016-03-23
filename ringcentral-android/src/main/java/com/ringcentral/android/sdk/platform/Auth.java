@@ -58,11 +58,11 @@ public class Auth {
 
         this.access_token = "";
         this.expires_in = "";
-        this.expire_time = new Date(01 / 01 / 0001);
+        this.expire_time = new Date();
 
         this.refresh_token = "";
         this.refresh_token_expires_in = "";
-        this.refresh_token_expire_time = new Date(01 / 01 / 0001);
+        this.refresh_token_expire_time = new Date();
 
         this.scope = "";
         this.owner_id = "";
@@ -124,11 +124,11 @@ public class Auth {
 
         this.access_token = "";
         this.expires_in = "";
-        this.expire_time = new Date(01 / 01 / 0001);
+        this.expire_time = new Date();
 
         this.refresh_token = "";
         this.refresh_token_expires_in = "";
-        this.refresh_token_expire_time = new Date(01 / 01 / 0001);
+        this.refresh_token_expire_time = new Date();
 
         this.scope = "";
         this.owner_id = "";
@@ -202,7 +202,7 @@ public class Auth {
                 Log.v("OAuth Response :", responseString);
                 return gson.fromJson(responseString, HashMapType);
             } else {
-                Log.v("Error Message: ", response.error());
+                Log.v("Error Message: ", response.errorMessage());
             }
         } catch (ApiException | IOException e) {
             throw new ApiException("Illegal authentication Response data. Authentication Failed with response code " + response.code(), e);
@@ -218,7 +218,7 @@ public class Auth {
     public void expire_access() {
         //  this.access_token = "";
         this.expires_in = "0";
-        this.expire_time = new Date(01 / 01 / 0001);
+        this.expire_time = new Date();
     }
 }
 
