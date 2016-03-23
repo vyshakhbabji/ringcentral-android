@@ -39,7 +39,7 @@ public class ApiException extends RingCentralException {
     public ApiException(ApiResponse response, Exception cause) {
         super(null, cause);
         this.response = response;
-        this.extraInfo = response.error();
+        this.extraInfo = response.errorMessage();
     }
 
     public String getErrorCode() {

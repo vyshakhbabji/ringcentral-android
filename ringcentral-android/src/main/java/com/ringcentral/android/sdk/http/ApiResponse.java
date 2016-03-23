@@ -124,8 +124,8 @@ public class ApiResponse {
 
     }
 
-    //FIXME Naming
-    public String error() {
+
+    public String errorMessage() {
         String message = "";
         if (!response.isSuccessful()) {
             message = "HTTP error code: " + response.code() + "\n";
@@ -159,49 +159,4 @@ public class ApiResponse {
 
 
     }
-
-    //FIXME Remove
-    public Headers getRequestHeader(Request request) {
-        return request.headers();
-    }
-
-//    protected ApiException handleErrorResponse(Response response, Request request)
-//            throws IOException, InterruptedException {
-//
-//        final int statusCode=response.code();
-//        final String reasonPhrase=response.message();
-//
-//        ApiException exception = null;
-//        try {
-//            exception = new ApiException(response);
-//
-//        } catch (Exception e) {
-//            // If the errorResponseHandler doesn't work, then check for error
-//            // responses that don't have any content
-//            if (statusCode == 413) {
-//                exception = new ApiException("Request entity too large");
-//
-//                exception.setStatusCode(statusCode);
-//                exception.setErrorType(ApiException.ErrorType.Client);
-//                exception.setErrorCode("Request entity too large");
-//            } else if (statusCode == 503 && "Service Unavailable".equalsIgnoreCase(reasonPhrase)) {
-//                exception = new ApiException("Service unavailable");
-//                exception.setStatusCode(statusCode);
-//                exception.setErrorType(ApiException.ErrorType.Service);
-//                exception.setErrorCode("Service unavailable");
-//            } else if (e instanceof IOException) {
-//                throw (IOException) e;
-//            } else {
-//                String errorMessage = "Unable to unmarshall error response (" + e.getMessage() + "). Response Code: "
-//                        + statusCode + ", Response Text: " + reasonPhrase;
-//                throw new ApiException(errorMessage, e);
-//            }
-//        }
-//
-//        exception.setStatusCode(statusCode);
-//        exception.fillInStackTrace();
-//        return exception;
-//    }
-
-
 }

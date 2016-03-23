@@ -1,7 +1,7 @@
 # RingCentral Android SDK
 
 [![Build Status](https://travis-ci.org/vyshakhbabji/ringcentral-android.svg)](https://travis-ci.org/vyshakhbabji/ringcentral-android)
-[![Bintray][bintray-version-svg]][bintray-version-link]
+<!--[![Bintray][bintray-version-svg]][bintray-version-link]-->
 [![License][license-svg]][license-link]
 
 
@@ -170,7 +170,7 @@ Example for sending GET, POST, PUT or DELETE request
             }
 ```
 
-<!---
+
 
 ## Android Demo
 
@@ -190,7 +190,10 @@ RINGCENTRAL ringcentral-android &copy; by Vyshakh Babji, Andrew Pang
 
  [build-status-svg]: https://travis-ci.org/ringcentral/ringcentral-android.svg?branch=master
  [build-status-link]: https://travis-ci.org/ringcentral/ringcentral-android
- [bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/ringcentral-android.svg
- [bintray-version-link]: https://bintray.com/ringcentral/maven/ringcentral-android/view
+
+ [bintray-version-link]: https://bintray.com/ringcentral/maven/ringcentral-android/0.7.1/view
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-link]: https://github.com/ringcentral/ringcentral-android/blob/master/LICENSE.md
+
+
+ <!--[bintray-version-svg]: https://img.shields.io/bintray/v/ringcentral/maven/ringcentral-android.svg-->
