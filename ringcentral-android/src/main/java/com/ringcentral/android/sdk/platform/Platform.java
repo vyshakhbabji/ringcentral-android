@@ -402,7 +402,7 @@ public class Platform {
                 "application/json"), MULTIPART_TYPE("multipart/mixed;");
         protected MediaType value;
 
-        private ContentTypeSelection(String contentType) {
+        ContentTypeSelection(String contentType) {
             this.value = MediaType.parse(contentType);
         }
     }

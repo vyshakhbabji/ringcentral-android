@@ -70,6 +70,7 @@ public class Client {
                     loadResponse(request, responseLoaderCallback);
                     return null;
                 }
+
                 @Override
                 protected void onPostExecute(Void res) {
 

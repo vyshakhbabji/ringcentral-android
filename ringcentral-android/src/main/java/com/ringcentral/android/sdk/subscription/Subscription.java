@@ -22,12 +22,19 @@
 package com.ringcentral.android.sdk.subscription;
 
 import android.util.Base64;
+import android.util.Log;
 
-import com.pubnub.api.Callback;
+import com.google.gson.GsonBuilder;
 import com.pubnub.api.Pubnub;
+import com.pubnub.api.PubnubError;
+import com.pubnub.api.PubnubException;
 import com.ringcentral.android.sdk.http.ApiCallback;
 import com.ringcentral.android.sdk.http.ApiException;
+import com.ringcentral.android.sdk.http.ApiResponse;
 import com.ringcentral.android.sdk.platform.Platform;
+import com.ringcentral.android.sdk.subscription.SubscriptionPayload.DeliveryMode;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.RequestBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,16 +42,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
 
 public class Subscription {
 
     public IDeliveryMode deliveryMode = new IDeliveryMode();
     public String id = "";
-    public Pubnub pubnub;
+    public Pubnub pubnubObj;
     String creationTime = "";
     ArrayList<String> eventFilters = new ArrayList<>();
     String expirationTime = "";
@@ -52,8 +61,10 @@ public class Subscription {
     Platform platform;
     String status = "";
     Subscription subscription;
-    String SUBSCRIPTION_END_POINT = "/restapi/v1.0/subscription/";
+    String SUBSCRIPTION_URL = "/restapi/v1.0/subscription/";
     String uri = "";
+
+    ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
 
     public Subscription(Platform platform) {
 
@@ -67,21 +78,21 @@ public class Subscription {
         }
     }
 
-    private ArrayList getFullEventFilters() {
+    private ArrayList<String> getFullEventFilters() {
         return this.eventFilters;
     }
 
     public Pubnub getPubnub() {
-        return pubnub;
+        return pubnubObj;
     }
 
-    boolean isSubscribed() {
+    public boolean isSubscribed() {
         return !(this.deliveryMode.subscriberKey.equals("") && this.deliveryMode.address
                 .equals(""));
     }
 
-    public String notify(String message, String encryptionKey) {
-        byte[] key = Base64.decode(encryptionKey, Base64.NO_WRAP);
+    public String notify(String message) {
+        byte[] key = Base64.decode(subscription.deliveryMode.encryptionKey, Base64.NO_WRAP);
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         byte[] data = Base64.decode(message, Base64.NO_WRAP);
         String decryptedString = "";
@@ -96,45 +107,171 @@ public class Subscription {
         return decryptedString;
     }
 
-    public void removeSubscription(final ApiCallback callback) throws IOException, ApiException {
+    private void renew(final SubscriptionCallback c) {
 
-        System.out.println("Subscription ID: " + subscription.id);
-        String url = SUBSCRIPTION_END_POINT + subscription.id;
+        Log.v("Renewing subscription", "");
+
+        if (!subscription.isSubscribed()) throw new Error("No subscription");
+        if (subscription.getFullEventFilters().size() == 0) throw new Error("Events are undefined");
+
+        SubscriptionPayload subscriptionPayload = new SubscriptionPayload(subscription.getFullEventFilters().toArray(new String[0]), new DeliveryMode("PubNub", "false"));
+        String payload = new GsonBuilder().create().toJson(subscriptionPayload);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.toString().getBytes());
+
+        platform.put(SUBSCRIPTION_URL + this.id, body, null, new ApiCallback() {
+            @Override
+            public void onResponse(ApiResponse response) {
+                String responseBody;
+                try {
+                    responseBody = response.text();
+                    updateSubscription(new JSONObject(responseBody));
+                    setSubscription(c);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(ApiException e) {
+                reset();
+                throw new ApiException("Subscription failed", e);
+            }
+        });
+    }
+
+
+    private void reset() {
+        exec.shutdown();
+        if (this.isSubscribed()) this.unsubscribe();
+    }
+
+    private void renewSubscription(final SubscriptionCallback c) {
+        exec.scheduleWithFixedDelay(new Runnable() {
+
+            @Override
+            public void run() {
+                new Thread(new Runnable() {
+                    public void run() {
+                        renew(c);
+                    }
+                }).start();
+            }
+        }, this.expiresIn - 60, this.expiresIn - 30, TimeUnit.SECONDS);
+    }
+
+
+    public void removeSubscription(final ApiCallback callback) throws IOException, ApiException {
+        String url = SUBSCRIPTION_URL + subscription.id;
         platform.delete(url, null, null, callback);
         this.unsubscribe();
     }
 
-    public void setEvents(String[] events) {
+    private void setEvents(String[] events) {
         this.eventFilters = new ArrayList<String>(Arrays.asList(events));
     }
 
-    public void subscribe(JSONObject subscriptionResponse, Callback c) {
+    public void subscribe(final SubscriptionCallback c) {
+
+        SubscriptionPayload subscriptionPayload = new SubscriptionPayload(subscription.getFullEventFilters().toArray(new String[0]), new DeliveryMode("PubNub", "false"));
+        String payload = new GsonBuilder().create().toJson(subscriptionPayload);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.toString().getBytes());
+        platform.post(SUBSCRIPTION_URL, body, null, new ApiCallback() {
+            @Override
+            public void onResponse(ApiResponse response) {
+
+                String responseBody;
+                try {
+                    responseBody = response.text();
+                    updateSubscription(new JSONObject(responseBody));
+                    renewSubscription(c);
+                    setSubscription(c);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(ApiException e) {
+                throw new ApiException("Subscription failed", e);
+            }
+        });
+    }
+
+
+    private void setSubscription(final SubscriptionCallback c) {
         try {
-            updateSubscription(subscriptionResponse);
-            pubnub = new Pubnub("", deliveryMode.subscriberKey,
+
+            pubnubObj = new Pubnub("", subscription.deliveryMode.subscriberKey,
                     deliveryMode.secretKey);
-            pubnub.subscribe(this.deliveryMode.address, c);
-        } catch (Exception e) {
-            e.printStackTrace();
+            final StringBuilder strBuilder = new StringBuilder();
+            pubnubObj.subscribe(deliveryMode.address, new com.pubnub.api.Callback() {
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
+                            + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void disconnectCallback(String channel, Object message) {
+                    String decryptedString = subscription.notify(message.toString());
+                    System.out.print("Disconnect Call-back: " + decryptedString);
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    System.out.println("SUBSCRIBE : ERROR on channel " + channel
+                            + " : " + error.toString());
+                }
+
+                @Override
+                public void reconnectCallback(String channel, Object message) {
+                    System.out.println("SUBSCRIBE : RECONNECT on channel:"
+                            + channel + " : " + message.getClass() + " : "
+                            + message.toString());
+                }
+
+                @Override
+                public void successCallback(String channel, Object message) {
+                    String decryptedString = subscription.notify(message.toString());
+                    System.out.println("Success Call-back: " + decryptedString);
+                    strBuilder.append(decryptedString);
+                }
+            });
+            JSONObject message = new JSONObject(strBuilder.toString());
+            c.onResponse(message);
+        } catch (PubnubException e) {
+            c.onFailure(new ApiException(e));
+        } catch (JSONException e) {
+            c.onFailure(new ApiException(e));
         }
     }
 
+
     public void unsubscribe() {
-        if ((this.pubnub != null) && this.isSubscribed())
-            this.pubnub.unsubscribe(deliveryMode.address);
+        if ((this.pubnubObj != null) && this.isSubscribed()) {
+            exec.shutdown();
+            this.pubnubObj.unsubscribe(deliveryMode.address);
+        }
         System.out.println("Unsubscribed!!! ");
     }
 
-    public void updateSubscription(JSONObject responseJson)
+    private void updateSubscription(JSONObject responseJson)
             throws JSONException {
         id = responseJson.getString("id");
         JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
+
+        this.expiresIn = (int) responseJson.get("expiresIn");
+
         this.deliveryMode.encryptionKey = deliveryMode
                 .getString("encryptionKey");
         this.deliveryMode.address = deliveryMode.getString("address");
         this.deliveryMode.subscriberKey = deliveryMode
                 .getString("subscriberKey");
-        this.deliveryMode.secretKey = "sec-c-ZDNlYjY0OWMtMWFmOC00OTg2LWJjMTMtYjBkMzgzOWRmMzUz";// deliveryMode.getString("secretKey");
     }
 
     public class IDeliveryMode {
