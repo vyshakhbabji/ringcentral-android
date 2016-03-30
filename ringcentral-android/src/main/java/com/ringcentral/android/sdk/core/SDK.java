@@ -21,6 +21,7 @@
  */
 package com.ringcentral.android.sdk.core;
 
+
 import com.ringcentral.android.sdk.http.Client;
 import com.ringcentral.android.sdk.platform.Platform;
 
@@ -31,9 +32,10 @@ public class SDK {
 
     /**
      * Initialize the SDK and Platfrom object using appKey appSecret and server endpoint
-     * @param appKey  This is the application key
+     *
+     * @param appKey    This is the application key
      * @param appSecret This is application secret
-     * @param server This is the server endpoint. Server endpoint can be set to SANDBOX or PRODUCTION i.e Platform.Server.SANDBOX or Platform.Server.PRODUCTION
+     * @param server    This is the server endpoint. Server endpoint can be set to SANDBOX or PRODUCTION i.e Platform.Server.SANDBOX or Platform.Server.PRODUCTION
      */
     public SDK(String appKey, String appSecret, Platform.Server server) {
 
@@ -43,6 +45,7 @@ public class SDK {
 
     /**
      * Returns platform object
+     *
      * @return platfrom object
      */
     public Platform platform() {

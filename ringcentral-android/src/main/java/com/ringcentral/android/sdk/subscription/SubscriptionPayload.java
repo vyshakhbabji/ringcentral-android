@@ -20,24 +20,25 @@
  * THE SOFTWARE.
  */
 
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.sdk.subscription;
 
 
-public interface ApiCallback {
+public final class SubscriptionPayload {
+    public final String[] eventFilters;
+    public final DeliveryMode deliveryMode;
 
-    /**
-     * Called when the HTTP response was successfully returned by the remote server. The callback may
-     * proceed to read the response body with {@link ApiResponse#body}. The recipient of the callback
-     * may even consume the response body on another thread.
-     */
-    void onResponse(ApiResponse response);
+    public SubscriptionPayload(String[] eventFilters, DeliveryMode deliveryMode) {
+        this.eventFilters = eventFilters;
+        this.deliveryMode = deliveryMode;
+    }
 
+    public static final class DeliveryMode {
+        public final String transportType;
+        public final String encryption;
 
-    /**
-     * Called when the request could not be executed due to cancellation, a connectivity problem or
-     * timeout. Because networks can fail during an exchange, it is possible that the remote server
-     * accepted the request before the failure.
-     */
-    void onFailure(ApiException e);
-
+        public DeliveryMode(String transportType, String encryption) {
+            this.transportType = transportType;
+            this.encryption = encryption;
+        }
+    }
 }

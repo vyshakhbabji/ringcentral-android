@@ -22,14 +22,14 @@
 package com.ringcentral.android.sdk.http;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class ApiResponse {
@@ -49,13 +49,13 @@ public class ApiResponse {
     /**
      * The wire-level request that initiated this HTTP response. This is not
      * necessarily the same request issued by the application
-     *
+     * <p/>
      * <ul>
-     *     <li>It may be transformed by the HTTP client. For example, the client
-     *         may copy headers like {@code Content-Length} from the request body.
-     *     <li>It may be the request generated in response to an HTTP redirect or
-     *         authentication challenge. In this case the request URL may be
-     *         different than the initial request URL.
+     * <li>It may be transformed by the HTTP client. For example, the client
+     * may copy headers like {@code Content-Length} from the request body.
+     * <li>It may be the request generated in response to an HTTP redirect or
+     * authentication challenge. In this case the request URL may be
+     * different than the initial request URL.
      * </ul>
      */
     public Request request() {
@@ -98,7 +98,7 @@ public class ApiResponse {
 
 
     public JsonElement json() throws ApiException {
-        JsonElement jObject ;
+        JsonElement jObject;
         try {
             JsonParser parser = new JsonParser();
             jObject = parser.parse(body().string());
@@ -111,8 +111,6 @@ public class ApiResponse {
     public boolean ok() {
         return (code() >= 200 && code() < 300);
     }
-
-
 
 
     public int code() {

@@ -20,24 +20,17 @@
  * THE SOFTWARE.
  */
 
-package com.ringcentral.android.sdk.http;
+package com.ringcentral.android.sdk.subscription;
+
+import com.ringcentral.android.sdk.http.ApiException;
+
+import org.json.JSONObject;
 
 
-public interface ApiCallback {
+public interface SubscriptionCallback {
 
-    /**
-     * Called when the HTTP response was successfully returned by the remote server. The callback may
-     * proceed to read the response body with {@link ApiResponse#body}. The recipient of the callback
-     * may even consume the response body on another thread.
-     */
-    void onResponse(ApiResponse response);
-
-
-    /**
-     * Called when the request could not be executed due to cancellation, a connectivity problem or
-     * timeout. Because networks can fail during an exchange, it is possible that the remote server
-     * accepted the request before the failure.
-     */
     void onFailure(ApiException e);
+
+    void onResponse(JSONObject message);
 
 }
