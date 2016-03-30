@@ -22,15 +22,44 @@
 
 package com.ringcentral.android.sdk.subscription;
 
+import com.pubnub.api.Callback;
+import com.pubnub.api.PubnubError;
 import com.ringcentral.android.sdk.http.ApiException;
-
+import com.pubnub.api.Callback.*;
 import org.json.JSONObject;
 
 
-public interface SubscriptionCallback {
+public abstract class SubscriptionCallback extends Callback{
 
-    void onFailure(ApiException e);
 
-    void onResponse(JSONObject message);
+    /**
+     * This callback will be invoked when a message is received on the channel
+     *
+     * @param channel
+     *            Channel Name
+     * @param message
+     *            Message
+     *
+     */
+    public void successCallback(JSONObject jsonObject, String channel, Object message) {
+
+    }
+
+    /**
+     * This callback will be invoked when a message is received on the channel
+     *
+     * @param channel
+     *            Channel Name
+     * @param message
+     *            Message
+     * @param timetoken
+     *            Timetoken
+     */
+    public void successCallback(JSONObject jsonObject,String channel, Object message, String timetoken) {
+
+    }
+
+
+
 
 }

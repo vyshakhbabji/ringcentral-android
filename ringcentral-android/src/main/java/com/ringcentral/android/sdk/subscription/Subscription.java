@@ -28,11 +28,13 @@ import com.google.gson.GsonBuilder;
 import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
+import com.ringcentral.android.sdk.core.RingCentralException;
 import com.ringcentral.android.sdk.http.ApiCallback;
 import com.ringcentral.android.sdk.http.ApiException;
 import com.ringcentral.android.sdk.http.ApiResponse;
 import com.ringcentral.android.sdk.platform.Platform;
 import com.ringcentral.android.sdk.subscription.SubscriptionPayload.DeliveryMode;
+import com.ringcentral.android.sdk.utils.Helpers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +53,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Subscription {
+
 
     public IDeliveryMode deliveryMode = new IDeliveryMode();
     public String id = "";
@@ -63,6 +67,8 @@ public class Subscription {
     Subscription subscription;
     String SUBSCRIPTION_URL = "/restapi/v1.0/subscription/";
     String uri = "";
+    SubscriptionCallback subscriptionCallback;
+    Future future= null;
 
     ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
 
@@ -91,7 +97,7 @@ public class Subscription {
                 .equals(""));
     }
 
-    public String notify(String message) {
+    public String decrypt(String message) {
         byte[] key = Base64.decode(subscription.deliveryMode.encryptionKey, Base64.NO_WRAP);
         SecretKeySpec skeySpec = new SecretKeySpec(key, "AES");
         byte[] data = Base64.decode(message, Base64.NO_WRAP);
@@ -102,18 +108,14 @@ public class Subscription {
             byte[] decrypted = cipher.doFinal(data);
             decryptedString = new String(decrypted);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RingCentralException(e);
         }
         return decryptedString;
     }
 
-    private void renew(final SubscriptionCallback c) {
-
-        Log.v("Renewing subscription", "");
-
+    private void renew(final ApiCallback callback) {
         if (!subscription.isSubscribed()) throw new Error("No subscription");
         if (subscription.getFullEventFilters().size() == 0) throw new Error("Events are undefined");
-
         SubscriptionPayload subscriptionPayload = new SubscriptionPayload(subscription.getFullEventFilters().toArray(new String[0]), new DeliveryMode("PubNub", "false"));
         String payload = new GsonBuilder().create().toJson(subscriptionPayload);
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.toString().getBytes());
@@ -125,18 +127,17 @@ public class Subscription {
                 try {
                     responseBody = response.text();
                     updateSubscription(new JSONObject(responseBody));
-                    setSubscription(c);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    subscribeToPubnub();
+                    callback.onResponse(response);
+                } catch (IOException | JSONException e) {
+                    callback.onFailure(new ApiException(e));
                 }
             }
 
             @Override
             public void onFailure(ApiException e) {
                 reset();
-                throw new ApiException("Subscription failed", e);
+                onFailure(e);
             }
         });
     }
@@ -147,14 +148,18 @@ public class Subscription {
         if (this.isSubscribed()) this.unsubscribe();
     }
 
-    private void renewSubscription(final SubscriptionCallback c) {
-        exec.scheduleWithFixedDelay(new Runnable() {
+    private void renewSubscription(final ApiCallback callback) {
+        if (future != null && !future.isDone()){
+            future.cancel(true);
+            return;
+        }
 
+        future = exec.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 new Thread(new Runnable() {
                     public void run() {
-                        renew(c);
+                        renew(callback);
                     }
                 }).start();
             }
@@ -162,92 +167,94 @@ public class Subscription {
     }
 
 
-    public void removeSubscription(final ApiCallback callback) throws IOException, ApiException {
+    public void remove(final ApiCallback callback) {
         String url = SUBSCRIPTION_URL + subscription.id;
-        platform.delete(url, null, null, callback);
-        this.unsubscribe();
+        platform.delete(url, null, null, new ApiCallback() {
+            @Override
+            public void onResponse(ApiResponse response) {
+                unsubscribe();
+                callback.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(ApiException e) {
+                callback.onFailure(e);
+            }
+        });
     }
 
     private void setEvents(String[] events) {
         this.eventFilters = new ArrayList<String>(Arrays.asList(events));
     }
 
-    public void subscribe(final SubscriptionCallback c) {
-
+    public void subscribe(final ApiCallback callback) {
         SubscriptionPayload subscriptionPayload = new SubscriptionPayload(subscription.getFullEventFilters().toArray(new String[0]), new DeliveryMode("PubNub", "false"));
         String payload = new GsonBuilder().create().toJson(subscriptionPayload);
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), payload.toString().getBytes());
         platform.post(SUBSCRIPTION_URL, body, null, new ApiCallback() {
             @Override
             public void onResponse(ApiResponse response) {
-
                 String responseBody;
                 try {
                     responseBody = response.text();
                     updateSubscription(new JSONObject(responseBody));
-                    renewSubscription(c);
-                    setSubscription(c);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    renewSubscription(callback);
+                    subscribeToPubnub();
+                    callback.onResponse(response);
+                } catch (IOException| JSONException e) {
+                    callback.onFailure(new ApiException(e));
                 }
             }
 
             @Override
             public void onFailure(ApiException e) {
-                throw new ApiException("Subscription failed", e);
+                callback.onFailure(e);
             }
         });
     }
 
+    public void onNotification(final SubscriptionCallback c) {
+        subscriptionCallback = c;
+    }
 
-    private void setSubscription(final SubscriptionCallback c) {
+    private void subscribeToPubnub(){
+
+        pubnubObj = new Pubnub("", subscription.deliveryMode.subscriberKey,
+                deliveryMode.secretKey);
         try {
-
-            pubnubObj = new Pubnub("", subscription.deliveryMode.subscriberKey,
-                    deliveryMode.secretKey);
-            final StringBuilder strBuilder = new StringBuilder();
             pubnubObj.subscribe(deliveryMode.address, new com.pubnub.api.Callback() {
                 @Override
                 public void connectCallback(String channel, Object message) {
-                    System.out.println("SUBSCRIBE : CONNECT on channel:" + channel
-                            + " : " + message.getClass() + " : "
-                            + message.toString());
+                    subscriptionCallback.connectCallback(channel, message);
                 }
 
                 @Override
                 public void disconnectCallback(String channel, Object message) {
-                    String decryptedString = subscription.notify(message.toString());
-                    System.out.print("Disconnect Call-back: " + decryptedString);
+                    subscriptionCallback.disconnectCallback(channel,message);
                 }
 
                 @Override
                 public void errorCallback(String channel, PubnubError error) {
-                    System.out.println("SUBSCRIBE : ERROR on channel " + channel
-                            + " : " + error.toString());
+                    subscriptionCallback.errorCallback(channel,error);
                 }
 
                 @Override
                 public void reconnectCallback(String channel, Object message) {
-                    System.out.println("SUBSCRIBE : RECONNECT on channel:"
-                            + channel + " : " + message.getClass() + " : "
-                            + message.toString());
+                    subscriptionCallback.reconnectCallback(channel,message);
                 }
 
                 @Override
                 public void successCallback(String channel, Object message) {
-                    String decryptedString = subscription.notify(message.toString());
-                    System.out.println("Success Call-back: " + decryptedString);
-                    strBuilder.append(decryptedString);
+                    String decryptedString = subscription.decrypt(message.toString());
+                    try {
+                        subscriptionCallback.successCallback(new JSONObject(decryptedString), channel, message);
+                    } catch (JSONException e) {
+                        subscriptionCallback.errorCallback(channel, new RingCentralException(e));
+                    }
                 }
             });
-            JSONObject message = new JSONObject(strBuilder.toString());
-            c.onResponse(message);
         } catch (PubnubException e) {
-            c.onFailure(new ApiException(e));
-        } catch (JSONException e) {
-            c.onFailure(new ApiException(e));
+            throw new RingCentralException(e);
         }
     }
 
@@ -257,16 +264,13 @@ public class Subscription {
             exec.shutdown();
             this.pubnubObj.unsubscribe(deliveryMode.address);
         }
-        System.out.println("Unsubscribed!!! ");
     }
 
     private void updateSubscription(JSONObject responseJson)
             throws JSONException {
         id = responseJson.getString("id");
         JSONObject deliveryMode = responseJson.getJSONObject("deliveryMode");
-
         this.expiresIn = (int) responseJson.get("expiresIn");
-
         this.deliveryMode.encryptionKey = deliveryMode
                 .getString("encryptionKey");
         this.deliveryMode.address = deliveryMode.getString("address");
